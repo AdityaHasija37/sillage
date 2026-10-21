@@ -52,19 +52,23 @@ The spec pack says: when instructions conflict or are ambiguous, record the deci
 | DEC-26 | Rate limits: chat 20/h per user, offers 12/h per user, live catalog 60/h per IP, demo 5/h per IP (override `DEMO_HOURLY_LIMIT` for local E2E only). Paid buckets fail closed | Public-demo cost control (PRD) |
 | DEC-27 | Saved seasons and times of day are a soft context preference when a Discover request doesn't specify one | FR-04 lists "context" as a preference; without this the controls would do nothing |
 | DEC-28 | Local ports moved to 553xx and the dev server to 3100 | Runs side by side with Touchline's local stack |
+| DEC-30 | **Budget alternatives are the user's choice** (resolves Q-01): a fragrance is an "alternative to X" when the community strongly says it smells like X (≥ 50 votes, ≥ 70% agree) and X is in a higher price band (or X is $100+ and this brand's pricing is unknown). Included by default, always labelled "Budget alternative: N wearers say it smells like X", switchable in Discover, Preferences and the advisor ("no dupes") | Owner chose "let users choose". Turns an eval disagreement into a feature instead of tuning it away. 2,543 fragrances flagged; eval S11/S12 added for it |
+| DEC-31 | Review themes stay on the public site, attributed (resolves Q-04) | Owner decision |
+| DEC-32 | The near-duplicate diversity rule (≥ 95% accord similarity) applies within one brand only | So an original and its budget alternative can appear side by side; found by the Q-01 unit test |
 | DEC-29 | Email confirmation is off locally; when sign-up returns a session the user goes straight to onboarding. Hosted setting: see Q-02 | Keeps E2E deterministic without Mailpit |
 
 ## Open (owner input needed)
 
-| ID | Question | Options |
+| ID | Question | Status |
 |---|---|---|
-| Q-01 | For two eval personas, Similar prefers close alternatives from smaller houses (Maison Alhambra, La Rive) over the famous names I annotated. Keep it, or add an "availability / well-known" preference? | (a) keep, it's value-friendly; (b) add a popularity prior; (c) let the user choose "include clones" |
-| Q-02 | Deploy: create the public GitHub repo, a hosted Supabase project and a Vercel project? Require email confirmation on the hosted project? | Yes / not yet; confirmation on / off |
-| Q-03 | Provide `ANTHROPIC_API_KEY` (live advisor) and a free `SERPAPI_API_KEY` (live prices) for the deployment? | Without them the demo runs in offline advisor mode with sample offers, all labelled |
-| Q-04 | Licensing posture for the Fragrantica-derived data on a public, non-commercial portfolio site | Current: facts and aggregates only, attribution and source links, nothing scraped by Sillage, data not committed. Alternative: show only accords/notes and drop review themes |
+| Q-01 | Clones vs famous names in Similar | **Resolved** → DEC-30 |
+| Q-02 | Deploy (public GitHub repo, hosted Supabase, Vercel) | **Approved** 21 Oct 2026; email confirmation on the hosted project still to confirm |
+| Q-03 | Live advisor and live prices | **Approved**: owner adds `ANTHROPIC_API_KEY` and `SERPAPI_API_KEY` in Vercel |
+| Q-04 | Review themes on a public site | **Resolved** → DEC-31 |
 
 ## Change log
 
 | Date | Change |
 |---|---|
+| 21 Oct 2026 | Owner answers: Q-01 → DEC-30, Q-04 → DEC-31, Q-02/Q-03 approved. DEC-32 added |
 | 21 Oct 2026 | Register created. DEC-01 to DEC-29; Q-01 to Q-04 |
