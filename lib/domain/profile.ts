@@ -2,6 +2,8 @@ import {
   allNotes,
   dayShare,
   FAMILIES,
+  fitsDayparts,
+  fitsSeasons,
   seasonShares,
   SEASONS,
   type Daypart,
@@ -23,6 +25,8 @@ export type Preferences = {
   occasions: Daypart[];
   performance: { longevity?: "soft" | "moderate" | "strong"; projection?: "soft" | "moderate" | "strong" };
   budgetMax: number | null;
+  /** Explicit only. "any" means marketing never filters results. */
+  marketedFor: "any" | "men" | "women";
 };
 
 export const EMPTY_PREFERENCES: Preferences = {
@@ -33,6 +37,7 @@ export const EMPTY_PREFERENCES: Preferences = {
   occasions: [],
   performance: {},
   budgetMax: null,
+  marketedFor: "any",
 };
 
 /**
@@ -167,4 +172,22 @@ export function describeProfile(p: TasteProfile): string {
     .join(", ");
   const seasons = SEASONS.map((s) => `${s} ${p.seasonCounts[s]}`).join(", ");
   return `${p.ownedCount} bottles (${fams || "families unknown"}). Bottles suited to each season: ${seasons}. Day ${p.daypartCounts.day}, night ${p.daypartCounts.night}.`;
+}
+
+/** Bottles suited to each season × time-of-day cell (a bottle can count in several cells). */
+export function coverageCells(owned: OwnedFragrance[]): Record<Season, Record<Daypart, number>> {
+  const cells = Object.fromEntries(SEASONS.map((s) => [s, { day: 0, night: 0 }])) as Record<Season, Record<Daypart, number>>;
+  for (const { fragrance } of owned) {
+    const seasons = fitsSeasons(fragrance);
+    const parts = fitsDayparts(fragrance);
+    for (const s of seasons) for (const d of parts) cells[s][d]++;
+  }
+  return cells;
+}
+
+export function describeCoverage(cells: Record<Season, Record<Daypart, number>>): string {
+  const empty: string[] = [];
+  for (const s of SEASONS) for (const d of ["day", "night"] as const) if (cells[s][d] === 0) empty.push(`${s} ${d === "day" ? "daytime" : "evenings"}`);
+  if (!empty.length) return "Every season is covered for both daytime and evening.";
+  return `No bottles yet for ${empty.join(", ")}.`;
 }

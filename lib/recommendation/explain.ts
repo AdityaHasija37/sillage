@@ -24,6 +24,8 @@ export function reasonText(r: ReasonCode): string {
       return `Adds ${FAMILY_LABEL[r.family].toLowerCase()} (you own ${r.ownedCount})`;
     case "FILLS_SEASON_GAP":
       return `Covers ${SEASON_NAME[r.season]}, where your shelf is thin (${r.ownedCount} suited bottle${r.ownedCount === 1 ? "" : "s"})`;
+    case "FILLS_DAYPART_GAP":
+      return r.daypart === "day" ? `Covers daytime, where you have ${r.ownedCount} suitable bottle${r.ownedCount === 1 ? "" : "s"}` : `Covers evenings, where you have ${r.ownedCount} suitable bottle${r.ownedCount === 1 ? "" : "s"}`;
     case "SUITS_SEASON":
       return `Community votes favour it for ${SEASON_NAME[r.season]}`;
     case "SUITS_DAYPART":
@@ -33,7 +35,7 @@ export function reasonText(r: ReasonCode): string {
     case "PERFORMANCE_MATCH":
       return `Longevity rated ${r.longevity}/5 by wearers`;
     case "WELL_RATED":
-      return `Rated ${r.rating}/5 by ${k(r.votes)} people`;
+      return `Rated ${r.rating.toFixed(1)}/5 by ${k(r.votes)} people`;
   }
 }
 
@@ -49,6 +51,8 @@ export function caveatText(c: CaveatCode): string {
       return `Only ${c.votes} community votes; signals are less reliable`;
     case "OVERLAPS_OWNED":
       return `Close to ${c.owned} (${pct(c.similarity)} accord overlap)`;
+    case "SAME_LINE_AS_OWNED":
+      return `Another version of ${c.owned}, which you own`;
     case "RESEMBLES_DISLIKED":
       return `Resembles ${c.owned}, which you marked as disliked`;
     case "NO_SEASON_DATA":
@@ -72,6 +76,7 @@ export const RELAXATION: Record<keyof ExclusionCounts, string> = {
   owned: "",
   lowQuality: "",
   tooSimilar: "",
+  marketing: "",
   dislikedNote: "Your disliked notes removed the most options. Try removing one in Preferences.",
   budget: "Your budget removed the most options. Try raising it.",
   season: "The season filter removed the most options. Try “Any season”.",

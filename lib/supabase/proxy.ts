@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "@/lib/db/database.types";
 import { supabaseAnonKey, supabaseUrl } from "./env";
 
-/** Refreshes the auth session cookie and gates /app/* (AUTH-01, QA-01). */
+/** Refreshes the auth session cookie and gates /app/* (FR-01). */
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
 
@@ -32,7 +32,7 @@ export async function updateSession(request: NextRequest) {
 
   if (signedIn && (pathname === "/login" || pathname === "/register")) {
     const url = request.nextUrl.clone();
-    url.pathname = "/app/teams";
+    url.pathname = "/app";
     url.search = "";
     return NextResponse.redirect(url);
   }

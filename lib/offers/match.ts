@@ -27,6 +27,7 @@ export type MatchReason =
   | "size_unstated"
   | "not_new_full_bottle"
   | "multi_item_set"
+  | "unrecognised_words"
   | "unsafe_url"
   | "non_usd"
   | "duplicate";
@@ -98,6 +99,14 @@ const CONDITION_WORDS: [RegExp, string][] = [
   [/\bused\b|\bpre owned\b|\bpartial\b|\bopen box\b/, "used"],
   [/\bbody (lotion|wash|spray|mist)\b|\bdeodorant\b|\bshower gel\b|\bafter ?shave\b|\bhair mist\b/, "different product"],
 ];
+// Retail filler that never changes which bottle it is. Brand aliases cover common listing variants.
+const GENERIC_WORDS = new Set([
+  "eau", "de", "du", "parfum", "toilette", "cologne", "edp", "edt", "edc", "spray", "vaporisateur", "vapo", "natural", "for", "men", "man", "mens", "men s",
+  "women", "woman", "womens", "her", "him", "his", "pour", "homme", "femme", "unisex", "fragrance", "perfume", "fl", "oz", "ml", "new", "sealed", "in", "box",
+  "boxed", "authentic", "original", "genuine", "the", "and", "by", "a", "s", "with", "x", "christian", "chanel", "ysl", "giorgio", "armani", "paco", "rabanne",
+  "lancome", "lancôme", "perfumes", "paris", "london", "new york", "milano", "jpg", "dg", "d", "g", "le", "la", "l",
+]);
+
 const SET_PATTERN = /\bgift set\b|\bset of\b|\b\d\s*pc\b|\b\d\s*piece\b|\bcoffret\b|\bbundle\b|\bkit\b|\bduo\b|\btrio\b|\b\d\s*x\s*\d/;
 
 /**
@@ -123,6 +132,11 @@ export function matchListing(target: OfferTarget, listing: RawListing): MatchedO
   if (!nameTokens.every((w) => new RegExp(`\\b${escapeRe(w)}\\b`).test(t))) reasons.push("name_missing");
 
   const own = ` ${norm(target.brand)} ${name} `;
+  // Anything left after removing the target's own words and known retail filler might be a flanker
+  // ("Qahwa", "Lucky", "Intensement"), so it can't be an exact match: v1's blocklist missed these.
+  const leftovers = t
+    .split(" ")
+    .filter((w) => w && !own.includes(` ${w} `) && !GENERIC_WORDS.has(w) && !/^\d+(\.\d+)?(ml|oz)?$/.test(w));
   const titleWithoutTarget = ` ${t} `.replace(` ${name} `, " ");
   const edition = EDITION_WORDS.find((w) => {
     const re = new RegExp(`(^| )${escapeRe(w)}( |$)`);
@@ -142,6 +156,7 @@ export function matchListing(target: OfferTarget, listing: RawListing): MatchedO
   if (concentration == null) reasons.push("concentration_unstated");
   else if (concentration !== target.concentration) reasons.push("concentration_mismatch");
 
+  if (leftovers.length && !reasons.includes("different_edition") && !reasons.includes("not_new_full_bottle")) reasons.push("unrecognised_words");
   if (sizeMl == null) reasons.push("size_unstated");
   else if (Math.abs(sizeMl - target.sizeMl) > 1) reasons.push("size_mismatch");
 
@@ -223,6 +238,7 @@ export const REASON_LABEL: Record<MatchReason, string> = {
   size_unstated: "size not stated",
   not_new_full_bottle: "tester, sample, travel size or used",
   multi_item_set: "gift set or bundle",
+  unrecognised_words: "extra words that may mean a different edition",
   unsafe_url: "unsafe link",
   non_usd: "not priced in USD",
   duplicate: "duplicate listing",

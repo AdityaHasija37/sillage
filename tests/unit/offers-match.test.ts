@@ -65,6 +65,13 @@ describe("matchListing", () => {
     expect(matchListing(target, listing("Dior Sauvage Eau de Parfum")).status).toBe("probable");
     expect(matchListing(target, listing("Dior Sauvage 100 ml")).status).toBe("probable");
   });
+  it("never calls a listing with unknown extra words exact (possible flanker)", () => {
+    const khamrah: OfferTarget = { brand: "Lattafa", name: "Khamrah", concentration: "EDP", sizeMl: 100 };
+    const m = matchListing(khamrah, listing("Lattafa Khamrah Qahwa Eau de Parfum 100 ml"));
+    expect(m.status).toBe("probable");
+    expect(m.reasons).toContain("unrecognised_words");
+    expect(matchListing(khamrah, listing("Lattafa Khamrah Eau de Parfum Spray for Men 3.4 oz")).status).toBe("exact");
+  });
   it("rejects another brand or fragrance", () => {
     expect(matchListing(target, listing("Armaf Club de Nuit Sauvage EDP 100ml")).reasons).toContain("brand_missing");
     expect(matchListing(target, listing("Dior Homme EDP 100ml")).reasons).toContain("name_missing");

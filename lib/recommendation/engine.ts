@@ -23,7 +23,7 @@ import {
   type TasteProfile,
 } from "@/lib/domain/profile";
 
-export const ENGINE_VERSION = "rec-1.0";
+export const ENGINE_VERSION = "rec-1.1";
 
 export const MODES = ["similar", "different", "gaps"] as const;
 export type Mode = (typeof MODES)[number];
@@ -39,9 +39,15 @@ export type RecommendationRequest = {
 
 /**
  * Initial weights from the PRD (preference 35, objective 25, budget 20, season/occasion 10,
- * performance 10). They're a starting hypothesis to be tuned against the eval set, not truth.
+ * performance 10) for Similar and Different. Gap mode shifts 10 points from preference to the
+ * objective: at 25% a close match to existing taste outvoted actually filling the gap (DEC-14).
  */
 export const WEIGHTS = { preference: 0.35, objective: 0.25, budget: 0.2, context: 0.1, performance: 0.1 } as const;
+export const MODE_WEIGHTS: Record<Mode, { preference: number; objective: number; budget: number; context: number; performance: number }> = {
+  similar: WEIGHTS,
+  different: WEIGHTS,
+  gaps: { ...WEIGHTS, preference: 0.25, objective: 0.35 },
+};
 
 export type ReasonCode =
   | { code: "SIMILAR_TO_OWNED"; owned: string; similarity: number }
@@ -52,6 +58,7 @@ export type ReasonCode =
   | { code: "NEW_DIRECTION"; family: Family | null; maxOverlap: number }
   | { code: "FILLS_FAMILY_GAP"; family: Family; ownedCount: number }
   | { code: "FILLS_SEASON_GAP"; season: Season; ownedCount: number }
+  | { code: "FILLS_DAYPART_GAP"; daypart: Daypart; ownedCount: number }
   | { code: "SUITS_SEASON"; season: Season }
   | { code: "SUITS_DAYPART"; daypart: Daypart }
   | { code: "WITHIN_BUDGET"; band: string }
@@ -64,6 +71,7 @@ export type CaveatCode =
   | { code: "BUDGET_STRADDLES"; band: string }
   | { code: "FEW_VOTES"; votes: number }
   | { code: "OVERLAPS_OWNED"; owned: string; similarity: number }
+  | { code: "SAME_LINE_AS_OWNED"; owned: string }
   | { code: "RESEMBLES_DISLIKED"; owned: string; similarity: number }
   | { code: "NO_SEASON_DATA" }
   | { code: "LIMITED_PROFILE"; owned: number; rated: number }
@@ -78,7 +86,7 @@ export type Recommendation = {
   caveats: CaveatCode[];
 };
 
-export type ExclusionCounts = { owned: number; dislikedNote: number; budget: number; season: number; daypart: number; lowQuality: number; tooSimilar: number };
+export type ExclusionCounts = { owned: number; dislikedNote: number; budget: number; season: number; daypart: number; lowQuality: number; tooSimilar: number; marketing: number };
 
 export type RecommendationResult = {
   mode: Mode;
@@ -125,7 +133,7 @@ export function matchingNotes(f: Fragrance, notes: string[]): string[] {
 }
 
 function budgetFit(f: Fragrance, budgetMax: number | null | undefined): { score: number; exclude: boolean; caveat?: CaveatCode; reason?: ReasonCode } {
-  if (budgetMax == null) return { score: f.priceBand ? 0.8 : 0.6 };
+  if (budgetMax == null) return { score: f.priceBand ? 0.8 : 0.6, exclude: false };
   if (!f.priceBand) return { score: 0.5, exclude: false, caveat: { code: "PRICE_UNKNOWN" } };
   const [lo, hi] = PRICE_BAND_RANGE[f.priceBand];
   if (lo >= budgetMax) return { score: 0, exclude: true };
@@ -142,12 +150,18 @@ function performanceFit(f: Fragrance, want: "soft" | "moderate" | "strong" | nul
   return Math.max(0, 1 - Math.abs(lon - PERFORMANCE_TARGET[want]) / 2);
 }
 
-function contextFit(f: Fragrance, season: Season | null | undefined, daypart: Daypart | null | undefined): number {
+/**
+ * Season/time-of-day fit. A filter in the request is used as is; otherwise the user's saved
+ * preferred seasons and times of day act as a soft preference (best match among them).
+ */
+function contextFit(f: Fragrance, season: Season | null | undefined, daypart: Daypart | null | undefined, prefs: Pick<Preferences, "seasons" | "occasions">): number {
   const parts: number[] = [];
   const shares = seasonShares(f);
-  if (season) parts.push(shares ? Math.min(1, shares[season] / 0.3) : 0.4);
+  const seasons = season ? [season] : prefs.seasons;
+  if (seasons.length) parts.push(shares ? Math.max(...seasons.map((s) => Math.min(1, shares[s] / 0.3))) : 0.4);
   const ds = dayShare(f);
-  if (daypart) parts.push(ds == null ? 0.4 : daypart === "day" ? Math.min(1, ds / 0.6) : Math.min(1, (1 - ds) / 0.6));
+  const parts2 = daypart ? [daypart] : prefs.occasions;
+  if (parts2.length) parts.push(ds == null ? 0.4 : Math.max(...parts2.map((d) => (d === "day" ? Math.min(1, ds / 0.6) : Math.min(1, (1 - ds) / 0.6)))));
   if (!parts.length) return shares ? 0.7 : 0.5;
   return parts.reduce((a, b) => a + b, 0) / parts.length;
 }
@@ -191,6 +205,7 @@ export function recommendCandidates(
   // ~20% of bottles suit it. Never invent a gap (REC-03): below 3 bottles nothing counts as missing.
   const familyGap = new Map<Family, number>();
   const seasonGap = new Map<Season, number>();
+  let daypartGap: Daypart | null = null;
   if (profile.ownedCount >= 3) {
     // Family gaps need a real shelf: with four bottles every absent family would look "missing".
     if (profile.ownedCount >= 5) {
@@ -205,10 +220,13 @@ export function recommendCandidates(
       const cov = profile.seasonCoverage[s];
       if (profile.seasonCounts[s] <= Math.max(1, Math.floor(profile.ownedCount * 0.2))) seasonGap.set(s, 1 - cov * 0.5);
     }
+    for (const d of ["day", "night"] as const) {
+      if (profile.daypartCounts[d] <= Math.max(1, Math.floor(profile.ownedCount * 0.2))) daypartGap = d;
+    }
   }
-  const noClearGap = request.mode === "gaps" && familyGap.size === 0 && seasonGap.size === 0;
+  const noClearGap = request.mode === "gaps" && familyGap.size === 0 && seasonGap.size === 0 && !daypartGap;
 
-  const excluded: ExclusionCounts = { owned: 0, dislikedNote: 0, budget: 0, season: 0, daypart: 0, lowQuality: 0, tooSimilar: 0 };
+  const excluded: ExclusionCounts = { owned: 0, dislikedNote: 0, budget: 0, season: 0, daypart: 0, lowQuality: 0, tooSimilar: 0, marketing: 0 };
   const scored: Recommendation[] = [];
 
   for (const f of catalog) {
@@ -220,6 +238,11 @@ export function recommendCandidates(
     const votes = f.community?.votes ?? 0;
     if ((f.community?.rating ?? 0) < 3.4 || votes < 50) {
       excluded.lowQuality++;
+      continue;
+    }
+    // Only an explicit preference filters by marketing; it's never inferred from what someone owns.
+    if ((preferences.marketedFor === "men" && f.gender === "female") || (preferences.marketedFor === "women" && f.gender === "male")) {
+      excluded.marketing++;
       continue;
     }
     if (preferences.dislikedNotes.length && matchingNotes(f, preferences.dislikedNotes).length) {
@@ -251,7 +274,8 @@ export function recommendCandidates(
     }
     const maxOverlap = nearest?.s ?? 0;
     // "Different" means different: a near-copy of an owned bottle is out, however well it fits.
-    if (request.mode === "different" && maxOverlap >= 0.75) {
+    // A near-copy can't fill a gap either, so Gap mode drops them too (looser threshold).
+    if ((request.mode === "different" && maxOverlap >= 0.75) || (request.mode === "gaps" && maxOverlap >= 0.85)) {
       excluded.tooSimilar++;
       continue;
     }
@@ -259,9 +283,10 @@ export function recommendCandidates(
     const caveats: CaveatCode[] = [];
 
     // ── Preference fit ──
-    // In Different mode accord-closeness to the shelf is exactly what we're moving away from, so
-    // preference there comes only from explicit signals (liked families/notes, disliked bottles).
-    let preference = request.mode === "different" || !tasteHasSignal ? 0.5 : cosine(v, taste);
+    // In Different and Gap modes accord-closeness is mostly what we're moving away from, so it counts
+    // as a capped "bridge" term (some link to what they like is enough); explicit signals (liked
+    // families/notes, disliked bottles) apply in every mode.
+    let preference = !tasteHasSignal ? 0.5 : request.mode === "similar" ? cosine(v, taste) : 0.35 + 0.65 * Math.min(1, cosine(v, taste) / 0.6);
     const likedNoteHits = preferences.likedNotes.length ? matchingNotes(f, preferences.likedNotes) : [];
     if (likedNoteHits.length) {
       preference = Math.min(1, preference + 0.12 * likedNoteHits.length);
@@ -275,6 +300,10 @@ export function recommendCandidates(
       const neg = cosine(v, profile.dislikedAccords);
       preference = Math.max(0, preference - 0.4 * neg);
     }
+    // Another concentration or a flanker of a bottle they own: allowed, but it's the redundant
+    // purchase the PRD warns about, so it's flagged and worth less (v2, after eval S01/S03).
+    const sameLineOwned = owned.find((o) => sameLine(o.fragrance, f) || isFlankerOf(o.fragrance, f));
+    if (sameLineOwned) caveats.push({ code: "SAME_LINE_AS_OWNED", owned: displayName(sameLineOwned.fragrance) });
     for (const d of disliked) {
       const s = cosine(v, d.vector);
       if (s >= 0.85) caveats.push({ code: "RESEMBLES_DISLIKED", owned: displayName(d.owned.fragrance), similarity: round(s) });
@@ -303,13 +332,17 @@ export function recommendCandidates(
       }
     } else if (request.mode === "different") {
       objective = 1 - maxOverlap;
-      if (objective >= 0.45) reasons.push({ code: "NEW_DIRECTION", family: f.family, maxOverlap: round(maxOverlap) });
+      // Different should also mean a different family, not just different accords (v2, after D07).
+      const famShare = f.family ? profile.familyShare[f.family] : 0;
+      if (f.family && profile.familyCounts[f.family] === 0) objective = Math.min(1, objective + 0.1);
+      else if (famShare >= 0.4) objective *= 0.8;
+      if (objective >= 0.3) reasons.push({ code: "NEW_DIRECTION", family: f.family, maxOverlap: round(maxOverlap) });
       if (nearest && maxOverlap >= 0.6) caveats.push({ code: "OVERLAPS_OWNED", owned: displayName(nearest.f.owned.fragrance), similarity: round(maxOverlap) });
     } else {
       let fam = 0;
       if (f.family && familyGap.has(f.family)) {
-        fam = familyGap.get(f.family)!;
-        reasons.push({ code: "FILLS_FAMILY_GAP", family: f.family, ownedCount: profile.familyCounts[f.family] });
+        fam = familyGap.get(f.family)! * (1 - maxOverlap);
+        if (maxOverlap < 0.7) reasons.push({ code: "FILLS_FAMILY_GAP", family: f.family, ownedCount: profile.familyCounts[f.family] });
       }
       let sea = 0;
       let bestSeason: Season | null = null;
@@ -323,12 +356,20 @@ export function recommendCandidates(
         }
       }
       if (bestSeason && sea >= 0.5) reasons.push({ code: "FILLS_SEASON_GAP", season: bestSeason, ownedCount: profile.seasonCounts[bestSeason] });
-      objective = noClearGap ? 1 - maxOverlap : Math.min(1, 0.6 * fam + 0.6 * sea);
+      let day = 0;
+      if (daypartGap && ds != null) {
+        day = daypartGap === "day" ? Math.min(1, Math.max(0, (ds - 0.4) / 0.3)) : Math.min(1, Math.max(0, (0.6 - ds) / 0.3));
+        if (day >= 0.6) reasons.push({ code: "FILLS_DAYPART_GAP", daypart: daypartGap, ownedCount: profile.daypartCounts[daypartGap] });
+      }
+      // A family label alone isn't a gap: a "new family" that smells like an owned bottle isn't new.
+      objective = noClearGap ? 1 - maxOverlap : Math.min(1, 0.45 * fam + 0.45 * Math.max(sea, day) + 0.35 * (1 - maxOverlap));
       if (nearest && maxOverlap >= 0.8) caveats.push({ code: "OVERLAPS_OWNED", owned: displayName(nearest.f.owned.fragrance), similarity: round(maxOverlap) });
     }
 
+    if (sameLineOwned && request.mode !== "different") objective *= 0.7;
+
     // ── Context, budget, performance ──
-    const context = contextFit(f, season, daypart);
+    const context = contextFit(f, season, daypart, preferences);
     if (season && shares && shares[season] >= 0.25) reasons.push({ code: "SUITS_SEASON", season });
     if (daypart && ds != null && (daypart === "day" ? ds >= 0.55 : ds <= 0.45)) reasons.push({ code: "SUITS_DAYPART", daypart });
     if (!shares) caveats.push({ code: "NO_SEASON_DATA" });
@@ -342,12 +383,13 @@ export function recommendCandidates(
     if (adj && adj >= 4.1 && f.community?.rating) reasons.push({ code: "WELL_RATED", rating: round(f.community.rating), votes });
 
     const components = { preference: round(preference), objective: round(objective), budget: round(budget.score), context: round(context), performance: round(perf) };
+    const w = MODE_WEIGHTS[request.mode];
     const score =
-      WEIGHTS.preference * preference +
-      WEIGHTS.objective * objective +
-      WEIGHTS.budget * budget.score +
-      WEIGHTS.context * context +
-      WEIGHTS.performance * perf +
+      w.preference * preference +
+      w.objective * objective +
+      w.budget * budget.score +
+      w.context * context +
+      w.performance * perf +
       // Tie-breaker only (≤ 0.03): community confidence. Documented in DEC-08.
       0.03 * Math.max(0, Math.min(1, ((adj ?? 3.9) - 3.6) / 1));
 
@@ -356,12 +398,14 @@ export function recommendCandidates(
 
   scored.sort((a, b) => b.score - a.score || (adjustedRating(b.fragrance) ?? 0) - (adjustedRating(a.fragrance) ?? 0) || a.fragranceId.localeCompare(b.fragranceId));
 
-  // Diversity: skip near-duplicates of an already chosen pick (e.g. EDT and EDP of the same line).
+  // Diversity: skip near-duplicates of an already chosen pick (e.g. EDT and EDP of the same line)
+  // and cap any one brand at two picks.
   const picked: Recommendation[] = [];
   for (const r of scored) {
     if (picked.length >= limit) break;
     const v = accordVector(r.fragrance);
-    const dupe = picked.some((p) => cosine(v, accordVector(p.fragrance)) > 0.95 || sameLine(p.fragrance, r.fragrance));
+    const sameBrand = picked.filter((p) => p.fragrance.brand === r.fragrance.brand).length;
+    const dupe = sameBrand >= 2 || picked.some((p) => cosine(v, accordVector(p.fragrance)) > 0.95 || sameLine(p.fragrance, r.fragrance));
     if (!dupe) picked.push(r);
   }
 
@@ -407,6 +451,14 @@ function sameLine(a: Fragrance, b: Fragrance): boolean {
   if (a.brand !== b.brand) return false;
   const stem = (n: string) => n.toLowerCase().replace(/\b(eau de (parfum|toilette|cologne)|edp|edt|parfum|extrait|elixir|intense|absolu|le parfum)\b/g, "").trim();
   return stem(a.name) === stem(b.name) && stem(a.name).length > 0;
+}
+
+/** Same brand and the candidate's name extends the owned line ("La Vie Est Belle Glitter"). */
+function isFlankerOf(owned: Fragrance, candidate: Fragrance): boolean {
+  if (owned.brand !== candidate.brand) return false;
+  const base = owned.name.toLowerCase().replace(/\b(eau de (parfum|toilette)|edp|edt|parfum)\b/g, "").trim();
+  const name = candidate.name.toLowerCase();
+  return base.length >= 3 && name !== owned.name.toLowerCase() && (name.startsWith(`${base} `) || name === base);
 }
 
 function round(n: number, dp = 3) {

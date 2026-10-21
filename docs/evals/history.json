@@ -1,0 +1,28 @@
+[
+  {
+    "file": "2026-10-21-v1-baseline.json",
+    "label": "v1-baseline",
+    "generatedAt": "2026-10-21T21:59:11.463Z",
+    "engineVersion": "rec-1.0",
+    "offerPrecision": 0.8333333333333334,
+    "offerRecall": 1,
+    "recPassed": 27,
+    "recTotal": 30,
+    "exclusionCompliance": 1,
+    "relevance": 0.9423076923076923,
+    "fabricated": 0
+  },
+  {
+    "file": "2026-10-21-v2-allowlist-flankers.json",
+    "label": "v2-allowlist-flankers",
+    "generatedAt": "2026-10-21T22:01:49.231Z",
+    "engineVersion": "rec-1.1",
+    "offerPrecision": 1,
+    "offerRecall": 1,
+    "recPassed": 28,
+    "recTotal": 30,
+    "exclusionCompliance": 1,
+    "relevance": 0.9615384615384616,
+    "fabricated": 0
+  }
+]

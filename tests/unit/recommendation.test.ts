@@ -103,11 +103,35 @@ describe("recommendCandidates", () => {
     for (const r of res.results) expect(r.fragrance.community!.seasons.summer!).toBeGreaterThanOrEqual(15);
   });
 
+  it("uses saved preferred seasons as a soft context preference", () => {
+    const owned = [own(c.woodyClean, "like")];
+    const winter = recommendCandidates({ mode: "different", limit: 10 }, prefs({ seasons: ["winter"] }), owned, catalog);
+    const summer = recommendCandidates({ mode: "different", limit: 10 }, prefs({ seasons: ["summer"] }), owned, catalog);
+    const score = (r: typeof winter, name: string) => r.results.find((x) => x.fragrance.name === name)?.components.context ?? 0;
+    expect(score(winter, "Amber Nights")).toBeGreaterThan(score(summer, "Amber Nights"));
+    expect(score(summer, "Blue Tide")).toBeGreaterThan(score(winter, "Blue Tide"));
+  });
+
   it("uses community 'smells like' edges as evidence", () => {
     const base = frag({ name: "Original", externalId: "ext-orig", family: "amber", accords: { amber: 100, vanilla: 60 } });
     const clone = frag({ name: "Clone", externalId: "ext-clone", family: "amber", accords: { amber: 100, vanilla: 50, fruity: 30 }, similarTo: [{ externalId: "ext-orig", agree: 900, disagree: 40 }] });
     const res = recommendCandidates({ mode: "similar" }, prefs(), [own(base, "love")], [clone]);
     expect(res.results[0].reasons).toContainEqual({ code: "COMMUNITY_SAYS_SIMILAR", owned: "Fixture House Original", agree: 900 });
+  });
+
+  it("flags and down-weights flankers of an owned bottle instead of hiding them", () => {
+    const base = frag({ name: "Velvet Night", brand: "Maison Z", family: "amber", accords: { amber: 100, vanilla: 70 } });
+    const flanker = frag({ name: "Velvet Night Glitter", brand: "Maison Z", family: "amber", accords: { amber: 100, vanilla: 65, fruity: 20 } });
+    const res = recommendCandidates({ mode: "similar" }, prefs(), [own(base, "love")], [flanker]);
+    expect(res.results[0].caveats).toContainEqual({ code: "SAME_LINE_AS_OWNED", owned: "Maison Z Velvet Night" });
+  });
+
+  it("finds a time-of-day gap for an evening-only shelf", () => {
+    const night = (n: string) => frag({ name: n, brand: `N ${n}`, family: "amber", accords: { amber: 100, "warm spicy": 60 }, day: 15, night: 85 });
+    const owned = ["A", "B", "C"].map((n) => own(night(n), "like"));
+    const res = recommendCandidates({ mode: "gaps", limit: 10 }, prefs(), owned, catalog);
+    const top = res.results[0];
+    expect(top.reasons.some((r) => r.code === "FILLS_DAYPART_GAP" && r.daypart === "day")).toBe(true);
   });
 
   it("is deterministic", () => {

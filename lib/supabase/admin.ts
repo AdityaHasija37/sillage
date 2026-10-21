@@ -3,16 +3,13 @@ import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/db/database.types";
 import { supabaseUrl } from "./env";
 
-function serviceClient() {
+/**
+ * Service-role client. Server-only, never imported by client components (SEC-03), and used for
+ * exactly four jobs (DEC-11): caching live catalog/offer results into shared tables, rate-limit
+ * counters, and provisioning demo sandboxes. User data is always read with the user's own client.
+ */
+export function createServiceClient() {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!key) throw new Error("SUPABASE_SERVICE_ROLE_KEY is not set");
   return createClient<Database>(supabaseUrl(), key, { auth: { persistSession: false, autoRefreshToken: false } });
 }
-
-/**
- * Service-role clients. Used for exactly two server-only jobs (DEC-40, DEC-48), and nowhere else:
- * the public briefing lookup (anon can't call it, so the rate limit can't be bypassed) and
- * provisioning one-click demo sandboxes.
- */
-export const createBriefingLookupClient = serviceClient;
-export const createDemoProvisioningClient = serviceClient;

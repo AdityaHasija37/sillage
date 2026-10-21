@@ -16,7 +16,7 @@
     "db:types": "supabase gen types typescript --local > lib/db/database.types.ts",
     "catalog:build": "node scripts/build-catalog.mjs",
     "catalog:load": "node scripts/load-catalog.mjs",
-    "evals": "node --experimental-strip-types scripts/run-evals.ts",
+    "evals": "vitest run --config vitest.evals.config.mts",
     "format": "prettier --write .",
     "check": "npm run typecheck && npm run lint && npm run test && npm run build"
   },
