@@ -1,12 +1,12 @@
 # Eval report
 
-Generated 2026-10-21T22:01:49.231Z (label: `v2-allowlist-flankers`, engine rec-1.1). Produced by `npm run evals`; numbers are measured, not targets.
+Generated 2026-10-21T22:12:51.567Z (label: `v2-allowlist-flankers`, engine rec-1.1). Produced by `npm run evals`; numbers are measured, not targets.
 
 | Area | Result |
 |---|---|
-| Catalog size | 38,365 fragrances; 100.0% of 20 common bottles found by name; median search 6 ms (local) |
+| Catalog size | 38,365 fragrances; 100.0% of 20 common bottles found by name; median search 7 ms (local) |
 | Offer matching (61 adversarial pairs) | precision of "exact" 100.0%, recall 100.0%, three-way agreement 95.1% |
-| Recommendations (30 synthetic personas) | 28/30 pass every criterion; exclusion compliance 100.0%; relevance checks 96.2%; median 11.1 ms over 3,000 candidates |
+| Recommendations (30 synthetic personas) | 28/30 pass every criterion; exclusion compliance 100.0%; relevance checks 96.2%; median 11.2 ms over 3,000 candidates |
 | Grounding | 0 of 7 planted fake ids/prices reached the user |
 | Live agent | ANTHROPIC_API_KEY not set; live agent eval skipped |
 

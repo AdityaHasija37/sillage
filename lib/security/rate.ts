@@ -10,7 +10,8 @@ export const RATE_LIMITS: Record<RateBucket, { limit: number; windowSeconds: num
   chat: { limit: 20, windowSeconds: 3600 },
   offers: { limit: 12, windowSeconds: 3600 },
   catalog_live: { limit: 60, windowSeconds: 3600 },
-  demo: { limit: 5, windowSeconds: 3600 },
+  // Overridable for local end-to-end runs, which create many sandboxes from one address.
+  demo: { limit: Number(process.env.DEMO_HOURLY_LIMIT) || 5, windowSeconds: 3600 },
 };
 
 /** Salted SHA-256 of the client IP, so counters never store an address. */

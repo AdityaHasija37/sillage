@@ -18,7 +18,7 @@
     "catalog:load": "node scripts/load-catalog.mjs",
     "evals": "vitest run --config vitest.evals.config.mts",
     "format": "prettier --write .",
-    "check": "npm run typecheck && npm run lint && npm run test && npm run build"
+    "check": "npm run typecheck && npm run lint && npm run test && npm run build && node scripts/check-bundle.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "0.131.0",

@@ -35,12 +35,12 @@ export async function signUp(_prev: ActionState, formData: FormData): Promise<Ac
   if (!parsed.success) return { status: "error", fieldErrors: fieldErrorsOf(parsed.error), values };
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
       data: { display_name: parsed.data.displayName || null },
-      emailRedirectTo: `${siteUrl()}/auth/confirm?next=/app`,
+      emailRedirectTo: `${siteUrl()}/auth/confirm?next=/app/add`,
     },
   });
   if (error) {
@@ -49,6 +49,9 @@ export async function signUp(_prev: ActionState, formData: FormData): Promise<Ac
     }
     return { status: "error", message: "We couldn't create your account. Try again in a moment.", values };
   }
+  // When the project doesn't require email confirmation, sign-up returns a session: go straight
+  // to onboarding (Flow A step 4).
+  if (data.session) redirect("/app/add?welcome=1");
   // Same response whether or not the email already exists, to avoid account enumeration.
   return {
     status: "success",

@@ -20,16 +20,6 @@ const SUGGESTIONS = [
   "Something like my favourite, but for evenings",
 ];
 
-const TOOL_LABEL: Record<string, string> = {
-  get_user_profile: "Read your profile",
-  get_owned_fragrances: "Read your collection",
-  search_catalog: "Searched the catalog",
-  get_fragrance_details: "Read fragrance details",
-  recommend_candidates: "Ran the recommendation engine",
-  find_offers: "Compared prices",
-  propose_add_to_wishlist: "Proposed a wishlist save",
-  propose_preference_update: "Proposed a preference change",
-};
 
 export function AdvisorPanel() {
   const [turns, setTurns] = useState<Turn[]>([]);
@@ -233,7 +223,7 @@ function Trace({ reply }: { reply: AdvisorReply }) {
               <li key={i} className="flex gap-2">
                 <span className="tabular-nums">{i + 1}.</span>
                 <span className={s.ok ? "" : "text-destructive"}>
-                  {TOOL_LABEL[s.tool] ?? s.tool}: {s.summary} <span className="opacity-70">({s.ms} ms)</span>
+                  <span className="font-mono">{s.tool}</span> · {s.summary} <span className="opacity-70">({s.ms} ms)</span>
                 </span>
               </li>
             ))}

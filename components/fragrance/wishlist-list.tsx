@@ -41,7 +41,7 @@ function Row({ r }: { r: WishRow }) {
         <AccordChips accords={r.accords.map((a) => a.name)} className="mt-2" />
         <Rating rating={r.rating} votes={r.votes} className="mt-2" />
         <div className="mt-3 flex flex-wrap gap-2">
-          <Link href={`/app/fragrance/${r.fragranceId}#offers-h`} className="inline-flex h-7 items-center rounded-lg bg-primary px-2.5 text-[0.8rem] font-medium text-primary-foreground hover:bg-primary/85">
+          <Link href={`/app/fragrance/${r.fragranceId}#offers-h`} className="inline-flex h-7 items-center rounded-lg bg-primary px-2.5 text-[0.8rem] font-medium text-primary-foreground hover:bg-[color-mix(in_oklch,var(--primary),black_14%)]">
             Compare prices
           </Link>
           <Button

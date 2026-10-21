@@ -78,6 +78,15 @@ describe("recommendCandidates", () => {
     expect(matchingNotes(c.woodyClean, ["oud"])).toEqual([]);
   });
 
+  it("REC-05b excludes fragrances with no note data when the user avoids any note", () => {
+    const blank = frag({ name: "Mystery Notes", brand: "House Q", family: "woody", accords: { woody: 100 }, notes: [] });
+    const withPrefs = recommendCandidates({ mode: "different", limit: 10 }, prefs({ dislikedNotes: ["oud"] }), [own(c.freshCitrus, "like")], [blank]);
+    expect(withPrefs.results).toHaveLength(0);
+    expect(withPrefs.excluded.dislikedNote).toBe(1);
+    const without = recommendCandidates({ mode: "different", limit: 10 }, prefs(), [own(c.freshCitrus, "like")], [blank]);
+    expect(without.results).toHaveLength(1);
+  });
+
   it("respects the budget and reports it as the most restrictive filter", () => {
     const owned = [own(c.freshCitrus, "like")];
     const res = recommendCandidates({ mode: "different", budgetMax: 50, limit: 10 }, prefs(), owned, catalog);

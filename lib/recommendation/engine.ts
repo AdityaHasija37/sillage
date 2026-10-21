@@ -245,7 +245,9 @@ export function recommendCandidates(
       excluded.marketing++;
       continue;
     }
-    if (preferences.dislikedNotes.length && matchingNotes(f, preferences.dislikedNotes).length) {
+    // A fragrance with no note data can't be checked against notes the user avoids, so it's out
+    // whenever they've named any: "never oud" must hold even when the data is missing.
+    if (preferences.dislikedNotes.length && (allNotes(f).length === 0 || matchingNotes(f, preferences.dislikedNotes).length)) {
       excluded.dislikedNote++;
       continue;
     }
