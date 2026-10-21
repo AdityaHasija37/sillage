@@ -1,0 +1,1977 @@
+{
+  "Dior": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "high"
+  },
+  "Guerlain": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "high"
+  },
+  "Chanel": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "high"
+  },
+  "Yves Saint Laurent": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "high"
+  },
+  "Giorgio Armani": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "high"
+  },
+  "Tom Ford": {
+    "band": "200_plus",
+    "tier": "luxury",
+    "confidence": "medium"
+  },
+  "Lattafa Perfumes": {
+    "band": "under_50",
+    "tier": "affordable",
+    "confidence": "high"
+  },
+  "Versace": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Dolce&Gabbana": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "high"
+  },
+  "Givenchy": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "high"
+  },
+  "Jean Paul Gaultier": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "high"
+  },
+  "Mugler": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "high"
+  },
+  "Lancôme": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "high"
+  },
+  "Hermès": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "high"
+  },
+  "Rabanne": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Amouage": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "high"
+  },
+  "Calvin Klein": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "high"
+  },
+  "Gucci": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "high"
+  },
+  "Avon": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "high"
+  },
+  "Zara": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "high"
+  },
+  "Burberry": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "high"
+  },
+  "Carolina Herrera": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "high"
+  },
+  "By Kilian": {
+    "band": "200_plus",
+    "tier": "luxury",
+    "confidence": "high"
+  },
+  "Prada": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "high"
+  },
+  "Bvlgari": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "high"
+  },
+  "Parfums de Marly": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "high"
+  },
+  "Montale": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "high"
+  },
+  "Hugo Boss": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Serge Lutens": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "O Boticário": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Creed": {
+    "band": "200_plus",
+    "tier": "luxury",
+    "confidence": "high"
+  },
+  "Xerjoff": {
+    "band": "200_plus",
+    "tier": "luxury",
+    "confidence": "high"
+  },
+  "Yves Rocher": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "high"
+  },
+  "Jo Malone London": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "high"
+  },
+  "Mancera": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "high"
+  },
+  "Maison Martin Margiela": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "high"
+  },
+  "Kenzo": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Maison Francis Kurkdjian": {
+    "band": "200_plus",
+    "tier": "luxury",
+    "confidence": "high"
+  },
+  "Natura": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Byredo": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "high"
+  },
+  "Bath & Body Works": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "high"
+  },
+  "Narciso Rodriguez": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "high"
+  },
+  "Armaf": {
+    "band": "under_50",
+    "tier": "affordable",
+    "confidence": "high"
+  },
+  "Valentino": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "high"
+  },
+  "Diptyque": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Estée Lauder": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Victoria's Secret": {
+    "band": "50_100",
+    "tier": "mass",
+    "confidence": "high"
+  },
+  "Lalique": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Chloé": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "high"
+  },
+  "Etat Libre d'Orange": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "high"
+  },
+  "Issey Miyake": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Ralph Lauren": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Cacharel": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Penhaligon's": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "high"
+  },
+  "Azzaro": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Frederic Malle Editions de Parfums": {
+    "band": "200_plus",
+    "tier": "luxury",
+    "confidence": "high"
+  },
+  "Viktor&Rolf": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "high"
+  },
+  "Juliette Has A Gun": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Montblanc": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "high"
+  },
+  "Louis Vuitton": {
+    "band": "200_plus",
+    "tier": "luxury",
+    "confidence": "high"
+  },
+  "Marc Jacobs": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Elizabeth Arden": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Oriflame": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "high"
+  },
+  "Afnan": {
+    "band": "under_50",
+    "tier": "affordable",
+    "confidence": "high"
+  },
+  "Moschino": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Nina Ricci": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "L'Artisan Parfumeur": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Acqua di Parma": {
+    "band": "100_200",
+    "tier": "luxury",
+    "confidence": "medium"
+  },
+  "Cartier": {
+    "band": "100_200",
+    "tier": "luxury",
+    "confidence": "medium"
+  },
+  "Nishane": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "high"
+  },
+  "Le Labo": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "high"
+  },
+  "Maison Alhambra": {
+    "band": "under_50",
+    "tier": "affordable",
+    "confidence": "high"
+  },
+  "Britney Spears": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "high"
+  },
+  "Kayali Fragrances": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Rasasi": {
+    "band": "under_50",
+    "tier": "affordable",
+    "confidence": "medium"
+  },
+  "Donna Karan": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Initio Parfums Prives": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "high"
+  },
+  "Lanvin": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Davidoff": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Lush": {
+    "band": "50_100",
+    "tier": "mass",
+    "confidence": "low"
+  },
+  "Ariana Grande": {
+    "band": "50_100",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "French Avenue": {
+    "band": "under_50",
+    "tier": "affordable",
+    "confidence": "medium"
+  },
+  "Escada": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Lolita Lempicka": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Van Cleef & Arpels": {
+    "band": "100_200",
+    "tier": "luxury",
+    "confidence": "medium"
+  },
+  "Memo Paris": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "high"
+  },
+  "Salvatore Ferragamo": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Lacoste Fragrances": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Roja Dove": {
+    "band": "200_plus",
+    "tier": "luxury",
+    "confidence": "high"
+  },
+  "Comme des Garcons": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Zoologist Perfumes": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Tiziana Terenzi": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "high"
+  },
+  "Nasomatto": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Sol de Janeiro": {
+    "band": "50_100",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Casamorati 1888": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Trussardi": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "PARIS CORNER": {
+    "band": "under_50",
+    "tier": "affordable",
+    "confidence": "medium"
+  },
+  "Juicy Couture": {
+    "band": "50_100",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Jimmy Choo": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Bond No 9": {
+    "band": "200_plus",
+    "tier": "luxury",
+    "confidence": "high"
+  },
+  "Rochas": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "BDK Parfums": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "high"
+  },
+  "Al Haramain Perfumes": {
+    "band": "50_100",
+    "tier": "affordable",
+    "confidence": "medium"
+  },
+  "Ex Nihilo": {
+    "band": "200_plus",
+    "tier": "luxury",
+    "confidence": "high"
+  },
+  "Loewe": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Escentric Molecules": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "high"
+  },
+  "Essential Parfums": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Atelier Cologne": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Goutal": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "ALREHAB PERFUMES": {
+    "band": "under_50",
+    "tier": "affordable",
+    "confidence": "medium"
+  },
+  "L'Occitane en Provence": {
+    "band": "50_100",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Elie Saab": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "The Body Shop": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "high"
+  },
+  "Salvador Dali": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Chopard": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Vilhelm Parfumerie": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "high"
+  },
+  "Новая Заря (The New Dawn)": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Orto Parisi": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "high"
+  },
+  "Histoires de Parfums": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Les Liquides Imaginaires": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Roberto Cavalli": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Clinique": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Imaginary Authors": {
+    "band": "50_100",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Demeter Fragrance": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "high"
+  },
+  "Antonio Banderas": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "high"
+  },
+  "M. Micallef": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Boucheron": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Maison Crivelli": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Zadig & Voltaire": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Granado": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Ormonde Jayne": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Joop!": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Pierre Guillaume Paris": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Nautica": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "high"
+  },
+  "Swiss Arabian": {
+    "band": "under_50",
+    "tier": "affordable",
+    "confidence": "medium"
+  },
+  "Caron": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Diesel": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Clean": {
+    "band": "50_100",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Coach": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Marc-Antoine Barrois": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "high"
+  },
+  "Jennifer Lopez": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "high"
+  },
+  "Brocard": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Phlur": {
+    "band": "50_100",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Commodity": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Tauer Perfumes": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Molinard": {
+    "band": "50_100",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Clive Christian": {
+    "band": "200_plus",
+    "tier": "luxury",
+    "confidence": "high"
+  },
+  "Guess": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "high"
+  },
+  "Profumum Roma": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "high"
+  },
+  "Nicolai Parfumeur Createur": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Tommy Hilfiger": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Sisley": {
+    "band": "200_plus",
+    "tier": "luxury",
+    "confidence": "medium"
+  },
+  "Goldfield & Banks Australia": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Ajmal": {
+    "band": "50_100",
+    "tier": "affordable",
+    "confidence": "medium"
+  },
+  "Matière Première": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "L'Erbolario": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Aquolina": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "John Varvatos": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Fragonard": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Agent Provocateur": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "DSQUARED²": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Michael Kors": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "DS&Durga": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Khadlaj Perfumes": {
+    "band": "under_50",
+    "tier": "affordable",
+    "confidence": "medium"
+  },
+  "Carner Barcelona": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "La Rive": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "high"
+  },
+  "Bentley": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Balenciaga": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Stéphane Humbert Lucas 777": {
+    "band": "200_plus",
+    "tier": "luxury",
+    "confidence": "high"
+  },
+  "Francesca Bianchi": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Sarah Jessica Parker": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Shiseido": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Bottega Veneta": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Boadicea the Victorious": {
+    "band": "200_plus",
+    "tier": "luxury",
+    "confidence": "medium"
+  },
+  "Jil Sander": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Rayhaan": {
+    "band": "under_50",
+    "tier": "affordable",
+    "confidence": "medium"
+  },
+  "Lorenzo Pazzaglia": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Giardini Di Toscana": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Karl Lagerfeld": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Alfred Dunhill": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Sospiro Perfumes": {
+    "band": "200_plus",
+    "tier": "luxury",
+    "confidence": "medium"
+  },
+  "Laura Biagiotti": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Halloween": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "low"
+  },
+  "Paris Hilton": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "high"
+  },
+  "Coty": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Banana Republic": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Nest": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Fragrance World": {
+    "band": "under_50",
+    "tier": "affordable",
+    "confidence": "high"
+  },
+  "Franck Boclet": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Attar Collection": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Tesori d'Oriente": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Oscar de la Renta": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Jovoy Paris": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Faberlic": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Grès": {
+    "band": "under_50",
+    "tier": "designer",
+    "confidence": "low"
+  },
+  "Filippo Sorcinelli": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "BORNTOSTANDOUT®": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Atelier des Ors": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Robert Piguet": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Guy Laroche": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Katy Perry": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "high"
+  },
+  "Fendi": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "low"
+  },
+  "Vera Wang": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "4711": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "high"
+  },
+  "Glossier": {
+    "band": "50_100",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Ellis Brooklyn": {
+    "band": "50_100",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Cerruti": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Abercrombie & Fitch": {
+    "band": "50_100",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Mercedes-Benz": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Billie Eilish": {
+    "band": "50_100",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Miller Harris": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Nobile 1942": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Benetton": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Parfum d'Empire": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Akro": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Jeanne Arthes": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "high"
+  },
+  "Laboratorio Olfattivo": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Jacques Bogart": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Etro": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "ZARKOPERFUME": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Aramis": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Rihanna": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "The Different Company": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Elizabeth Taylor": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "high"
+  },
+  "Comptoir Sud Pacifique": {
+    "band": "50_100",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Floraïku": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Eisenberg": {
+    "band": "100_200",
+    "tier": "luxury",
+    "confidence": "low"
+  },
+  "Gritti": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Eudora": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "The Merchant of Venice": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Atkinsons": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Ted Lapidus": {
+    "band": "under_50",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Balmain Beauty": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "low"
+  },
+  "The House of Oud": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Fragrance Du Bois": {
+    "band": "200_plus",
+    "tier": "luxury",
+    "confidence": "medium"
+  },
+  "Tocca": {
+    "band": "50_100",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Santa Maria Novella": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Houbigant": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Rituals": {
+    "band": "50_100",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Mind Games": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Jessica Simpson": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "high"
+  },
+  "Philosophy": {
+    "band": "50_100",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Masaki Matsushima": {
+    "band": "under_50",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Phebo": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Beyoncé": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "high"
+  },
+  "Laurent Mazzone Parfums": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Perris Monte Carlo": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Kerosene": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Room 1015": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Masque Milano": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Perry Ellis": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "high"
+  },
+  "Keiko Mecheri": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Bois 1920": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Zimaya": {
+    "band": "under_50",
+    "tier": "affordable",
+    "confidence": "medium"
+  },
+  "Adidas": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "high"
+  },
+  "Revlon": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "high"
+  },
+  "Aerin": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Olfactive Studio": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Fugazzi": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Le Monde Gourmand": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Emanuel Ungaro": {
+    "band": "under_50",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Ferrari": {
+    "band": "under_50",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "David Beckham": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "high"
+  },
+  "James Heeley": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "S.T. Dupont": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Frapin": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Liz Claiborne": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "high"
+  },
+  "The 7 Virtues": {
+    "band": "50_100",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Parfums Dusita": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Haute Fragrance Company HFC": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Tous": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Anna Sui": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Sabrina Carpenter": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Armand Basi": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Christina Aguilera": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "high"
+  },
+  "Kajal": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Reminiscence": {
+    "band": "50_100",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Ard Al Zaafaran": {
+    "band": "under_50",
+    "tier": "affordable",
+    "confidence": "medium"
+  },
+  "Une Nuit Nomade": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Yohji Yamamoto": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "low"
+  },
+  "Theodoros Kalotinis": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Arabian Oud": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Mauboussin": {
+    "band": "under_50",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Stella McCartney": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "MDCI Parfums": {
+    "band": "200_plus",
+    "tier": "luxury",
+    "confidence": "medium"
+  },
+  "CoSTUME NATIONAL": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Korres": {
+    "band": "50_100",
+    "tier": "mass",
+    "confidence": "low"
+  },
+  "Lorenzo Villoresi": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Pacifica": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Jean Patou": {
+    "band": "100_200",
+    "tier": "luxury",
+    "confidence": "low"
+  },
+  "Le Couvent Maison de Parfum": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Cuba Paris": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "high"
+  },
+  "Thameen": {
+    "band": "200_plus",
+    "tier": "luxury",
+    "confidence": "medium"
+  },
+  "Simone Andreoli": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Paloma Picasso": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "low"
+  },
+  "Floris": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Olympic Orchids Artisan Perfumes": {
+    "band": "50_100",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Franck Olivier": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Giorgio Beverly Hills": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "low"
+  },
+  "La Perla": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "low"
+  },
+  "Gianfranco Ferre": {
+    "band": "under_50",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Dries Van Noten": {
+    "band": "200_plus",
+    "tier": "luxury",
+    "confidence": "medium"
+  },
+  "Snif": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Fueguia 1833": {
+    "band": "200_plus",
+    "tier": "luxury",
+    "confidence": "medium"
+  },
+  "V Canto": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Ulric de Varens": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Ramon Monegal": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Princesse Marina De Bourbon": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Mona di Orio": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Ermenegildo Zegna": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "low"
+  },
+  "Alexandria Fragrances": {
+    "band": "50_100",
+    "tier": "affordable",
+    "confidence": "medium"
+  },
+  "Tiffany": {
+    "band": "100_200",
+    "tier": "luxury",
+    "confidence": "medium"
+  },
+  "Lubin": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Naomi Campbell": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "high"
+  },
+  "Mary Kay": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Police": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Electimuss": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "DedCool": {
+    "band": "50_100",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Arabiyat Prestige": {
+    "band": "under_50",
+    "tier": "affordable",
+    "confidence": "medium"
+  },
+  "Jaguar": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Miu Miu": {
+    "band": "100_200",
+    "tier": "designer",
+    "confidence": "medium"
+  },
+  "Heretic Parfum": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Lady Gaga": {
+    "band": "50_100",
+    "tier": "mass",
+    "confidence": "low"
+  },
+  "Kenneth Cole": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Carven": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "low"
+  },
+  "Bon Parfumeur": {
+    "band": "50_100",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Dana": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Jacques Fath": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Angel Schlesser": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "low"
+  },
+  "Tokyo Milk Parfumerie Curiosite": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Celine": {
+    "band": "200_plus",
+    "tier": "luxury",
+    "confidence": "medium"
+  },
+  "Parle Moi de Parfum": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "BeauFort London": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "MAISON ASRAR": {
+    "band": "under_50",
+    "tier": "affordable",
+    "confidence": "low"
+  },
+  "Oriza L. Legrand": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Floral Street": {
+    "band": "50_100",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Missoni": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "low"
+  },
+  "Thomas Kosmala": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Mexx": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Aesop": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Hanae Mori": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "low"
+  },
+  "Arquiste": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Elizabeth and James": {
+    "band": "50_100",
+    "tier": "mass",
+    "confidence": "low"
+  },
+  "Gisada": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "low"
+  },
+  "Christian Audigier": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "low"
+  },
+  "Riiffs Perfumes": {
+    "band": "under_50",
+    "tier": "affordable",
+    "confidence": "low"
+  },
+  "Rosendo Mateu Olfactive Expressions": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Roger & Gallet": {
+    "band": "50_100",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Jusbox": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Ella K Parfums": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Fine'ry.": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Baldessarini": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "low"
+  },
+  "Jovan": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "high"
+  },
+  "Adolfo Dominguez": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "low"
+  },
+  "WIDIAN": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Mizensir": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Harajuku Lovers": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Antonio Puig": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Pineward Perfumes": {
+    "band": "50_100",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Shakira": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "high"
+  },
+  "Al Wataniah": {
+    "band": "under_50",
+    "tier": "affordable",
+    "confidence": "medium"
+  },
+  "Naomi Goodsir": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Toskovat'": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Gloria Vanderbilt": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Bruno Banani": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Ahmed Al Maghribi": {
+    "band": "50_100",
+    "tier": "affordable",
+    "confidence": "low"
+  },
+  "Teo Cabanel": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Playboy": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "high"
+  },
+  "Skylar": {
+    "band": "50_100",
+    "tier": "mass",
+    "confidence": "low"
+  },
+  "Meo Fusciuni": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Vince Camuto": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "low"
+  },
+  "D’ORSAY": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Iceberg": {
+    "band": "under_50",
+    "tier": "designer",
+    "confidence": "low"
+  },
+  "Omanluxury": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Aedes de Venustas": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "In The Box": {
+    "band": "under_50",
+    "tier": "affordable",
+    "confidence": "low"
+  },
+  "Bohoboco": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Mariah Carey": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Alexandre.J": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "medium"
+  },
+  "Taylor Swift": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Dossier": {
+    "band": "under_50",
+    "tier": "affordable",
+    "confidence": "high"
+  },
+  "Sergio Tacchini": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "Argos": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Unique'e Luxury": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "MiN NEW YORK": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Solinotes": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "low"
+  },
+  "Mahogany": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "low"
+  },
+  "Carthusia": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "John Galliano": {
+    "band": "50_100",
+    "tier": "designer",
+    "confidence": "low"
+  },
+  "Paris Elysees": {
+    "band": "under_50",
+    "tier": "mass",
+    "confidence": "medium"
+  },
+  "L’Occitane Au Brésil": {
+    "band": "50_100",
+    "tier": "mass",
+    "confidence": "low"
+  },
+  "Majda Bekkali": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Moresque": {
+    "band": "200_plus",
+    "tier": "niche",
+    "confidence": "low"
+  },
+  "Michael Malul London": {
+    "band": "200_plus",
+    "tier": "luxury",
+    "confidence": "low"
+  },
+  "Jeroboam": {
+    "band": "100_200",
+    "tier": "niche",
+    "confidence": "low"
+  }
+}
