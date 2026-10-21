@@ -1,6 +1,8 @@
 # Deploy
 
-Not yet deployed. Nothing is pushed or deployed without the owner's go-ahead (DEC-01).
+Live at https://sillage-rosy.vercel.app (Vercel project `sillage`, Supabase project `sillage`, us-east-2). Deployed 21 Oct 2026 with the owner's go-ahead.
+
+Redeploy: `npx vercel deploy --prod`. Hosted Supabase settings are copied into Vercel with `./scripts/vercel-env.sh` (reads the gitignored `.env.production.local`). To auto-deploy on push, grant Vercel's GitHub app access to the repo in Vercel → Settings → Git.
 
 1. **Supabase**: create a free project; `npx supabase link --project-ref <ref>`; `npx supabase db push`.
 2. **Catalog**: `npm run catalog:build && node scripts/load-catalog.mjs --env .env.production.local` (service-role key for the hosted project, kept local).

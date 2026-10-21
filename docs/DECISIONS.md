@@ -55,6 +55,7 @@ The spec pack says: when instructions conflict or are ambiguous, record the deci
 | DEC-30 | **Budget alternatives are the user's choice** (resolves Q-01): a fragrance is an "alternative to X" when the community strongly says it smells like X (≥ 50 votes, ≥ 70% agree) and X is in a higher price band (or X is $100+ and this brand's pricing is unknown). Included by default, always labelled "Budget alternative: N wearers say it smells like X", switchable in Discover, Preferences and the advisor ("no dupes") | Owner chose "let users choose". Turns an eval disagreement into a feature instead of tuning it away. 2,543 fragrances flagged; eval S11/S12 added for it |
 | DEC-31 | Review themes stay on the public site, attributed (resolves Q-04) | Owner decision |
 | DEC-32 | The near-duplicate diversity rule (≥ 95% accord similarity) applies within one brand only | So an original and its budget alternative can appear side by side; found by the Q-01 unit test |
+| DEC-33 | Hosted auth: email confirmation **on** for real accounts (demo sandboxes skip it); Supabase's default confirmation and reset emails are kept, because custom templates need a custom SMTP provider on the free tier. Site URL `https://sillage-rosy.vercel.app` | Same posture as Touchline; free-tier constraint (DEC-02) |
 | DEC-29 | Email confirmation is off locally; when sign-up returns a session the user goes straight to onboarding. Hosted setting: see Q-02 | Keeps E2E deterministic without Mailpit |
 
 ## Open (owner input needed)
@@ -62,7 +63,7 @@ The spec pack says: when instructions conflict or are ambiguous, record the deci
 | ID | Question | Status |
 |---|---|---|
 | Q-01 | Clones vs famous names in Similar | **Resolved** → DEC-30 |
-| Q-02 | Deploy (public GitHub repo, hosted Supabase, Vercel) | **Approved** 21 Oct 2026; email confirmation on the hosted project still to confirm |
+| Q-02 | Deploy (public GitHub repo, hosted Supabase, Vercel) | **Done** 21 Oct 2026 → DEC-33 |
 | Q-03 | Live advisor and live prices | **Approved**: owner adds `ANTHROPIC_API_KEY` and `SERPAPI_API_KEY` in Vercel |
 | Q-04 | Review themes on a public site | **Resolved** → DEC-31 |
 

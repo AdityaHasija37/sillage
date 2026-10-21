@@ -5,8 +5,13 @@
 set -euo pipefail
 [ -f .env.production.local ] || { echo "Missing .env.production.local"; exit 1; }
 set -a; . ./.env.production.local; set +a
-for name in NEXT_PUBLIC_SUPABASE_URL NEXT_PUBLIC_SUPABASE_ANON_KEY SUPABASE_SERVICE_ROLE_KEY RATE_SALT; do
-  printf '%s' "${!name}" | npx vercel env add "$name" production --force >/dev/null
+# Public values (the anon key is meant to be public; RLS protects the data) need --type config.
+for name in NEXT_PUBLIC_SUPABASE_URL NEXT_PUBLIC_SUPABASE_ANON_KEY; do
+  npx vercel env add "$name" --environment production --type config --value "${!name}" --yes --force >/dev/null
+  echo "set $name"
+done
+for name in SUPABASE_SERVICE_ROLE_KEY RATE_SALT; do
+  printf '%s' "${!name}" | npx vercel env add "$name" --environment production --force >/dev/null
   echo "set $name"
 done
 echo "Done. Now add: npx vercel env add ANTHROPIC_API_KEY production   and   npx vercel env add SERPAPI_API_KEY production"

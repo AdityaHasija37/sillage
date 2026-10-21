@@ -20,7 +20,7 @@ One rule from the PRD turned out to matter more than I expected: **ownership isn
 
 ## The decisions I'd talk through in an interview
 
-The [decision register](../DECISIONS.md) has 29 entries plus open questions. These are the ones that shaped the product.
+The [decision register](../DECISIONS.md) has 33 entries, including how each open question was resolved. These are the ones that shaped the product.
 
 **1. Deterministic ranking, AI explanation (Decision B).** The obvious build was "LLM, recommend me a fragrance." I didn't do that. A tested engine scores every candidate on five components (taste fit, the mode's goal, budget, season and time of day, performance) and emits reason codes and caveats. The Claude agent's job is to call that engine and explain the result. *Trade-off:* less conversational flexibility, in exchange for answers that are reproducible, testable and explainable ("Why this rank" shows the score breakdown).
 
@@ -51,7 +51,7 @@ The first run was useful precisely because it failed:
 
 A unit test caught a related one: the "Fill gaps" bridge term rewarded a 97%-identical scent. And a data query found two well-reviewed fragrances with no note data at all, which a "never oud" preference couldn't be checked against, so they're now excluded whenever a user avoids any note.
 
-Two personas still fail, and I left them failing. For a Tobacco Vanille lover and a La Vie Est Belle lover, the engine prefers close alternatives from smaller houses (Maison Alhambra, La Rive) over the famous names I annotated. That might be exactly what a value-minded enthusiast wants, or it might cost trust. **That's a product decision to test with users, not an eval to tune away**, so it's logged as an open question.
+Two personas still failed, and I left them failing. For a Tobacco Vanille lover and a La Vie Est Belle lover, the engine preferred close alternatives from smaller houses (Maison Alhambra, La Rive) over the famous names I annotated. That might be exactly what a value-minded enthusiast wants, or it might cost trust. **That's a product decision, not an eval to tune away**, so I took it to the owner, who chose to let users decide. v3 labels "budget alternatives" (a strong community "smells like" link to something in a higher price band; 2,543 fragrances), includes them by default, and adds a switch in Discover, Preferences and the advisor ("no dupes"). Two new eval cases, written before running, cover it; the famous-name annotations still fail honestly, because with alternatives off the engine picks niche originals, not household names.
 
 ## Working with an AI engineer
 
@@ -66,4 +66,4 @@ I worked as product owner with Claude Code as the engineer, from a seven-documen
 
 ## Status
 
-An MVP portfolio project. Built and tested locally (52 unit tests, 38 database security assertions, 11 end-to-end tests including an automated WCAG 2.2 AA scan, and the eval suite). Deployment is pending; see the README for honest caveats.
+An MVP portfolio project. Built and tested locally (54 unit tests, 38 database security assertions, 11 end-to-end tests including an automated WCAG 2.2 AA scan, and the eval suite). Live at [sillage-rosy.vercel.app](https://sillage-rosy.vercel.app) on free tiers; see the README for honest caveats.
