@@ -52,6 +52,8 @@ type Case = {
     dayShareMin?: number;
     dayShareMinTop1?: number;
     noGapReasons?: boolean;
+    noAlternatives?: boolean;
+    anyTop5HasReason?: string[];
   };
 };
 
@@ -147,6 +149,8 @@ it("eval suite", async () => {
     }
     if (e.dayShareMin) checks.push({ name: "every pick works in the daytime", hard: true, ok: res.results.every((r) => (dayShare(r.fragrance) ?? 1) >= e.dayShareMin!) });
     if (e.dayShareMinTop1) checks.push({ name: "top pick is daytime-leaning", hard: false, ok: (dayShare(res.results[0]?.fragrance ?? ({ community: null } as Fragrance)) ?? 0) >= e.dayShareMinTop1 });
+    if (e.noAlternatives) checks.push({ name: "no budget alternatives when switched off", hard: true, ok: res.results.every((r) => !r.fragrance.alternativeTo) });
+    if (e.anyTop5HasReason) checks.push({ name: `a top-5 pick has ${e.anyTop5HasReason.join("/")}`, hard: false, ok: top5.some((r) => r.reasons.some((x) => e.anyTop5HasReason!.includes(x.code))) });
     if (e.noGapReasons) checks.push({ name: "invents no gap", hard: false, ok: res.results.every((r) => !r.reasons.some((x) => x.code.startsWith("FILLS_"))) });
 
     for (const ch of checks) {

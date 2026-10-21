@@ -13,8 +13,8 @@ import { Discover } from "@/components/discover/discover";
 describe("Discover empty state (ERR-04)", () => {
   it("names the most restrictive filter and relaxes it on request", async () => {
     discoverAction
-      .mockResolvedValueOnce({ ok: true, runId: null, cards: [], globalCaveats: [], mostRestrictive: "budget", excluded: { owned: 6, dislikedNote: 0, budget: 900, season: 0, daypart: 0, lowQuality: 0, tooSimilar: 0, marketing: 0 }, considered: 3000, ownedCount: 6 })
-      .mockResolvedValueOnce({ ok: true, runId: null, cards: [], globalCaveats: [], mostRestrictive: null, excluded: { owned: 6, dislikedNote: 0, budget: 0, season: 0, daypart: 0, lowQuality: 0, tooSimilar: 0, marketing: 0 }, considered: 3000, ownedCount: 6 });
+      .mockResolvedValueOnce({ ok: true, runId: null, cards: [], globalCaveats: [], mostRestrictive: "budget", excluded: { owned: 6, dislikedNote: 0, budget: 900, season: 0, daypart: 0, lowQuality: 0, tooSimilar: 0, marketing: 0, alternatives: 0 }, considered: 3000, ownedCount: 6 })
+      .mockResolvedValueOnce({ ok: true, runId: null, cards: [], globalCaveats: [], mostRestrictive: null, excluded: { owned: 6, dislikedNote: 0, budget: 0, season: 0, daypart: 0, lowQuality: 0, tooSimilar: 0, marketing: 0, alternatives: 0 }, considered: 3000, ownedCount: 6 });
     render(<Discover defaultBudget={20} ownedCount={6} initialMode="similar" />);
     fireEvent.click(screen.getByRole("button", { name: "Show suggestions" }));
     expect(await screen.findByText("No confident matches")).toBeInTheDocument();

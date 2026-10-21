@@ -34,6 +34,8 @@ export function reasonText(r: ReasonCode): string {
       return `Estimated ${PRICE_BAND_LABEL[r.band as PriceBand]}, within your budget`;
     case "PERFORMANCE_MATCH":
       return `Longevity rated ${r.longevity}/5 by wearers`;
+    case "BUDGET_ALTERNATIVE":
+      return `Budget alternative: ${k(r.agree)} wearers say it smells like ${r.to}`;
     case "WELL_RATED":
       return `Rated ${r.rating.toFixed(1)}/5 by ${k(r.votes)} people`;
   }
@@ -77,6 +79,7 @@ export const RELAXATION: Record<keyof ExclusionCounts, string> = {
   lowQuality: "",
   tooSimilar: "",
   marketing: "",
+  alternatives: "",
   dislikedNote: "Your disliked notes removed the most options. Try removing one in Preferences.",
   budget: "Your budget removed the most options. Try raising it.",
   season: "The season filter removed the most options. Try “Any season”.",

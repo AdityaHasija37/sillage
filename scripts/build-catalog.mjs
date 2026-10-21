@@ -115,9 +115,12 @@ const rows = hot
   .all(MIN_VOTES);
 
 const kept = new Set(rows.map((r) => r.id));
+const BAND_INDEX = { under_50: 0, "50_100": 1, "100_200": 2, "200_plus": 3 };
+const bandOf = new Map(rows.map((r) => [r.id, brandTiers[r.brand]?.band ?? null]));
+const nameOf = new Map(rows.map((r) => [r.id, `${r.brand} ${r.name}`]));
 mkdirSync(path.join(root, ".data"), { recursive: true });
 const out = createWriteStream(path.join(root, ".data", "catalog.jsonl"));
-const stats = { total: 0, withFamily: 0, withConcentration: 0, withSizes: 0, withPriceBand: 0, withThemes: 0 };
+const stats = { total: 0, withFamily: 0, withConcentration: 0, withSizes: 0, withPriceBand: 0, withThemes: 0, alternatives: 0 };
 
 for (const r of rows) {
   const doc = JSON.parse(coldStmt.get(r.id)?.doc ?? "{}");
@@ -144,6 +147,19 @@ for (const r of rows) {
     .filter(([id, up, down]) => kept.has(id) && up > down)
     .slice(0, 8)
     .map(([id, up, down]) => ({ externalId: String(id), agree: up, disagree: down }));
+
+  // Budget alternative (DEC-30): the community strongly says it smells like a fragrance in a higher
+  // price band. Stricter than the dataset's own clone flag, which marks most perfumes.
+  // Long-tail houses outside the brand-tier map have no band; they count as alternatives when they
+  // strongly resemble something priced $100+ (eval S11 found "Charuto Tobacco Vanille" unflagged).
+  const myBand = bandOf.get(r.id);
+  const pricier = (target) => (myBand == null ? BAND_INDEX[target] >= 2 : BAND_INDEX[target] > BAND_INDEX[myBand]);
+  const alternativeTo =
+    ((doc.reminds_me_of ?? [])
+          .filter(([id, up, down]) => kept.has(id) && up >= 50 && up / (up + down) >= 0.7 && bandOf.get(id) != null && pricier(bandOf.get(id)))
+          .sort((a, b) => b[1] - a[1])
+          .map(([id, up]) => ({ externalId: String(id), name: nameOf.get(id), agree: up }))[0] ?? null);
+  if (alternativeTo) stats.alternatives++;
 
   const record = {
     provider: "fragrantica_decant",
@@ -175,6 +191,7 @@ for (const r of rows) {
     },
     themes: { pros, cons },
     similar,
+    alternativeTo,
     popularity: r.magnitude,
     priceBand: tier?.band ?? null,
     priceBasis: tier ? `brand_tier_${tier.confidence}` : null,

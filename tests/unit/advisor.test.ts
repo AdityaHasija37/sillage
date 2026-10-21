@@ -98,7 +98,7 @@ describe("runAdvisor", () => {
   it("runs the tool loop, returns tool results in one message, and keeps grounded citations", async () => {
     let recId = "";
     const { client, create } = fakeClient([
-      () => msg([toolUse("get_user_profile", {}, "a"), toolUse("recommend_candidates", { mode: "different", budget_max_usd: null, season: "winter", daypart: null, performance: null }, "b")], "tool_use"),
+      () => msg([toolUse("get_user_profile", {}, "a"), toolUse("recommend_candidates", { mode: "different", budget_max_usd: null, season: "winter", daypart: null, performance: null, include_budget_alternatives: null }, "b")], "tool_use"),
       (req) => {
         const last = req.messages.at(-1)!;
         // Both parallel tool results come back in a single user message.
@@ -156,6 +156,10 @@ describe("runAdvisor", () => {
 describe("parseIntent", () => {
   it("reads the UX doc's Flow C example", () => {
     expect(parseIntent("Suggest a woody winter fragrance under $50 that isn't close to what I own")).toEqual({ mode: "different", season: "winter", daypart: null, budgetMax: 50 });
+  });
+  it("reads a request for originals only", () => {
+    expect(parseIntent("something like Aventus but no dupes please")).toMatchObject({ mode: "similar", includeAlternatives: false });
+    expect(parseIntent("something like Aventus")).not.toHaveProperty("includeAlternatives");
   });
   it("reads gap and daypart requests", () => {
     expect(parseIntent("What's missing for date night?")).toMatchObject({ mode: "gaps", daypart: "night" });

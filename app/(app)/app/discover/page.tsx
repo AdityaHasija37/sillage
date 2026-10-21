@@ -14,7 +14,7 @@ export default async function DiscoverPage({ searchParams }: PageProps<"/app/dis
         <h1 className="text-4xl font-medium tracking-tight">Find your next fragrance</h1>
         <p className="mt-2 text-muted-foreground">Ranked against your {owned.length} bottle{owned.length === 1 ? "" : "s"} and your preferences. Every pick says why, and what&apos;s uncertain.</p>
       </header>
-      <Discover defaultBudget={prefs.budgetMax} ownedCount={owned.length} initialMode={mode} />
+      <Discover defaultBudget={prefs.budgetMax} ownedCount={owned.length} initialMode={mode} defaultIncludeAlternatives={prefs.includeAlternatives} />
     </div>
   );
 }

@@ -23,7 +23,7 @@ import {
   type TasteProfile,
 } from "@/lib/domain/profile";
 
-export const ENGINE_VERSION = "rec-1.1";
+export const ENGINE_VERSION = "rec-1.2";
 
 export const MODES = ["similar", "different", "gaps"] as const;
 export type Mode = (typeof MODES)[number];
@@ -34,6 +34,8 @@ export type RecommendationRequest = {
   season?: Season | null;
   daypart?: Daypart | null;
   performance?: "soft" | "moderate" | "strong" | null;
+  /** Overrides the saved preference for this request. */
+  includeAlternatives?: boolean | null;
   limit?: number;
 };
 
@@ -63,7 +65,8 @@ export type ReasonCode =
   | { code: "SUITS_DAYPART"; daypart: Daypart }
   | { code: "WITHIN_BUDGET"; band: string }
   | { code: "PERFORMANCE_MATCH"; longevity: number }
-  | { code: "WELL_RATED"; rating: number; votes: number };
+  | { code: "WELL_RATED"; rating: number; votes: number }
+  | { code: "BUDGET_ALTERNATIVE"; to: string; agree: number };
 
 export type CaveatCode =
   | { code: "PRICE_UNKNOWN" }
@@ -86,7 +89,7 @@ export type Recommendation = {
   caveats: CaveatCode[];
 };
 
-export type ExclusionCounts = { owned: number; dislikedNote: number; budget: number; season: number; daypart: number; lowQuality: number; tooSimilar: number; marketing: number };
+export type ExclusionCounts = { owned: number; dislikedNote: number; budget: number; season: number; daypart: number; lowQuality: number; tooSimilar: number; marketing: number; alternatives: number };
 
 export type RecommendationResult = {
   mode: Mode;
@@ -186,6 +189,7 @@ export function recommendCandidates(
   const season = request.season ?? null;
   const daypart = request.daypart ?? null;
   const performance = request.performance ?? preferences.performance.longevity ?? null;
+  const includeAlternatives = request.includeAlternatives ?? preferences.includeAlternatives;
 
   const ownedIds = new Set(owned.map((o) => o.fragrance.id));
   const ownedKeys = new Set(owned.map((o) => o.fragrance.canonicalKey));
@@ -226,7 +230,7 @@ export function recommendCandidates(
   }
   const noClearGap = request.mode === "gaps" && familyGap.size === 0 && seasonGap.size === 0 && !daypartGap;
 
-  const excluded: ExclusionCounts = { owned: 0, dislikedNote: 0, budget: 0, season: 0, daypart: 0, lowQuality: 0, tooSimilar: 0, marketing: 0 };
+  const excluded: ExclusionCounts = { owned: 0, dislikedNote: 0, budget: 0, season: 0, daypart: 0, lowQuality: 0, tooSimilar: 0, marketing: 0, alternatives: 0 };
   const scored: Recommendation[] = [];
 
   for (const f of catalog) {
@@ -238,6 +242,11 @@ export function recommendCandidates(
     const votes = f.community?.votes ?? 0;
     if ((f.community?.rating ?? 0) < 3.4 || votes < 50) {
       excluded.lowQuality++;
+      continue;
+    }
+    // Budget alternatives are the user's call (Q-01 → DEC-30): included by default and labelled.
+    if (!includeAlternatives && f.alternativeTo) {
+      excluded.alternatives++;
       continue;
     }
     // Only an explicit preference filters by marketing; it's never inferred from what someone owns.
@@ -376,6 +385,7 @@ export function recommendCandidates(
     if (daypart && ds != null && (daypart === "day" ? ds >= 0.55 : ds <= 0.45)) reasons.push({ code: "SUITS_DAYPART", daypart });
     if (!shares) caveats.push({ code: "NO_SEASON_DATA" });
     if (budget.reason) reasons.push(budget.reason);
+    if (f.alternativeTo) reasons.push({ code: "BUDGET_ALTERNATIVE", to: f.alternativeTo.name, agree: f.alternativeTo.agree });
     if (budget.caveat) caveats.push(budget.caveat);
     if (f.priceBand && f.priceBasis?.startsWith("brand_tier")) caveats.push({ code: "PRICE_ESTIMATED", basis: f.priceBasis });
     const perf = performanceFit(f, performance);
@@ -407,7 +417,9 @@ export function recommendCandidates(
     if (picked.length >= limit) break;
     const v = accordVector(r.fragrance);
     const sameBrand = picked.filter((p) => p.fragrance.brand === r.fragrance.brand).length;
-    const dupe = sameBrand >= 2 || picked.some((p) => cosine(v, accordVector(p.fragrance)) > 0.95 || sameLine(p.fragrance, r.fragrance));
+    // Near-identical accords only count as a duplicate within one brand (EDT/EDP of a line); an
+    // original next to its budget alternative is a useful choice, not a duplicate.
+    const dupe = sameBrand >= 2 || picked.some((p) => (p.fragrance.brand === r.fragrance.brand && cosine(v, accordVector(p.fragrance)) > 0.95) || sameLine(p.fragrance, r.fragrance));
     if (!dupe) picked.push(r);
   }
 
@@ -415,7 +427,7 @@ export function recommendCandidates(
   if (profile.limited) globalCaveats.push({ code: "LIMITED_PROFILE", owned: profile.ownedCount, rated: profile.ratedCount });
   if (noClearGap) globalCaveats.push({ code: "NO_CLEAR_GAP" });
 
-  const entries = Object.entries(excluded).filter(([k]) => k !== "owned" && k !== "lowQuality" && k !== "tooSimilar") as [keyof ExclusionCounts, number][];
+  const entries = Object.entries(excluded).filter(([k]) => k !== "owned" && k !== "lowQuality" && k !== "tooSimilar" && k !== "alternatives") as [keyof ExclusionCounts, number][];
   const top = entries.sort((a, b) => b[1] - a[1])[0];
   return {
     mode: request.mode,

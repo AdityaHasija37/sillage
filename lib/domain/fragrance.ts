@@ -82,6 +82,7 @@ export const FragranceRow = z.object({
   community: Community.nullable(),
   themes: z.object({ pros: z.array(Theme), cons: z.array(Theme) }),
   similar_to: z.array(z.object({ externalId: z.string(), agree: z.number(), disagree: z.number() })),
+  alternative_to: z.object({ externalId: z.string(), name: z.string(), agree: z.number() }).nullable(),
   popularity: z.coerce.number(),
   price_band: z.enum(PRICE_BANDS).nullable(),
   price_basis: z.string().nullable(),
@@ -112,6 +113,8 @@ export type Fragrance = {
   community: Community | null;
   themes: { pros: { text: string; agree: number; disagree: number }[]; cons: { text: string; agree: number; disagree: number }[] };
   similarTo: { externalId: string; agree: number; disagree: number }[];
+  /** Set when the community strongly says this smells like a fragrance in a higher price band. */
+  alternativeTo: { externalId: string; name: string; agree: number } | null;
   popularity: number;
   priceBand: PriceBand | null;
   priceBasis: string | null;
@@ -122,7 +125,7 @@ export type Fragrance = {
 };
 
 export const FRAGRANCE_COLUMNS =
-  "id, provider, external_id, brand, name, canonical_key, year, gender, family, family_label, concentration, concentration_basis, sizes_ml, perfumers, accords, notes, community, themes, similar_to, popularity, price_band, price_basis, brand_tier, image_url, source_url, metadata_quality";
+  "id, provider, external_id, brand, name, canonical_key, year, gender, family, family_label, concentration, concentration_basis, sizes_ml, perfumers, accords, notes, community, themes, similar_to, alternative_to, popularity, price_band, price_basis, brand_tier, image_url, source_url, metadata_quality";
 
 export function toFragrance(raw: unknown): Fragrance {
   const r = FragranceRow.parse(raw);
@@ -146,6 +149,7 @@ export function toFragrance(raw: unknown): Fragrance {
     community: r.community,
     themes: r.themes,
     similarTo: r.similar_to,
+    alternativeTo: r.alternative_to,
     popularity: r.popularity,
     priceBand: r.price_band,
     priceBasis: r.price_basis,

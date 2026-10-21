@@ -27,6 +27,8 @@ export type Preferences = {
   budgetMax: number | null;
   /** Explicit only. "any" means marketing never filters results. */
   marketedFor: "any" | "men" | "women";
+  /** Budget alternatives ("smells like a pricier fragrance") are included unless switched off. */
+  includeAlternatives: boolean;
 };
 
 export const EMPTY_PREFERENCES: Preferences = {
@@ -38,6 +40,7 @@ export const EMPTY_PREFERENCES: Preferences = {
   performance: {},
   budgetMax: null,
   marketedFor: "any",
+  includeAlternatives: true,
 };
 
 /**

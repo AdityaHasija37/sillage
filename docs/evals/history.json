@@ -24,5 +24,18 @@
     "exclusionCompliance": 1,
     "relevance": 0.9615384615384616,
     "fabricated": 0
+  },
+  {
+    "file": "2026-10-21-v3-budget-alternatives.json",
+    "label": "v3-budget-alternatives",
+    "generatedAt": "2026-10-21T22:22:28.573Z",
+    "engineVersion": "rec-1.2",
+    "offerPrecision": 1,
+    "offerRecall": 1,
+    "recPassed": 29,
+    "recTotal": 32,
+    "exclusionCompliance": 1,
+    "relevance": 0.9464285714285714,
+    "fabricated": 0
   }
 ]

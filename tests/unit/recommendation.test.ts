@@ -143,6 +143,19 @@ describe("recommendCandidates", () => {
     expect(top.reasons.some((r) => r.code === "FILLS_DAYPART_GAP" && r.daypart === "day")).toBe(true);
   });
 
+  it("Q-01: budget alternatives are included and labelled by default, excluded when switched off", () => {
+    const original = frag({ name: "Grand Original", brand: "Maison Lux", family: "amber", accords: { amber: 100, vanilla: 70, tobacco: 40 }, priceBand: "200_plus" });
+    const alt = frag({ name: "Close Alternative", brand: "Value House", family: "amber", accords: { amber: 100, vanilla: 65, tobacco: 45 }, priceBand: "under_50", alternativeTo: { externalId: "x", name: "Maison Lux Grand Original", agree: 800 } });
+    const owned = [own(c.amberVanilla, "love")];
+    const on = recommendCandidates({ mode: "similar", limit: 10 }, prefs(), owned, [original, alt]);
+    expect(on.results.find((r) => r.fragrance.name === "Close Alternative")?.reasons).toContainEqual({ code: "BUDGET_ALTERNATIVE", to: "Maison Lux Grand Original", agree: 800 });
+    const off = recommendCandidates({ mode: "similar", limit: 10, includeAlternatives: false }, prefs(), owned, [original, alt]);
+    expect(off.results.map((r) => r.fragrance.name)).toEqual(["Grand Original"]);
+    expect(off.excluded.alternatives).toBe(1);
+    const savedOff = recommendCandidates({ mode: "similar", limit: 10 }, prefs({ includeAlternatives: false }), owned, [original, alt]);
+    expect(savedOff.excluded.alternatives).toBe(1);
+  });
+
   it("is deterministic", () => {
     const owned = [own(c.freshCitrus, "love"), own(c.amberVanilla, "like")];
     const a = recommendCandidates({ mode: "different" }, prefs(), owned, catalog);

@@ -1,12 +1,12 @@
 # Eval report
 
-Generated 2026-10-21T22:12:51.567Z (label: `v2-allowlist-flankers`, engine rec-1.1). Produced by `npm run evals`; numbers are measured, not targets.
+Generated 2026-10-21T22:22:28.573Z (label: `v3-budget-alternatives`, engine rec-1.2). Produced by `npm run evals`; numbers are measured, not targets.
 
 | Area | Result |
 |---|---|
-| Catalog size | 38,365 fragrances; 100.0% of 20 common bottles found by name; median search 7 ms (local) |
+| Catalog size | 38,365 fragrances; 100.0% of 20 common bottles found by name; median search 15 ms (local) |
 | Offer matching (61 adversarial pairs) | precision of "exact" 100.0%, recall 100.0%, three-way agreement 95.1% |
-| Recommendations (30 synthetic personas) | 28/30 pass every criterion; exclusion compliance 100.0%; relevance checks 96.2%; median 11.2 ms over 3,000 candidates |
+| Recommendations (32 synthetic personas) | 29/32 pass every criterion; exclusion compliance 100.0%; relevance checks 94.6%; median 11.5 ms over 3,000 candidates |
 | Grounding | 0 of 7 planted fake ids/prices reached the user |
 | Live agent | ANTHROPIC_API_KEY not set; live agent eval skipped |
 
@@ -32,6 +32,8 @@ Generated 2026-10-21T22:12:51.567Z (label: `v2-allowlist-flankers`, engine rec-1
 | S08 | Five designer bottles, none rated yet | pass | – | Armaf Club De Nuit Urban Elixir; Afnan Historic Olmeda; French Avenue Zenith Blue |
 | S09 | Leather lover who avoids oud | pass | – | Maison Alhambra Amber & Leather; Tom Ford Tuscan Leather; French Avenue Scorpio |
 | S10 | Loves Baccarat Rouge 540 but has a $100 budget | pass | – | Armaf Club de Nuit Untold; Natura Essencial Único; Ajmal Amber Wood |
+| S11 | Added in v3 for Q-01: loves Tobacco Vanille, wants originals only (no budget alternatives) | **fail** | an annotated good answer in top 5 | Franck Boclet Tobacco; Argos Triumph Of Bacchus; Viktor&Rolf Spicebomb Extreme |
+| S12 | Added in v3 for Q-01: loves Aventus, budget alternatives on (default) | pass | – | Afnan Supremacy Silver; Armaf Club de Nuit Intense Man Parfum; Tiziana Terenzi Orion |
 | D01 | All-fresh blue collection wants something new | pass | – | Montale Oud Tobacco; Roja Dove Enigma Pour Homme; Xerjoff Pikovaya Dama 2018 |
 | D02 | Sweet-gourmand collection wants a change | pass | – | Amouage Guidance; Mancera Red Tobacco Intense; BDK Parfums Gris Charnel Extrait |
 | D03 | UX doc Flow C: woody winter scent under $150, unlike what they own | pass | – | Aramis Aramis; Montblanc Explorer Extreme; Lalique Encre Noire A L'Extreme |

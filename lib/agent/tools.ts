@@ -25,7 +25,7 @@ export type AdvisorContext = {
   preferences: Preferences;
   searchCatalog: (q: string) => Promise<FragranceSummary[]>;
   getFragrance: (id: string) => Promise<Fragrance | null>;
-  recommend: (input: { mode: (typeof MODES)[number]; budgetMax?: number | null; season?: (typeof SEASONS)[number] | null; daypart?: "day" | "night" | null; performance?: "soft" | "moderate" | "strong" | null }) => Promise<RecommendationResult & { runId: string | null }>;
+  recommend: (input: { mode: (typeof MODES)[number]; budgetMax?: number | null; season?: (typeof SEASONS)[number] | null; daypart?: "day" | "night" | null; performance?: "soft" | "moderate" | "strong" | null; includeAlternatives?: boolean | null }) => Promise<RecommendationResult & { runId: string | null }>;
   findOffers: (fragrance: Fragrance, concentration: (typeof CONCENTRATIONS)[number], sizeMl: number) => Promise<OfferSearchResult>;
 };
 
@@ -89,8 +89,9 @@ export const TOOL_DEFINITIONS: Anthropic.Tool[] = [
         season: nullable({ type: "string", enum: [...SEASONS] }),
         daypart: nullable({ type: "string", enum: ["day", "night"] }),
         performance: nullable({ type: "string", enum: ["soft", "moderate", "strong"] }),
+        include_budget_alternatives: nullable({ type: "boolean", description: "false only if the user asks for originals, not dupes/clones; null uses their saved preference" }),
       },
-      ["mode", "budget_max_usd", "season", "daypart", "performance"],
+      ["mode", "budget_max_usd", "season", "daypart", "performance", "include_budget_alternatives"],
     ),
     strict: true,
   },
@@ -136,6 +137,7 @@ const inputs = {
     season: z.enum(SEASONS).nullable(),
     daypart: z.enum(["day", "night"]).nullable(),
     performance: z.enum(["soft", "moderate", "strong"]).nullable(),
+    include_budget_alternatives: z.boolean().nullable().optional(),
   }),
   find_offers: z.object({ fragrance_id: Id, concentration: z.enum(CONCENTRATIONS), size_ml: z.number().int().min(5).max(500) }),
   propose_add_to_wishlist: z.object({ fragrance_id: Id }),
@@ -235,7 +237,7 @@ export async function executeTool(name: string, rawInput: unknown, ctx: AdvisorC
     }
     case "recommend_candidates": {
       const i = input as z.infer<typeof inputs.recommend_candidates>;
-      const res = await ctx.recommend({ mode: i.mode, budgetMax: i.budget_max_usd, season: i.season, daypart: i.daypart, performance: i.performance });
+      const res = await ctx.recommend({ mode: i.mode, budgetMax: i.budget_max_usd, season: i.season, daypart: i.daypart, performance: i.performance, includeAlternatives: i.include_budget_alternatives ?? null });
       return {
         content: {
           mode: res.mode,

@@ -20,6 +20,7 @@ type Spec = {
   longevity?: number;
   externalId?: string;
   similarTo?: { externalId: string; agree: number; disagree: number }[];
+  alternativeTo?: { externalId: string; name: string; agree: number } | null;
 };
 
 /** Synthetic fragrance for deterministic tests. Not real catalog data. */
@@ -60,6 +61,7 @@ export function frag(spec: Spec): Fragrance {
     },
     themes: { pros: [], cons: [] },
     similarTo: spec.similarTo ?? [],
+    alternativeTo: spec.alternativeTo ?? null,
     popularity: 1000,
     priceBand: spec.priceBand === undefined ? "50_100" : spec.priceBand,
     priceBasis: spec.priceBasis ?? null,

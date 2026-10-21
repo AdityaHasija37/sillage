@@ -18,11 +18,11 @@ import { AccordChips, Rating } from "@/components/fragrance/bits";
 const MODE_ICON = { similar: Layers, different: Compass, gaps: Sparkles } as const;
 const selectClass = "h-9 rounded-lg border bg-background px-2.5 text-sm focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none";
 
-type Filters = { budgetMax: string; season: Season | ""; daypart: "day" | "night" | ""; performance: "soft" | "moderate" | "strong" | "" };
+type Filters = { budgetMax: string; season: Season | ""; daypart: "day" | "night" | ""; performance: "soft" | "moderate" | "strong" | ""; includeAlternatives: boolean };
 
-export function Discover({ defaultBudget, ownedCount, initialMode }: { defaultBudget: number | null; ownedCount: number; initialMode: Mode }) {
+export function Discover({ defaultBudget, ownedCount, initialMode, defaultIncludeAlternatives = true }: { defaultBudget: number | null; ownedCount: number; initialMode: Mode; defaultIncludeAlternatives?: boolean }) {
   const [mode, setMode] = useState<Mode>(initialMode);
-  const [filters, setFilters] = useState<Filters>({ budgetMax: defaultBudget ? String(defaultBudget) : "", season: "", daypart: "", performance: "" });
+  const [filters, setFilters] = useState<Filters>({ budgetMax: defaultBudget ? String(defaultBudget) : "", season: "", daypart: "", performance: "", includeAlternatives: defaultIncludeAlternatives });
   const [res, setRes] = useState<DiscoverResponse | null>(null);
   const [pending, start] = useTransition();
 
@@ -36,6 +36,7 @@ export function Discover({ defaultBudget, ownedCount, initialMode }: { defaultBu
           season: f.season || null,
           daypart: f.daypart || null,
           performance: f.performance || null,
+          includeAlternatives: f.includeAlternatives,
         }),
       );
     });
@@ -122,6 +123,10 @@ export function Discover({ defaultBudget, ownedCount, initialMode }: { defaultBu
             <option value="strong">Long-lasting</option>
           </select>
         </div>
+        <label className="flex min-h-9 items-center gap-2 text-sm" title="Fragrances the community says smell like a pricier one">
+          <input type="checkbox" checked={filters.includeAlternatives} onChange={(e) => setFilters({ ...filters, includeAlternatives: e.target.checked })} className="size-4 accent-[var(--primary)]" />
+          Include budget alternatives
+        </label>
         <Button type="submit" size="lg" disabled={pending} className="ml-auto">
           {pending ? <Loader2 className="animate-spin" aria-hidden="true" /> : <ArrowRight aria-hidden="true" />}
           {res ? "Update suggestions" : "Show suggestions"}
@@ -166,7 +171,8 @@ export function Discover({ defaultBudget, ownedCount, initialMode }: { defaultBu
               {res.excluded.dislikedNote ? `, ${res.excluded.dislikedNote} with notes you avoid` : ""}
               {res.excluded.budget ? `, ${res.excluded.budget} over budget` : ""}
               {res.excluded.tooSimilar ? `, ${res.excluded.tooSimilar} too close to your bottles` : ""}
-              {res.excluded.marketing ? `, ${res.excluded.marketing} outside your marketing preference` : ""}.{" "}
+              {res.excluded.marketing ? `, ${res.excluded.marketing} outside your marketing preference` : ""}
+              {res.excluded.alternatives ? `, ${res.excluded.alternatives} budget alternatives` : ""}.{" "}
               <Link href="/how-it-works#ranking" className="underline underline-offset-2">
                 How ranking works
               </Link>

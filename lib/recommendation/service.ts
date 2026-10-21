@@ -14,6 +14,7 @@ export const RecommendationInput = z.object({
   season: z.enum(SEASONS).nullable().optional(),
   daypart: z.enum(["day", "night"]).nullable().optional(),
   performance: z.enum(["soft", "moderate", "strong"]).nullable().optional(),
+  includeAlternatives: z.boolean().nullable().optional(),
   limit: z.number().int().min(1).max(10).optional(),
 });
 export type RecommendationInput = z.infer<typeof RecommendationInput>;

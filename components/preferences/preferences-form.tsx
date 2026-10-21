@@ -114,6 +114,19 @@ export function PreferencesForm({ initial }: { initial: Preferences }) {
       </div>
       <p className="-mt-4 text-xs text-muted-foreground">Sillage never guesses this from your collection: &ldquo;Anything&rdquo; means marketing labels are ignored.</p>
 
+      <fieldset>
+        <legend className="text-sm font-medium">Budget alternatives</legend>
+        <p className="mb-2 text-xs text-muted-foreground">Fragrances the community says smell like a pricier one (often called dupes). They&apos;re always labelled with what they resemble.</p>
+        <div className="flex flex-wrap gap-1.5">
+          <Chip active={p.includeAlternatives} onClick={() => setP({ ...p, includeAlternatives: true })} radio>
+            Include them
+          </Chip>
+          <Chip active={!p.includeAlternatives} onClick={() => setP({ ...p, includeAlternatives: false })} radio>
+            Originals only
+          </Chip>
+        </div>
+      </fieldset>
+
       <div className="flex items-center gap-3 border-t pt-6">
         <Button type="submit" size="lg" disabled={pending || !dirty}>
           {pending ? "Saving…" : "Save preferences"}

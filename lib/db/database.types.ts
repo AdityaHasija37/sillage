@@ -99,14 +99,14 @@ isOneToOne: false
                   ]
                 },"fragrances": {
                   Row: {
-                    "accords": NonNullable<Json>,"brand": string,"brand_tier": string | null,"canonical_key": string,"community": Json | null,"community_rating": number | null,"community_votes": number | null,"concentration": string | null,"concentration_basis": string | null,"external_id": string,"family": string | null,"family_label": string | null,"fetched_at": string,"gender": string | null,"id": string,"image_url": string | null,"metadata_quality": string,"name": string,"notes": NonNullable<Json>,"perfumers": (string)[],"popularity": number,"price_band": string | null,"price_basis": string | null,"provider": string,"search_text": string | null,"similar_to": NonNullable<Json>,"sizes_ml": (number)[],"source_url": string | null,"themes": NonNullable<Json>,"year": number | null
+                    "accords": NonNullable<Json>,"alternative_to": Json | null,"brand": string,"brand_tier": string | null,"canonical_key": string,"community": Json | null,"community_rating": number | null,"community_votes": number | null,"concentration": string | null,"concentration_basis": string | null,"external_id": string,"family": string | null,"family_label": string | null,"fetched_at": string,"gender": string | null,"id": string,"image_url": string | null,"metadata_quality": string,"name": string,"notes": NonNullable<Json>,"perfumers": (string)[],"popularity": number,"price_band": string | null,"price_basis": string | null,"provider": string,"search_text": string | null,"similar_to": NonNullable<Json>,"sizes_ml": (number)[],"source_url": string | null,"themes": NonNullable<Json>,"year": number | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "accords"?: NonNullable<Json>,"brand": string,"brand_tier"?: string | null,"canonical_key": string,"community"?: Json | null,"community_rating"?: never,"community_votes"?: never,"concentration"?: string | null,"concentration_basis"?: string | null,"external_id": string,"family"?: string | null,"family_label"?: string | null,"fetched_at"?: string,"gender"?: string | null,"id"?: string,"image_url"?: string | null,"metadata_quality"?: string,"name": string,"notes"?: NonNullable<Json>,"perfumers"?: (string)[],"popularity"?: number,"price_band"?: string | null,"price_basis"?: string | null,"provider": string,"search_text"?: never,"similar_to"?: NonNullable<Json>,"sizes_ml"?: (number)[],"source_url"?: string | null,"themes"?: NonNullable<Json>,"year"?: number | null
+                    "accords"?: NonNullable<Json>,"alternative_to"?: Json | null,"brand": string,"brand_tier"?: string | null,"canonical_key": string,"community"?: Json | null,"community_rating"?: never,"community_votes"?: never,"concentration"?: string | null,"concentration_basis"?: string | null,"external_id": string,"family"?: string | null,"family_label"?: string | null,"fetched_at"?: string,"gender"?: string | null,"id"?: string,"image_url"?: string | null,"metadata_quality"?: string,"name": string,"notes"?: NonNullable<Json>,"perfumers"?: (string)[],"popularity"?: number,"price_band"?: string | null,"price_basis"?: string | null,"provider": string,"search_text"?: never,"similar_to"?: NonNullable<Json>,"sizes_ml"?: (number)[],"source_url"?: string | null,"themes"?: NonNullable<Json>,"year"?: number | null
                   }
                   Update: {
-                    "accords"?: NonNullable<Json>,"brand"?: string,"brand_tier"?: string | null,"canonical_key"?: string,"community"?: Json | null,"community_rating"?: never,"community_votes"?: never,"concentration"?: string | null,"concentration_basis"?: string | null,"external_id"?: string,"family"?: string | null,"family_label"?: string | null,"fetched_at"?: string,"gender"?: string | null,"id"?: string,"image_url"?: string | null,"metadata_quality"?: string,"name"?: string,"notes"?: NonNullable<Json>,"perfumers"?: (string)[],"popularity"?: number,"price_band"?: string | null,"price_basis"?: string | null,"provider"?: string,"search_text"?: never,"similar_to"?: NonNullable<Json>,"sizes_ml"?: (number)[],"source_url"?: string | null,"themes"?: NonNullable<Json>,"year"?: number | null
+                    "accords"?: NonNullable<Json>,"alternative_to"?: Json | null,"brand"?: string,"brand_tier"?: string | null,"canonical_key"?: string,"community"?: Json | null,"community_rating"?: never,"community_votes"?: never,"concentration"?: string | null,"concentration_basis"?: string | null,"external_id"?: string,"family"?: string | null,"family_label"?: string | null,"fetched_at"?: string,"gender"?: string | null,"id"?: string,"image_url"?: string | null,"metadata_quality"?: string,"name"?: string,"notes"?: NonNullable<Json>,"perfumers"?: (string)[],"popularity"?: number,"price_band"?: string | null,"price_basis"?: string | null,"provider"?: string,"search_text"?: never,"similar_to"?: NonNullable<Json>,"sizes_ml"?: (number)[],"source_url"?: string | null,"themes"?: NonNullable<Json>,"year"?: number | null
                   }
                   Relationships: [
                     
@@ -133,14 +133,14 @@ isOneToOne: false
                   ]
                 },"preferences": {
                   Row: {
-                    "disliked_notes": NonNullable<Json>,"liked_families": NonNullable<Json>,"liked_notes": NonNullable<Json>,"marketed_for": string,"occasions": NonNullable<Json>,"performance": NonNullable<Json>,"seasons": NonNullable<Json>,"updated_at": string,"user_id": string
+                    "disliked_notes": NonNullable<Json>,"include_alternatives": boolean,"liked_families": NonNullable<Json>,"liked_notes": NonNullable<Json>,"marketed_for": string,"occasions": NonNullable<Json>,"performance": NonNullable<Json>,"seasons": NonNullable<Json>,"updated_at": string,"user_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "disliked_notes"?: NonNullable<Json>,"liked_families"?: NonNullable<Json>,"liked_notes"?: NonNullable<Json>,"marketed_for"?: string,"occasions"?: NonNullable<Json>,"performance"?: NonNullable<Json>,"seasons"?: NonNullable<Json>,"updated_at"?: string,"user_id": string
+                    "disliked_notes"?: NonNullable<Json>,"include_alternatives"?: boolean,"liked_families"?: NonNullable<Json>,"liked_notes"?: NonNullable<Json>,"marketed_for"?: string,"occasions"?: NonNullable<Json>,"performance"?: NonNullable<Json>,"seasons"?: NonNullable<Json>,"updated_at"?: string,"user_id": string
                   }
                   Update: {
-                    "disliked_notes"?: NonNullable<Json>,"liked_families"?: NonNullable<Json>,"liked_notes"?: NonNullable<Json>,"marketed_for"?: string,"occasions"?: NonNullable<Json>,"performance"?: NonNullable<Json>,"seasons"?: NonNullable<Json>,"updated_at"?: string,"user_id"?: string
+                    "disliked_notes"?: NonNullable<Json>,"include_alternatives"?: boolean,"liked_families"?: NonNullable<Json>,"liked_notes"?: NonNullable<Json>,"marketed_for"?: string,"occasions"?: NonNullable<Json>,"performance"?: NonNullable<Json>,"seasons"?: NonNullable<Json>,"updated_at"?: string,"user_id"?: string
                   }
                   Relationships: [
                     
@@ -286,6 +286,7 @@ isOneToOne: false
 "search_fragrances":
 { Args: { "p_limit"?: number,"p_offset"?: number,"p_query": string }; Returns: {
               "accords": NonNullable<Json>,
+"alternative_to": Json | null,
 "brand": string,
 "brand_tier": string | null,
 "canonical_key": string,

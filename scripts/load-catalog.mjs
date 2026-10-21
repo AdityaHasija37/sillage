@@ -48,6 +48,7 @@ const toRow = (r) => ({
   community: r.community,
   themes: r.themes,
   similar_to: r.similar,
+  alternative_to: r.alternativeTo,
   popularity: r.popularity,
   price_band: r.priceBand,
   price_basis: r.priceBasis,

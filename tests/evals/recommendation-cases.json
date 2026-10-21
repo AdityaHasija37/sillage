@@ -2,170 +2,1125 @@
   "description": "Synthetic recommendation cases (not real users). Personas and acceptance criteria were written before running the engine. 'hard' checks run on every case: nothing owned, no disliked notes, budget and marketing preference respected. Other criteria test relevance for that persona. 'acceptableAny' lists fragrances an enthusiast would consider a good answer; one of them appearing in the top 5 passes.",
   "cases": [
     {
-      "id": "S01", "mode": "similar", "persona": "Fresh-blue fan who loves Bleu de Chanel EDP",
-      "owned": [["Chanel", "Bleu de Chanel Eau de Parfum", "love"], ["Dior", "Sauvage", "like"], ["Giorgio Armani", "Acqua di Gio", "neutral"]],
-      "expect": { "anchorCosineMin": { "anchor": "Chanel|Bleu de Chanel Eau de Parfum", "min": 0.7 }, "acceptableAny": ["Chanel|Bleu de Chanel Parfum", "Armaf|Club de Nuit Blue Iconic", "Chanel|Allure Homme Sport", "Dior|Sauvage Eau de Parfum", "Yves Saint Laurent|Y Eau de Parfum"] }
+      "id": "S01",
+      "mode": "similar",
+      "persona": "Fresh-blue fan who loves Bleu de Chanel EDP",
+      "owned": [
+        [
+          "Chanel",
+          "Bleu de Chanel Eau de Parfum",
+          "love"
+        ],
+        [
+          "Dior",
+          "Sauvage",
+          "like"
+        ],
+        [
+          "Giorgio Armani",
+          "Acqua di Gio",
+          "neutral"
+        ]
+      ],
+      "expect": {
+        "anchorCosineMin": {
+          "anchor": "Chanel|Bleu de Chanel Eau de Parfum",
+          "min": 0.7
+        },
+        "acceptableAny": [
+          "Chanel|Bleu de Chanel Parfum",
+          "Armaf|Club de Nuit Blue Iconic",
+          "Chanel|Allure Homme Sport",
+          "Dior|Sauvage Eau de Parfum",
+          "Yves Saint Laurent|Y Eau de Parfum"
+        ]
+      }
     },
     {
-      "id": "S02", "mode": "similar", "persona": "Loves Tobacco Vanille, likes Jazz Club",
-      "owned": [["Tom Ford", "Tobacco Vanille", "love"], ["Maison Martin Margiela", "Jazz Club", "like"]],
-      "expect": { "anchorCosineMin": { "anchor": "Tom Ford|Tobacco Vanille", "min": 0.7 }, "acceptableAny": ["Lattafa Perfumes|Khamrah", "By Kilian|Angels' Share", "Maison Martin Margiela|By the Fireplace", "Mancera|Red Tobacco", "Xerjoff|XJ 1861 Naxos", "Serge Lutens|Chergui"] }
+      "id": "S02",
+      "mode": "similar",
+      "persona": "Loves Tobacco Vanille, likes Jazz Club",
+      "owned": [
+        [
+          "Tom Ford",
+          "Tobacco Vanille",
+          "love"
+        ],
+        [
+          "Maison Martin Margiela",
+          "Jazz Club",
+          "like"
+        ]
+      ],
+      "expect": {
+        "anchorCosineMin": {
+          "anchor": "Tom Ford|Tobacco Vanille",
+          "min": 0.7
+        },
+        "acceptableAny": [
+          "Lattafa Perfumes|Khamrah",
+          "By Kilian|Angels' Share",
+          "Maison Martin Margiela|By the Fireplace",
+          "Mancera|Red Tobacco",
+          "Xerjoff|XJ 1861 Naxos",
+          "Serge Lutens|Chergui"
+        ]
+      }
     },
     {
-      "id": "S03", "mode": "similar", "persona": "Loves La Vie Est Belle, prefers women's and unisex",
-      "owned": [["Lancôme", "La Vie Est Belle", "love"], ["Carolina Herrera", "Good Girl", "like"]],
-      "prefs": { "marketedFor": "women" },
-      "expect": { "anchorCosineMin": { "anchor": "Lancôme|La Vie Est Belle", "min": 0.7 }, "acceptableAny": ["Lancôme|La Nuit Trésor", "Yves Saint Laurent|Black Opium", "Lattafa Perfumes|Yara", "Prada|Prada Candy", "Burberry|Burberry Her", "Mugler|Angel", "Ariana Grande|Cloud"] }
+      "id": "S03",
+      "mode": "similar",
+      "persona": "Loves La Vie Est Belle, prefers women's and unisex",
+      "owned": [
+        [
+          "Lancôme",
+          "La Vie Est Belle",
+          "love"
+        ],
+        [
+          "Carolina Herrera",
+          "Good Girl",
+          "like"
+        ]
+      ],
+      "prefs": {
+        "marketedFor": "women"
+      },
+      "expect": {
+        "anchorCosineMin": {
+          "anchor": "Lancôme|La Vie Est Belle",
+          "min": 0.7
+        },
+        "acceptableAny": [
+          "Lancôme|La Nuit Trésor",
+          "Yves Saint Laurent|Black Opium",
+          "Lattafa Perfumes|Yara",
+          "Prada|Prada Candy",
+          "Burberry|Burberry Her",
+          "Mugler|Angel",
+          "Ariana Grande|Cloud"
+        ]
+      }
     },
     {
-      "id": "S04", "mode": "similar", "persona": "Loves Aventus",
-      "owned": [["Creed", "Aventus", "love"], ["Hermès", "Terre d'Hermès", "like"]],
-      "expect": { "anchorCosineMin": { "anchor": "Creed|Aventus", "min": 0.65 }, "acceptableAny": ["Armaf|Club de Nuit Intense Man", "Mancera|Cedrat Boise", "Louis Vuitton|Imagination", "Creed|Green Irish Tweed", "Parfums de Marly|Layton"] }
+      "id": "S04",
+      "mode": "similar",
+      "persona": "Loves Aventus",
+      "owned": [
+        [
+          "Creed",
+          "Aventus",
+          "love"
+        ],
+        [
+          "Hermès",
+          "Terre d'Hermès",
+          "like"
+        ]
+      ],
+      "expect": {
+        "anchorCosineMin": {
+          "anchor": "Creed|Aventus",
+          "min": 0.65
+        },
+        "acceptableAny": [
+          "Armaf|Club de Nuit Intense Man",
+          "Mancera|Cedrat Boise",
+          "Louis Vuitton|Imagination",
+          "Creed|Green Irish Tweed",
+          "Parfums de Marly|Layton"
+        ]
+      }
     },
     {
-      "id": "S05", "mode": "similar", "persona": "Loves Light Blue and Acqua di Gioia",
-      "owned": [["Dolce&Gabbana", "Light Blue", "love"], ["Giorgio Armani", "Acqua di Gioia", "like"]],
-      "expect": { "anchorCosineMin": { "anchor": "Dolce&Gabbana|Light Blue", "min": 0.65 } }
+      "id": "S05",
+      "mode": "similar",
+      "persona": "Loves Light Blue and Acqua di Gioia",
+      "owned": [
+        [
+          "Dolce&Gabbana",
+          "Light Blue",
+          "love"
+        ],
+        [
+          "Giorgio Armani",
+          "Acqua di Gioia",
+          "like"
+        ]
+      ],
+      "expect": {
+        "anchorCosineMin": {
+          "anchor": "Dolce&Gabbana|Light Blue",
+          "min": 0.65
+        }
+      }
     },
     {
-      "id": "S06", "mode": "similar", "persona": "Niche woody fan: Santal 33 and Gypsy Water",
-      "owned": [["Le Labo", "Santal 33", "love"], ["Byredo", "Gypsy Water", "love"]],
-      "expect": { "anchorCosineMin": { "anchor": "Le Labo|Santal 33", "min": 0.6 }, "top1FamilyIn": ["woody", "aromatic", "amber"] }
+      "id": "S06",
+      "mode": "similar",
+      "persona": "Niche woody fan: Santal 33 and Gypsy Water",
+      "owned": [
+        [
+          "Le Labo",
+          "Santal 33",
+          "love"
+        ],
+        [
+          "Byredo",
+          "Gypsy Water",
+          "love"
+        ]
+      ],
+      "expect": {
+        "anchorCosineMin": {
+          "anchor": "Le Labo|Santal 33",
+          "min": 0.6
+        },
+        "top1FamilyIn": [
+          "woody",
+          "aromatic",
+          "amber"
+        ]
+      }
     },
     {
-      "id": "S07", "mode": "similar", "persona": "Loves Encre Noire (dark vetiver)",
-      "owned": [["Lalique", "Encre Noire", "love"]],
-      "expect": { "anchorCosineMin": { "anchor": "Lalique|Encre Noire", "min": 0.65 }, "top1FamilyIn": ["woody", "aromatic", "green"], "caveatsInclude": ["LIMITED_PROFILE"] }
+      "id": "S07",
+      "mode": "similar",
+      "persona": "Loves Encre Noire (dark vetiver)",
+      "owned": [
+        [
+          "Lalique",
+          "Encre Noire",
+          "love"
+        ]
+      ],
+      "expect": {
+        "anchorCosineMin": {
+          "anchor": "Lalique|Encre Noire",
+          "min": 0.65
+        },
+        "top1FamilyIn": [
+          "woody",
+          "aromatic",
+          "green"
+        ],
+        "caveatsInclude": [
+          "LIMITED_PROFILE"
+        ]
+      }
     },
     {
-      "id": "S08", "mode": "similar", "persona": "Five designer bottles, none rated yet",
-      "owned": [["Dior", "Sauvage", null], ["Versace", "Eros", null], ["Rabanne", "1 Million", null], ["Rabanne", "Invictus", null], ["Versace", "Versace Pour Homme Dylan Blue", null]],
-      "expect": { "caveatsInclude": ["LIMITED_PROFILE"] }
+      "id": "S08",
+      "mode": "similar",
+      "persona": "Five designer bottles, none rated yet",
+      "owned": [
+        [
+          "Dior",
+          "Sauvage",
+          null
+        ],
+        [
+          "Versace",
+          "Eros",
+          null
+        ],
+        [
+          "Rabanne",
+          "1 Million",
+          null
+        ],
+        [
+          "Rabanne",
+          "Invictus",
+          null
+        ],
+        [
+          "Versace",
+          "Versace Pour Homme Dylan Blue",
+          null
+        ]
+      ],
+      "expect": {
+        "caveatsInclude": [
+          "LIMITED_PROFILE"
+        ]
+      }
     },
     {
-      "id": "S09", "mode": "similar", "persona": "Leather lover who avoids oud",
-      "owned": [["Tom Ford", "Ombré Leather (2018)", "love"], ["Maison Martin Margiela", "Jazz Club", "like"]],
-      "prefs": { "dislikedNotes": ["oud"] },
-      "expect": { "anchorCosineMin": { "anchor": "Tom Ford|Ombré Leather (2018)", "min": 0.55 } }
+      "id": "S09",
+      "mode": "similar",
+      "persona": "Leather lover who avoids oud",
+      "owned": [
+        [
+          "Tom Ford",
+          "Ombré Leather (2018)",
+          "love"
+        ],
+        [
+          "Maison Martin Margiela",
+          "Jazz Club",
+          "like"
+        ]
+      ],
+      "prefs": {
+        "dislikedNotes": [
+          "oud"
+        ]
+      },
+      "expect": {
+        "anchorCosineMin": {
+          "anchor": "Tom Ford|Ombré Leather (2018)",
+          "min": 0.55
+        }
+      }
     },
     {
-      "id": "S10", "mode": "similar", "persona": "Loves Baccarat Rouge 540 but has a $100 budget",
-      "owned": [["Maison Francis Kurkdjian", "Baccarat Rouge 540", "love"]],
-      "prefs": { "budgetMax": 100 },
-      "expect": { "anchorCosineMin": { "anchor": "Maison Francis Kurkdjian|Baccarat Rouge 540", "min": 0.6 } }
+      "id": "S10",
+      "mode": "similar",
+      "persona": "Loves Baccarat Rouge 540 but has a $100 budget",
+      "owned": [
+        [
+          "Maison Francis Kurkdjian",
+          "Baccarat Rouge 540",
+          "love"
+        ]
+      ],
+      "prefs": {
+        "budgetMax": 100
+      },
+      "expect": {
+        "anchorCosineMin": {
+          "anchor": "Maison Francis Kurkdjian|Baccarat Rouge 540",
+          "min": 0.6
+        }
+      }
     },
     {
-      "id": "D01", "mode": "different", "persona": "All-fresh blue collection wants something new",
-      "owned": [["Dior", "Sauvage", "love"], ["Chanel", "Bleu de Chanel Eau de Parfum", "love"], ["Giorgio Armani", "Acqua di Gio", "like"], ["Versace", "Versace Pour Homme Dylan Blue", "like"], ["Versace", "Eros", "like"]],
-      "expect": { "maxOverlapBelow": 0.75, "top1FamilyNotIn": ["aquatic"] }
+      "id": "S11",
+      "mode": "similar",
+      "persona": "Added in v3 for Q-01: loves Tobacco Vanille, wants originals only (no budget alternatives)",
+      "owned": [
+        [
+          "Tom Ford",
+          "Tobacco Vanille",
+          "love"
+        ],
+        [
+          "Maison Martin Margiela",
+          "Jazz Club",
+          "like"
+        ]
+      ],
+      "request": {
+        "includeAlternatives": false
+      },
+      "expect": {
+        "noAlternatives": true,
+        "anchorCosineMin": {
+          "anchor": "Tom Ford|Tobacco Vanille",
+          "min": 0.65
+        },
+        "acceptableAny": [
+          "Lattafa Perfumes|Khamrah",
+          "By Kilian|Angels' Share",
+          "Maison Martin Margiela|By the Fireplace",
+          "Mancera|Red Tobacco",
+          "Xerjoff|XJ 1861 Naxos",
+          "Serge Lutens|Chergui"
+        ]
+      }
     },
     {
-      "id": "D02", "mode": "different", "persona": "Sweet-gourmand collection wants a change",
-      "owned": [["Lancôme", "La Vie Est Belle", "love"], ["Yves Saint Laurent", "Black Opium", "love"], ["Carolina Herrera", "Good Girl", "like"], ["Mugler", "Angel", "like"]],
-      "prefs": { "marketedFor": "women" },
-      "expect": { "maxOverlapBelow": 0.75, "top1FamilyNotIn": ["gourmand"] }
+      "id": "S12",
+      "mode": "similar",
+      "persona": "Added in v3 for Q-01: loves Aventus, budget alternatives on (default)",
+      "owned": [
+        [
+          "Creed",
+          "Aventus",
+          "love"
+        ]
+      ],
+      "expect": {
+        "anyTop5HasReason": [
+          "BUDGET_ALTERNATIVE"
+        ],
+        "anchorCosineMin": {
+          "anchor": "Creed|Aventus",
+          "min": 0.65
+        }
+      }
     },
     {
-      "id": "D03", "mode": "different", "persona": "UX doc Flow C: woody winter scent under $150, unlike what they own",
-      "owned": [["Dior", "Sauvage", "like"], ["Giorgio Armani", "Acqua di Gio", "like"], ["Davidoff", "Cool Water", "neutral"], ["Versace", "Eros", "like"], ["Jo Malone London", "Wood Sage & Sea Salt", "love"]],
-      "prefs": { "likedFamilies": ["woody"] },
-      "request": { "season": "winter", "budgetMax": 150 },
-      "expect": { "maxOverlapBelow": 0.75, "seasonShareMin": { "season": "winter", "min": 0.18 }, "top1FamilyIn": ["woody", "amber", "leather"] }
+      "id": "D01",
+      "mode": "different",
+      "persona": "All-fresh blue collection wants something new",
+      "owned": [
+        [
+          "Dior",
+          "Sauvage",
+          "love"
+        ],
+        [
+          "Chanel",
+          "Bleu de Chanel Eau de Parfum",
+          "love"
+        ],
+        [
+          "Giorgio Armani",
+          "Acqua di Gio",
+          "like"
+        ],
+        [
+          "Versace",
+          "Versace Pour Homme Dylan Blue",
+          "like"
+        ],
+        [
+          "Versace",
+          "Eros",
+          "like"
+        ]
+      ],
+      "expect": {
+        "maxOverlapBelow": 0.75,
+        "top1FamilyNotIn": [
+          "aquatic"
+        ]
+      }
     },
     {
-      "id": "D04", "mode": "different", "persona": "Men's-marketed only, avoids oud",
-      "owned": [["Dior", "Sauvage", "love"], ["Rabanne", "1 Million", "like"], ["Versace", "Eros", "like"]],
-      "prefs": { "dislikedNotes": ["oud"], "marketedFor": "men" },
-      "expect": { "maxOverlapBelow": 0.75 }
+      "id": "D02",
+      "mode": "different",
+      "persona": "Sweet-gourmand collection wants a change",
+      "owned": [
+        [
+          "Lancôme",
+          "La Vie Est Belle",
+          "love"
+        ],
+        [
+          "Yves Saint Laurent",
+          "Black Opium",
+          "love"
+        ],
+        [
+          "Carolina Herrera",
+          "Good Girl",
+          "like"
+        ],
+        [
+          "Mugler",
+          "Angel",
+          "like"
+        ]
+      ],
+      "prefs": {
+        "marketedFor": "women"
+      },
+      "expect": {
+        "maxOverlapBelow": 0.75,
+        "top1FamilyNotIn": [
+          "gourmand"
+        ]
+      }
     },
     {
-      "id": "D05", "mode": "different", "persona": "Wants something new that features iris",
-      "owned": [["Dior", "Sauvage", "like"], ["Tom Ford", "Tobacco Vanille", "love"], ["Giorgio Armani", "Acqua di Gio", "like"]],
-      "prefs": { "likedNotes": ["iris"] },
-      "expect": { "maxOverlapBelow": 0.75, "anyTop3HasReason": ["MATCHES_LIKED_NOTES"] }
+      "id": "D03",
+      "mode": "different",
+      "persona": "UX doc Flow C: woody winter scent under $150, unlike what they own",
+      "owned": [
+        [
+          "Dior",
+          "Sauvage",
+          "like"
+        ],
+        [
+          "Giorgio Armani",
+          "Acqua di Gio",
+          "like"
+        ],
+        [
+          "Davidoff",
+          "Cool Water",
+          "neutral"
+        ],
+        [
+          "Versace",
+          "Eros",
+          "like"
+        ],
+        [
+          "Jo Malone London",
+          "Wood Sage & Sea Salt",
+          "love"
+        ]
+      ],
+      "prefs": {
+        "likedFamilies": [
+          "woody"
+        ]
+      },
+      "request": {
+        "season": "winter",
+        "budgetMax": 150
+      },
+      "expect": {
+        "maxOverlapBelow": 0.75,
+        "seasonShareMin": {
+          "season": "winter",
+          "min": 0.18
+        },
+        "top1FamilyIn": [
+          "woody",
+          "amber",
+          "leather"
+        ]
+      }
     },
     {
-      "id": "D06", "mode": "different", "persona": "Owns just one bottle",
-      "owned": [["Dior", "Sauvage", "love"]],
-      "expect": { "maxOverlapBelow": 0.75, "caveatsInclude": ["LIMITED_PROFILE"] }
+      "id": "D04",
+      "mode": "different",
+      "persona": "Men's-marketed only, avoids oud",
+      "owned": [
+        [
+          "Dior",
+          "Sauvage",
+          "love"
+        ],
+        [
+          "Rabanne",
+          "1 Million",
+          "like"
+        ],
+        [
+          "Versace",
+          "Eros",
+          "like"
+        ]
+      ],
+      "prefs": {
+        "dislikedNotes": [
+          "oud"
+        ],
+        "marketedFor": "men"
+      },
+      "expect": {
+        "maxOverlapBelow": 0.75
+      }
     },
     {
-      "id": "D07", "mode": "different", "persona": "Heavy woody-amber shelf wants a change",
-      "owned": [["Tom Ford", "Tobacco Vanille", "love"], ["Maison Francis Kurkdjian", "Baccarat Rouge 540", "love"], ["Tom Ford", "Oud Wood", "like"], ["Le Labo", "Santal 33", "like"], ["Maison Martin Margiela", "By the Fireplace", "like"]],
-      "expect": { "maxOverlapBelow": 0.75, "top1FamilyIn": ["citrus", "aquatic", "aromatic", "green", "floral", "chypre"] }
+      "id": "D05",
+      "mode": "different",
+      "persona": "Wants something new that features iris",
+      "owned": [
+        [
+          "Dior",
+          "Sauvage",
+          "like"
+        ],
+        [
+          "Tom Ford",
+          "Tobacco Vanille",
+          "love"
+        ],
+        [
+          "Giorgio Armani",
+          "Acqua di Gio",
+          "like"
+        ]
+      ],
+      "prefs": {
+        "likedNotes": [
+          "iris"
+        ]
+      },
+      "expect": {
+        "maxOverlapBelow": 0.75,
+        "anyTop3HasReason": [
+          "MATCHES_LIKED_NOTES"
+        ]
+      }
     },
     {
-      "id": "D08", "mode": "different", "persona": "Something new for daytime under $60",
-      "owned": [["Tom Ford", "Tobacco Vanille", "love"], ["Yves Saint Laurent", "La Nuit de l'Homme", "like"], ["Viktor&Rolf", "Spicebomb Extreme", "like"]],
-      "request": { "daypart": "day", "budgetMax": 60 },
-      "expect": { "maxOverlapBelow": 0.75, "dayShareMin": 0.4 }
+      "id": "D06",
+      "mode": "different",
+      "persona": "Owns just one bottle",
+      "owned": [
+        [
+          "Dior",
+          "Sauvage",
+          "love"
+        ]
+      ],
+      "expect": {
+        "maxOverlapBelow": 0.75,
+        "caveatsInclude": [
+          "LIMITED_PROFILE"
+        ]
+      }
     },
     {
-      "id": "D09", "mode": "different", "persona": "Floral collection, women's and unisex only",
-      "owned": [["Dior", "J'adore", "love"], ["Chanel", "Chance Eau Tendre", "like"], ["Marc Jacobs", "Daisy", "like"], ["Parfums de Marly", "Delina", "love"]],
-      "prefs": { "marketedFor": "women" },
-      "expect": { "maxOverlapBelow": 0.75, "top1FamilyNotIn": ["floral"] }
+      "id": "D07",
+      "mode": "different",
+      "persona": "Heavy woody-amber shelf wants a change",
+      "owned": [
+        [
+          "Tom Ford",
+          "Tobacco Vanille",
+          "love"
+        ],
+        [
+          "Maison Francis Kurkdjian",
+          "Baccarat Rouge 540",
+          "love"
+        ],
+        [
+          "Tom Ford",
+          "Oud Wood",
+          "like"
+        ],
+        [
+          "Le Labo",
+          "Santal 33",
+          "like"
+        ],
+        [
+          "Maison Martin Margiela",
+          "By the Fireplace",
+          "like"
+        ]
+      ],
+      "expect": {
+        "maxOverlapBelow": 0.75,
+        "top1FamilyIn": [
+          "citrus",
+          "aquatic",
+          "aromatic",
+          "green",
+          "floral",
+          "chypre"
+        ]
+      }
     },
     {
-      "id": "D10", "mode": "different", "persona": "Wants a long-lasting change",
-      "owned": [["Giorgio Armani", "Acqua di Gio", "like"], ["Davidoff", "Cool Water", "like"], ["Nautica", "Nautica Voyage", "love"]],
-      "request": { "performance": "strong" },
-      "expect": { "maxOverlapBelow": 0.75, "minLongevityTop3": 3.5 }
+      "id": "D08",
+      "mode": "different",
+      "persona": "Something new for daytime under $60",
+      "owned": [
+        [
+          "Tom Ford",
+          "Tobacco Vanille",
+          "love"
+        ],
+        [
+          "Yves Saint Laurent",
+          "La Nuit de l'Homme",
+          "like"
+        ],
+        [
+          "Viktor&Rolf",
+          "Spicebomb Extreme",
+          "like"
+        ]
+      ],
+      "request": {
+        "daypart": "day",
+        "budgetMax": 60
+      },
+      "expect": {
+        "maxOverlapBelow": 0.75,
+        "dayShareMin": 0.4
+      }
     },
     {
-      "id": "G01", "mode": "gaps", "persona": "Summer-only fresh collection",
-      "owned": [["Giorgio Armani", "Acqua di Gio", "like"], ["Davidoff", "Cool Water", "like"], ["Nautica", "Nautica Voyage", "like"], ["Issey Miyake", "L'Eau d'Issey Pour Homme", "like"], ["Versace", "Versace Man Eau Fraiche", "love"]],
-      "expect": { "anyTop3HasReason": ["FILLS_SEASON_GAP"], "everyTop3HasReason": ["FILLS_SEASON_GAP", "FILLS_FAMILY_GAP", "FILLS_DAYPART_GAP"], "top1SeasonIn": ["fall", "winter"] }
+      "id": "D09",
+      "mode": "different",
+      "persona": "Floral collection, women's and unisex only",
+      "owned": [
+        [
+          "Dior",
+          "J'adore",
+          "love"
+        ],
+        [
+          "Chanel",
+          "Chance Eau Tendre",
+          "like"
+        ],
+        [
+          "Marc Jacobs",
+          "Daisy",
+          "like"
+        ],
+        [
+          "Parfums de Marly",
+          "Delina",
+          "love"
+        ]
+      ],
+      "prefs": {
+        "marketedFor": "women"
+      },
+      "expect": {
+        "maxOverlapBelow": 0.75,
+        "top1FamilyNotIn": [
+          "floral"
+        ]
+      }
     },
     {
-      "id": "G02", "mode": "gaps", "persona": "Winter-only cozy collection",
-      "owned": [["Tom Ford", "Tobacco Vanille", "love"], ["Maison Martin Margiela", "By the Fireplace", "love"], ["Nasomatto", "Black Afgano", "like"], ["By Kilian", "Angels' Share", "like"], ["Viktor&Rolf", "Spicebomb Extreme", "like"]],
-      "expect": { "anyTop3HasReason": ["FILLS_SEASON_GAP"], "everyTop3HasReason": ["FILLS_SEASON_GAP", "FILLS_FAMILY_GAP", "FILLS_DAYPART_GAP"], "top1SeasonIn": ["spring", "summer"] }
+      "id": "D10",
+      "mode": "different",
+      "persona": "Wants a long-lasting change",
+      "owned": [
+        [
+          "Giorgio Armani",
+          "Acqua di Gio",
+          "like"
+        ],
+        [
+          "Davidoff",
+          "Cool Water",
+          "like"
+        ],
+        [
+          "Nautica",
+          "Nautica Voyage",
+          "love"
+        ]
+      ],
+      "request": {
+        "performance": "strong"
+      },
+      "expect": {
+        "maxOverlapBelow": 0.75,
+        "minLongevityTop3": 3.5
+      }
     },
     {
-      "id": "G03", "mode": "gaps", "persona": "Balanced shelf within the families they like: no real gap",
-      "owned": [["Hermès", "Terre d'Hermès", "love"], ["Tom Ford", "Tobacco Vanille", "love"], ["Dior", "Sauvage", "like"], ["Lalique", "Encre Noire", "like"], ["Parfums de Marly", "Layton", "like"], ["Jo Malone London", "Wood Sage & Sea Salt", "like"], ["Chanel", "Bleu de Chanel Eau de Parfum", "like"], ["Viktor&Rolf", "Spicebomb", "like"]],
-      "prefs": { "likedFamilies": ["woody", "amber", "aromatic"] },
-      "expect": { "caveatsInclude": ["NO_CLEAR_GAP"] }
+      "id": "G01",
+      "mode": "gaps",
+      "persona": "Summer-only fresh collection",
+      "owned": [
+        [
+          "Giorgio Armani",
+          "Acqua di Gio",
+          "like"
+        ],
+        [
+          "Davidoff",
+          "Cool Water",
+          "like"
+        ],
+        [
+          "Nautica",
+          "Nautica Voyage",
+          "like"
+        ],
+        [
+          "Issey Miyake",
+          "L'Eau d'Issey Pour Homme",
+          "like"
+        ],
+        [
+          "Versace",
+          "Versace Man Eau Fraiche",
+          "love"
+        ]
+      ],
+      "expect": {
+        "anyTop3HasReason": [
+          "FILLS_SEASON_GAP"
+        ],
+        "everyTop3HasReason": [
+          "FILLS_SEASON_GAP",
+          "FILLS_FAMILY_GAP",
+          "FILLS_DAYPART_GAP"
+        ],
+        "top1SeasonIn": [
+          "fall",
+          "winter"
+        ]
+      }
     },
     {
-      "id": "G04", "mode": "gaps", "persona": "Two bottles: too few to call anything missing",
-      "owned": [["Dior", "Sauvage", "like"], ["Tom Ford", "Tobacco Vanille", "love"]],
-      "expect": { "caveatsInclude": ["NO_CLEAR_GAP", "LIMITED_PROFILE"], "noGapReasons": true }
+      "id": "G02",
+      "mode": "gaps",
+      "persona": "Winter-only cozy collection",
+      "owned": [
+        [
+          "Tom Ford",
+          "Tobacco Vanille",
+          "love"
+        ],
+        [
+          "Maison Martin Margiela",
+          "By the Fireplace",
+          "love"
+        ],
+        [
+          "Nasomatto",
+          "Black Afgano",
+          "like"
+        ],
+        [
+          "By Kilian",
+          "Angels' Share",
+          "like"
+        ],
+        [
+          "Viktor&Rolf",
+          "Spicebomb Extreme",
+          "like"
+        ]
+      ],
+      "expect": {
+        "anyTop3HasReason": [
+          "FILLS_SEASON_GAP"
+        ],
+        "everyTop3HasReason": [
+          "FILLS_SEASON_GAP",
+          "FILLS_FAMILY_GAP",
+          "FILLS_DAYPART_GAP"
+        ],
+        "top1SeasonIn": [
+          "spring",
+          "summer"
+        ]
+      }
     },
     {
-      "id": "G05", "mode": "gaps", "persona": "Fresh shelf, avoids oud",
-      "owned": [["Giorgio Armani", "Acqua di Gio", "like"], ["Dior", "Sauvage", "love"], ["Davidoff", "Cool Water", "like"], ["Rabanne", "Invictus", "like"], ["Versace", "Eros", "like"]],
-      "prefs": { "dislikedNotes": ["oud"] },
-      "expect": { "everyTop3HasReason": ["FILLS_SEASON_GAP", "FILLS_FAMILY_GAP", "FILLS_DAYPART_GAP"] }
+      "id": "G03",
+      "mode": "gaps",
+      "persona": "Balanced shelf within the families they like: no real gap",
+      "owned": [
+        [
+          "Hermès",
+          "Terre d'Hermès",
+          "love"
+        ],
+        [
+          "Tom Ford",
+          "Tobacco Vanille",
+          "love"
+        ],
+        [
+          "Dior",
+          "Sauvage",
+          "like"
+        ],
+        [
+          "Lalique",
+          "Encre Noire",
+          "like"
+        ],
+        [
+          "Parfums de Marly",
+          "Layton",
+          "like"
+        ],
+        [
+          "Jo Malone London",
+          "Wood Sage & Sea Salt",
+          "like"
+        ],
+        [
+          "Chanel",
+          "Bleu de Chanel Eau de Parfum",
+          "like"
+        ],
+        [
+          "Viktor&Rolf",
+          "Spicebomb",
+          "like"
+        ]
+      ],
+      "prefs": {
+        "likedFamilies": [
+          "woody",
+          "amber",
+          "aromatic"
+        ]
+      },
+      "expect": {
+        "caveatsInclude": [
+          "NO_CLEAR_GAP"
+        ]
+      }
     },
     {
-      "id": "G06", "mode": "gaps", "persona": "Gap filling on a $50 budget",
-      "owned": [["Giorgio Armani", "Acqua di Gio", "like"], ["Dior", "Sauvage", "love"], ["Versace", "Eros", "like"], ["Rabanne", "Invictus", "like"], ["Jean Paul Gaultier", "Le Male", "like"]],
-      "prefs": { "budgetMax": 50 },
-      "expect": { "everyTop3HasReason": ["FILLS_SEASON_GAP", "FILLS_FAMILY_GAP", "FILLS_DAYPART_GAP"] }
+      "id": "G04",
+      "mode": "gaps",
+      "persona": "Two bottles: too few to call anything missing",
+      "owned": [
+        [
+          "Dior",
+          "Sauvage",
+          "like"
+        ],
+        [
+          "Tom Ford",
+          "Tobacco Vanille",
+          "love"
+        ]
+      ],
+      "expect": {
+        "caveatsInclude": [
+          "NO_CLEAR_GAP",
+          "LIMITED_PROFILE"
+        ],
+        "noGapReasons": true
+      }
     },
     {
-      "id": "G07", "mode": "gaps", "persona": "Evening-only shelf needs a daytime scent",
-      "owned": [["Yves Saint Laurent", "La Nuit de l'Homme", "love"], ["Tom Ford", "Tobacco Vanille", "like"], ["Viktor&Rolf", "Spicebomb Extreme", "like"], ["Afnan", "9pm", "like"], ["Tom Ford", "Noir Extreme", "like"]],
-      "expect": { "anyTop3HasReason": ["FILLS_DAYPART_GAP", "FILLS_SEASON_GAP"], "dayShareMinTop1": 0.5 }
+      "id": "G05",
+      "mode": "gaps",
+      "persona": "Fresh shelf, avoids oud",
+      "owned": [
+        [
+          "Giorgio Armani",
+          "Acqua di Gio",
+          "like"
+        ],
+        [
+          "Dior",
+          "Sauvage",
+          "love"
+        ],
+        [
+          "Davidoff",
+          "Cool Water",
+          "like"
+        ],
+        [
+          "Rabanne",
+          "Invictus",
+          "like"
+        ],
+        [
+          "Versace",
+          "Eros",
+          "like"
+        ]
+      ],
+      "prefs": {
+        "dislikedNotes": [
+          "oud"
+        ]
+      },
+      "expect": {
+        "everyTop3HasReason": [
+          "FILLS_SEASON_GAP",
+          "FILLS_FAMILY_GAP",
+          "FILLS_DAYPART_GAP"
+        ]
+      }
     },
     {
-      "id": "G08", "mode": "gaps", "persona": "Feminine floral-gourmand shelf, women's and unisex only",
-      "owned": [["Lancôme", "La Vie Est Belle", "love"], ["Dior", "J'adore", "like"], ["Yves Saint Laurent", "Black Opium", "like"], ["Marc Jacobs", "Daisy", "like"], ["Carolina Herrera", "Good Girl", "like"]],
-      "prefs": { "marketedFor": "women" },
-      "expect": { "everyTop3HasReason": ["FILLS_SEASON_GAP", "FILLS_FAMILY_GAP", "FILLS_DAYPART_GAP"] }
+      "id": "G06",
+      "mode": "gaps",
+      "persona": "Gap filling on a $50 budget",
+      "owned": [
+        [
+          "Giorgio Armani",
+          "Acqua di Gio",
+          "like"
+        ],
+        [
+          "Dior",
+          "Sauvage",
+          "love"
+        ],
+        [
+          "Versace",
+          "Eros",
+          "like"
+        ],
+        [
+          "Rabanne",
+          "Invictus",
+          "like"
+        ],
+        [
+          "Jean Paul Gaultier",
+          "Le Male",
+          "like"
+        ]
+      ],
+      "prefs": {
+        "budgetMax": 50
+      },
+      "expect": {
+        "everyTop3HasReason": [
+          "FILLS_SEASON_GAP",
+          "FILLS_FAMILY_GAP",
+          "FILLS_DAYPART_GAP"
+        ]
+      }
     },
     {
-      "id": "G09", "mode": "gaps", "persona": "Winter shelf asks explicitly for summer",
-      "owned": [["Tom Ford", "Tobacco Vanille", "love"], ["Maison Martin Margiela", "By the Fireplace", "like"], ["By Kilian", "Angels' Share", "like"], ["Viktor&Rolf", "Spicebomb Extreme", "like"], ["Nasomatto", "Black Afgano", "like"]],
-      "request": { "season": "summer" },
-      "expect": { "seasonShareMin": { "season": "summer", "min": 0.18 }, "anyTop3HasReason": ["FILLS_SEASON_GAP"] }
+      "id": "G07",
+      "mode": "gaps",
+      "persona": "Evening-only shelf needs a daytime scent",
+      "owned": [
+        [
+          "Yves Saint Laurent",
+          "La Nuit de l'Homme",
+          "love"
+        ],
+        [
+          "Tom Ford",
+          "Tobacco Vanille",
+          "like"
+        ],
+        [
+          "Viktor&Rolf",
+          "Spicebomb Extreme",
+          "like"
+        ],
+        [
+          "Afnan",
+          "9pm",
+          "like"
+        ],
+        [
+          "Tom Ford",
+          "Noir Extreme",
+          "like"
+        ]
+      ],
+      "expect": {
+        "anyTop3HasReason": [
+          "FILLS_DAYPART_GAP",
+          "FILLS_SEASON_GAP"
+        ],
+        "dayShareMinTop1": 0.5
+      }
     },
     {
-      "id": "G10", "mode": "gaps", "persona": "Aquatic-only shelf",
-      "owned": [["Giorgio Armani", "Acqua di Gio", "like"], ["Davidoff", "Cool Water", "like"], ["Nautica", "Nautica Voyage", "like"], ["Rabanne", "Invictus", "love"], ["Issey Miyake", "L'Eau d'Issey Pour Homme", "like"]],
-      "expect": { "top1FamilyNotIn": ["aquatic"], "maxOverlapBelow": 0.85 }
+      "id": "G08",
+      "mode": "gaps",
+      "persona": "Feminine floral-gourmand shelf, women's and unisex only",
+      "owned": [
+        [
+          "Lancôme",
+          "La Vie Est Belle",
+          "love"
+        ],
+        [
+          "Dior",
+          "J'adore",
+          "like"
+        ],
+        [
+          "Yves Saint Laurent",
+          "Black Opium",
+          "like"
+        ],
+        [
+          "Marc Jacobs",
+          "Daisy",
+          "like"
+        ],
+        [
+          "Carolina Herrera",
+          "Good Girl",
+          "like"
+        ]
+      ],
+      "prefs": {
+        "marketedFor": "women"
+      },
+      "expect": {
+        "everyTop3HasReason": [
+          "FILLS_SEASON_GAP",
+          "FILLS_FAMILY_GAP",
+          "FILLS_DAYPART_GAP"
+        ]
+      }
+    },
+    {
+      "id": "G09",
+      "mode": "gaps",
+      "persona": "Winter shelf asks explicitly for summer",
+      "owned": [
+        [
+          "Tom Ford",
+          "Tobacco Vanille",
+          "love"
+        ],
+        [
+          "Maison Martin Margiela",
+          "By the Fireplace",
+          "like"
+        ],
+        [
+          "By Kilian",
+          "Angels' Share",
+          "like"
+        ],
+        [
+          "Viktor&Rolf",
+          "Spicebomb Extreme",
+          "like"
+        ],
+        [
+          "Nasomatto",
+          "Black Afgano",
+          "like"
+        ]
+      ],
+      "request": {
+        "season": "summer"
+      },
+      "expect": {
+        "seasonShareMin": {
+          "season": "summer",
+          "min": 0.18
+        },
+        "anyTop3HasReason": [
+          "FILLS_SEASON_GAP"
+        ]
+      }
+    },
+    {
+      "id": "G10",
+      "mode": "gaps",
+      "persona": "Aquatic-only shelf",
+      "owned": [
+        [
+          "Giorgio Armani",
+          "Acqua di Gio",
+          "like"
+        ],
+        [
+          "Davidoff",
+          "Cool Water",
+          "like"
+        ],
+        [
+          "Nautica",
+          "Nautica Voyage",
+          "like"
+        ],
+        [
+          "Rabanne",
+          "Invictus",
+          "love"
+        ],
+        [
+          "Issey Miyake",
+          "L'Eau d'Issey Pour Homme",
+          "like"
+        ]
+      ],
+      "expect": {
+        "top1FamilyNotIn": [
+          "aquatic"
+        ],
+        "maxOverlapBelow": 0.85
+      }
     }
   ]
 }

@@ -180,7 +180,7 @@ function dedupePending(p: PendingAction[]): PendingAction[] {
 // ── Offline mode ────────────────────────────────────────────────────────────
 // Used without an API key, on API errors, or on a refusal. Same tools, same engine, templated text.
 
-export function parseIntent(message: string): { mode: Mode; season: Season | null; daypart: "day" | "night" | null; budgetMax: number | null } {
+export function parseIntent(message: string): { mode: Mode; season: Season | null; daypart: "day" | "night" | null; budgetMax: number | null; includeAlternatives?: boolean } {
   const m = message.toLowerCase();
   const mode: Mode = /\b(gap|gaps|missing|fill|round out|lack|don'?t have)\b/.test(m)
     ? "gaps"
@@ -190,14 +190,15 @@ export function parseIntent(message: string): { mode: Mode; season: Season | nul
   const season = SEASONS.find((s) => new RegExp(`\\b${s}\\b`).test(m)) ?? (/\bautumn\b/.test(m) ? "fall" : null);
   const daypart = /\b(night|evening|date|club|dinner)\b/.test(m) ? "night" : /\b(office|work|day|daytime|daily)\b/.test(m) ? "day" : null;
   const budget = /(?:under|below|less than|max|up to|budget of)\s*\$?\s?(\d{2,4})/.exec(m) ?? /\$\s?(\d{2,4})\b/.exec(m);
-  return { mode, season, daypart, budgetMax: budget ? Number(budget[1]) : null };
+  const noDupes = /\b(no|not|without|avoid)\b[^.]*\b(dupes?|clones?|alternatives?)\b|\boriginals? only\b/.test(m);
+  return { mode, season, daypart, budgetMax: budget ? Number(budget[1]) : null, ...(noDupes ? { includeAlternatives: false } : {}) };
 }
 
 async function runOffline(message: string, ctx: AdvisorContext, started: number, reason: "no_api_key" | "ai_error" | "refusal"): Promise<AdvisorReply> {
   const intent = parseIntent(message);
   const steps: TraceStep[] = [];
   const t0 = Date.now();
-  const res = await ctx.recommend({ mode: intent.mode, budgetMax: intent.budgetMax, season: intent.season, daypart: intent.daypart });
+  const res = await ctx.recommend({ mode: intent.mode, budgetMax: intent.budgetMax, season: intent.season, daypart: intent.daypart, includeAlternatives: intent.includeAlternatives ?? null });
   steps.push({ tool: "recommend_candidates", input: intent, summary: `Ran ${intent.mode} recommendations (${res.results.length})`, ok: true, ms: Date.now() - t0 });
   const lead =
     reason === "no_api_key"

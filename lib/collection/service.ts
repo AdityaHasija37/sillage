@@ -124,12 +124,13 @@ export const PreferencesInput = z.object({
   performance: z.object({ longevity: z.enum(["soft", "moderate", "strong"]).optional(), projection: z.enum(["soft", "moderate", "strong"]).optional() }),
   budgetMax: z.number().int().min(10).max(5000).nullable(),
   marketedFor: z.enum(["any", "men", "women"]),
+  includeAlternatives: z.boolean(),
 });
 
 export async function getPreferences(): Promise<Preferences> {
   const supabase = await createClient();
   const [{ data: p }, { data: prof }] = await Promise.all([
-    supabase.from("preferences").select("liked_notes, disliked_notes, liked_families, seasons, occasions, performance, marketed_for").maybeSingle(),
+    supabase.from("preferences").select("liked_notes, disliked_notes, liked_families, seasons, occasions, performance, marketed_for, include_alternatives").maybeSingle(),
     supabase.from("profiles").select("budget_max").maybeSingle(),
   ]);
   if (!p) return { ...EMPTY_PREFERENCES, budgetMax: prof?.budget_max ?? null };
@@ -142,6 +143,7 @@ export async function getPreferences(): Promise<Preferences> {
     performance: p.performance,
     budgetMax: prof?.budget_max ?? null,
     marketedFor: p.marketed_for,
+    includeAlternatives: p.include_alternatives,
   });
   return parsed.success ? parsed.data : { ...EMPTY_PREFERENCES, budgetMax: prof?.budget_max ?? null };
 }
@@ -165,6 +167,7 @@ export async function savePreferences(input: z.input<typeof PreferencesInput>): 
       occasions: v.occasions,
       performance: v.performance,
       marketed_for: v.marketedFor,
+      include_alternatives: v.includeAlternatives,
       updated_at: new Date().toISOString(),
     }),
     supabase.from("profiles").update({ budget_max: v.budgetMax }).eq("user_id", userId),
