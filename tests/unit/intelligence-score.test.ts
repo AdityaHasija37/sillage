@@ -52,7 +52,10 @@ describe("collection score (M2)", () => {
   it("CS-03 every dimension is 0–100 and the weights renormalise when one is missing", () => {
     const s = collectionScore(six);
     if (s.status !== "ok") throw new Error();
-    for (const d of s.dimensions) expect(d.score!).toBeGreaterThanOrEqual(0), expect(d.score!).toBeLessThanOrEqual(100);
+    for (const d of s.dimensions) {
+      expect(d.score!).toBeGreaterThanOrEqual(0);
+      expect(d.score!).toBeLessThanOrEqual(100);
+    }
     expect(s.dimensions.reduce((t, d) => t + d.appliedWeight, 0)).toBeCloseTo(1, 2);
     const expected = Math.round(s.dimensions.reduce((t, d) => t + d.score! * SCORE_WEIGHTS[d.key], 0));
     expect(s.overallScore).toBe(expected);

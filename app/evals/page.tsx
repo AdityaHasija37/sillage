@@ -200,6 +200,26 @@ export default function EvalsPage() {
           </p>
         </section>
 
+        <section aria-labelledby="intel-h" className="grid gap-4">
+          <h2 id="intel-h" className="text-3xl font-medium tracking-tight">
+            Collection Intelligence: {r.intelligence.passed}/{r.intelligence.checks} checks
+          </h2>
+          <p className="max-w-3xl text-muted-foreground">
+            The fixture plan from the Collection Intelligence PRD, run on real catalog data: an empty shelf, one bottle, the mixed demo shelf, twenty near-identical fresh bottles, and a shelf with all season and occasion data stripped. Plus the Today selector across 15 occasion and weather combinations, and every Scent Lab pairing of the demo shelf.
+          </p>
+          <ul className="grid gap-2 text-sm sm:grid-cols-2">
+            {r.intelligence.cases.map((c) => (
+              <li key={c.id} className="flex items-start gap-2 rounded-md border bg-card px-3 py-2">
+                {c.ok ? <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-success" aria-label="Pass" /> : <XCircle className="mt-0.5 size-4 shrink-0 text-destructive" aria-label="Fail" />}
+                <span>
+                  <span className="font-mono text-xs text-muted-foreground">{c.id}</span> {c.name}
+                  {"detail" in c && c.detail ? <span className="text-muted-foreground"> ({c.detail})</span> : null}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
         <section className="rounded-lg border bg-accent/40 p-6 text-sm leading-relaxed">
           <h2 className="font-heading text-xl">Limits of these evals</h2>
           <ul className="mt-2 grid list-disc gap-1 pl-5 text-muted-foreground">
