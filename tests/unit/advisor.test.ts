@@ -4,6 +4,9 @@ import { parseIntent, runAdvisor } from "@/lib/agent/advisor";
 import { groundAnswer } from "@/lib/agent/grounding";
 import { executeTool, TOOL_DEFINITIONS, type AdvisorContext } from "@/lib/agent/tools";
 import { EMPTY_PREFERENCES } from "@/lib/domain/profile";
+import { collectionScore } from "@/lib/intelligence/score";
+import { dailyPick } from "@/lib/intelligence/daily";
+import { toProfile } from "@/lib/intelligence/profile";
 import { recommendCandidates } from "@/lib/recommendation/engine";
 import { compareOffers } from "@/lib/offers/match";
 import { SampleOfferProvider } from "@/lib/offers/providers";
@@ -25,6 +28,8 @@ function context(over: Partial<AdvisorContext> = {}): AdvisorContext {
       const target = { brand: f.brand, name: f.name, concentration, sizeMl };
       return { target, comparison: compareOffers(target, await new SampleOfferProvider(f.priceBand).searchOffers(target)), provider: { id: "sample", label: "Sample", live: false }, checkedAt: new Date().toISOString(), fromCache: false, notice: "no_live_key" };
     },
+    collectionScore: async () => collectionScore(owned.map((o) => toProfile(o.fragrance))),
+    dailyPick: async (context) => dailyPick(context, owned.map((o) => ({ profile: toProfile(o.fragrance), sentiment: o.sentiment, dislikedNoteHit: false }))),
     ...over,
   };
 }
@@ -78,7 +83,7 @@ describe("tools", () => {
     expect(out.pending).toMatchObject({ type: "add_to_wishlist", fragranceId: c.woodyClean.id });
     expect(out.content).toMatchObject({ status: "awaiting_user_confirmation" });
     // The context exposes no mutation at all: there is nothing a tool could call to write.
-    expect(Object.keys(ctx).sort()).toEqual(["findOffers", "getFragrance", "owned", "preferences", "recommend", "searchCatalog"]);
+    expect(Object.keys(ctx).sort()).toEqual(["collectionScore", "dailyPick", "findOffers", "getFragrance", "owned", "preferences", "recommend", "searchCatalog"]);
   });
   it("SEC-05 labels third-party text as untrusted data", async () => {
     const evil = frag({ name: "Evil", accords: { woody: 100 } });
@@ -150,6 +155,22 @@ describe("runAdvisor", () => {
     const reply = await runAdvisor("fill the gaps", [], context(), { client: null });
     expect(reply.trace.offlineReason).toBe("no_api_key");
     expect(reply.text).toMatch(/Offline mode/);
+  });
+});
+
+describe("offline Collection Intelligence answers", () => {
+  it("answers 'how balanced is my collection' from the score engine", async () => {
+    const reply = await runAdvisor("How balanced is my collection, and what's it missing?", [], context(), { client: null });
+    expect(reply.trace.steps[0].tool).toBe("get_collection_score");
+    expect(reply.text).toMatch(/scores \d+\/100/);
+  });
+  it("answers 'what should I wear' from owned bottles only, with grounded citations", async () => {
+    const ctx = context();
+    const reply = await runAdvisor("What should I wear to the office tomorrow? It'll be cold.", [], ctx, { client: null });
+    expect(reply.trace.steps[0]).toMatchObject({ tool: "pick_for_today" });
+    const ownedIds = ctx.owned.map((o) => o.fragrance.id);
+    expect(reply.citedIds.length).toBeGreaterThan(0);
+    for (const id of reply.citedIds) expect(ownedIds).toContain(id);
   });
 });
 

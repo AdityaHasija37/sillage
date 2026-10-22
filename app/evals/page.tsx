@@ -51,7 +51,7 @@ export default function EvalsPage() {
             What the evals changed
           </h2>
           <p className="mt-2 max-w-3xl text-muted-foreground">The first run found real problems. Each fix was a product decision, logged in the decision register, and the cases themselves were not edited to pass.</p>
-          <div className="mt-6 overflow-x-auto rounded-xl border">
+          <div className="mt-6 overflow-x-auto rounded-md border">
             <table className="w-full text-sm">
               <thead className="bg-muted/50 text-left text-xs text-muted-foreground">
                 <tr>
@@ -80,15 +80,15 @@ export default function EvalsPage() {
             </table>
           </div>
           <ul className="mt-6 grid gap-3 text-sm leading-relaxed md:grid-cols-3">
-            <li className="rounded-xl border bg-card p-4">
+            <li className="rounded-md border bg-card p-4">
               <p className="font-medium">Blocklists don&apos;t catch flankers</p>
               <p className="mt-1 text-muted-foreground">v1 matched “Khamrah Qahwa” and “1 Million Lucky” as exact. v2 only trusts words it recognises; anything else goes to “Needs verification”.</p>
             </li>
-            <li className="rounded-xl border bg-card p-4">
+            <li className="rounded-md border bg-card p-4">
               <p className="font-medium">Similar meant “buy a flanker”</p>
               <p className="mt-1 text-muted-foreground">A La Vie Est Belle fan got two La Vie Est Belle flankers. v2 flags other versions of owned lines and down-weights them, the PRD&apos;s “avoid a redundant purchase”.</p>
             </li>
-            <li className="rounded-xl border bg-card p-4">
+            <li className="rounded-md border bg-card p-4">
               <p className="font-medium">Different stayed in the same family</p>
               <p className="mt-1 text-muted-foreground">An all-amber shelf got another amber. v2 rewards a new family and gives Gap mode its own weights, so filling the gap outweighs matching current taste.</p>
             </li>
@@ -102,7 +102,7 @@ export default function EvalsPage() {
           <p className="mt-2 max-w-3xl text-muted-foreground">
             Every case runs hard checks (nothing owned, no disliked notes, budget and marketing respected) plus persona-specific relevance checks: closeness to the loved bottle for Similar, low overlap and a new family for Different, a named gap for Fill gaps, and an honest “no clear gap” for balanced or tiny shelves. Median {r.recommendations.medianMs} ms over {r.recommendations.poolSize.toLocaleString("en-US")} candidates.
           </p>
-          <div className="mt-6 overflow-x-auto rounded-xl border">
+          <div className="mt-6 overflow-x-auto rounded-md border">
             <table className="w-full text-sm">
               <thead className="bg-muted/50 text-left text-xs text-muted-foreground">
                 <tr>
@@ -151,7 +151,7 @@ export default function EvalsPage() {
             Hand-written listing titles for 12 bottles, each annotated before running: the right bottle phrased different ways (ounces vs ml, brand abbreviations), and wrong ones that look right (EDT for EDP, 50 ml for 100, flankers, testers, gift sets, refills, decants, pre-owned). Precision matters most: a wrong “exact” match is worse than a missing one.
           </p>
           {r.offers.disagreements.length > 0 && (
-            <div className="overflow-x-auto rounded-xl border">
+            <div className="overflow-x-auto rounded-md border">
               <table className="w-full text-sm">
                 <caption className="px-3 py-2 text-left text-xs text-muted-foreground">Listings where the matcher disagreed with the annotation</caption>
                 <thead className="bg-muted/50 text-left text-xs text-muted-foreground">
@@ -200,7 +200,7 @@ export default function EvalsPage() {
           </p>
         </section>
 
-        <section className="rounded-2xl border bg-accent/40 p-6 text-sm leading-relaxed">
+        <section className="rounded-lg border bg-accent/40 p-6 text-sm leading-relaxed">
           <h2 className="font-heading text-xl">Limits of these evals</h2>
           <ul className="mt-2 grid list-disc gap-1 pl-5 text-muted-foreground">
             <li>Personas and annotations are mine, not real users&apos;. They test behaviour against the spec, not taste.</li>
@@ -219,7 +219,7 @@ export default function EvalsPage() {
 
 function Tile({ label, value, hint }: { label: string; value: string; hint: string }) {
   return (
-    <div className="rounded-xl border bg-card p-4">
+    <div className="rounded-md border bg-card p-4">
       <p className="text-xs text-muted-foreground">{label}</p>
       <p className="mt-1 font-heading text-3xl font-medium tabular-nums">{value}</p>
       <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{hint}</p>

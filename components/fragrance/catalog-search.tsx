@@ -56,7 +56,7 @@ export function CatalogSearch({ ownedIds, initialCount }: { ownedIds: string[]; 
 
   return (
     <div className="grid gap-5">
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-card px-4 py-3" role="status">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border bg-card px-4 py-3" role="status">
         <p className="text-sm">
           <span className="font-heading text-2xl tabular-nums">{count}</span> <span className="text-muted-foreground">in your collection</span>
         </p>
@@ -109,7 +109,7 @@ export function CatalogSearch({ ownedIds, initialCount }: { ownedIds: string[]; 
       )}
 
       {shown && shown.items.length === 0 && !loading && (
-        <div className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">
+        <div className="rounded-md border border-dashed p-8 text-center text-sm text-muted-foreground">
           No matches for “{q.trim()}”. Try the brand name alone, or a shorter spelling.
         </div>
       )}
@@ -144,9 +144,9 @@ function ResultRow({ f, owned, justAdded, onAdded }: { f: FragranceSummary; owne
   const [pending, start] = useTransition();
   const [sentiment, setSentiment] = useState<Sentiment | null>(null);
   return (
-    <li className="rounded-xl border bg-card p-3">
+    <li className="rounded-md border bg-card p-3">
       <div className="flex items-center gap-3">
-        <ScentSwatch accords={f.accords.map((name, i) => ({ name, strength: 100 - i * 25 }))} size="xs" />
+        <ScentSwatch name={f.name} accords={f.accords.map((name, i) => ({ name, strength: 100 - i * 25 }))} size="xs" />
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm">
             <Link href={`/app/fragrance/${f.id}`} className="font-medium hover:underline">

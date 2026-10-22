@@ -10,7 +10,8 @@
     "recTotal": 30,
     "exclusionCompliance": 1,
     "relevance": 0.9423076923076923,
-    "fabricated": 0
+    "fabricated": 0,
+    "intelligence": null
   },
   {
     "file": "2026-10-21-v2-allowlist-flankers.json",
@@ -23,7 +24,8 @@
     "recTotal": 30,
     "exclusionCompliance": 1,
     "relevance": 0.9615384615384616,
-    "fabricated": 0
+    "fabricated": 0,
+    "intelligence": null
   },
   {
     "file": "2026-10-21-v3-budget-alternatives.json",
@@ -36,6 +38,21 @@
     "recTotal": 32,
     "exclusionCompliance": 1,
     "relevance": 0.9464285714285714,
-    "fabricated": 0
+    "fabricated": 0,
+    "intelligence": null
+  },
+  {
+    "file": "2026-10-22-v4-collection-intelligence.json",
+    "label": "v4-collection-intelligence",
+    "generatedAt": "2026-10-22T12:55:55.883Z",
+    "engineVersion": "rec-1.2",
+    "offerPrecision": 1,
+    "offerRecall": 1,
+    "recPassed": 29,
+    "recTotal": 32,
+    "exclusionCompliance": 1,
+    "relevance": 0.9464285714285714,
+    "fabricated": 0,
+    "intelligence": "9/9"
   }
 ]

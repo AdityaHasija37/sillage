@@ -38,7 +38,7 @@ export async function POST(req: Request) {
     sessionId = data?.id ?? null;
   }
 
-  const ctx = await advisorContextFor(user.id);
+  const ctx = await advisorContextFor(user.id, user.isDemo);
   const reply = await runAdvisor(parsed.data.message, history, ctx);
 
   if (sessionId) {

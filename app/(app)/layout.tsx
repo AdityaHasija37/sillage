@@ -1,10 +1,8 @@
 import Link from "next/link";
 import { Logo } from "@/components/brand/logo";
-import { BottomNav, SideNav } from "@/components/app/nav";
-import { AdvisorLauncher } from "@/components/advisor/advisor-launcher";
-import { Button } from "@/components/ui/button";
+import { AccountMenu } from "@/components/app/account-menu";
+import { BottomNav, TopNav } from "@/components/app/nav";
 import { requireUser } from "@/lib/auth/session";
-import { signOut } from "@/app/(auth)/actions";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const user = await requireUser();
@@ -14,45 +12,39 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         Skip to content
       </a>
       {user.isDemo && (
-        <p className="bg-ink px-4 py-2 text-center text-sm text-ink-foreground">
-          <strong className="font-medium">Sample collection.</strong> A private sandbox just for you; change anything, it deletes itself after 24 hours.{" "}
+        <p className="bg-ink px-4 py-2 text-center text-[13px] text-ink-foreground">
+          <span className="font-mono text-[11px] tracking-[0.08em] text-[oklch(0.8_0.1_55)] uppercase">Sample shelf</span>
+          <span className="mx-2 opacity-40">·</span>
+          Private to you, deletes itself in 24 hours. Change anything.{" "}
           <Link href="/register" className="underline underline-offset-4">
             Start your own
           </Link>
         </p>
       )}
-      <header className="sticky top-0 z-30 border-b bg-background/90 backdrop-blur">
-        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
-          <Link href="/app" className="rounded-md focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none">
-            <Logo />
-          </Link>
-          <div className="flex items-center gap-2">
-            <AdvisorLauncher />
-            <span className="hidden max-w-48 truncate text-sm text-muted-foreground md:inline" title={user.email ?? undefined}>
-              {user.isDemo ? "Demo visitor" : user.displayName || user.email}
-            </span>
-            <form action={signOut}>
-              <Button type="submit" variant="ghost" size="sm">
-                Sign out
-              </Button>
-            </form>
+      <header className="sticky top-0 z-30 border-b border-foreground/15 bg-background/92 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-end justify-between gap-6 px-4 pt-3 sm:px-6">
+          <div className="flex items-end gap-10">
+            <Link href="/app" className="mb-3 rounded-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none">
+              <Logo />
+            </Link>
+            <TopNav />
+          </div>
+          <div className="mb-2.5">
+            <AccountMenu label={user.isDemo ? "Sample visitor" : user.displayName || user.email || "Account"} />
           </div>
         </div>
       </header>
-      <div className="mx-auto flex w-full max-w-7xl flex-1 gap-8 px-4 sm:px-6">
-        <aside className="sticky top-14 hidden h-[calc(100dvh-3.5rem)] w-52 shrink-0 py-8 lg:block">
-          <SideNav />
-          <div className="mt-8 rounded-xl border border-dashed p-3 text-xs leading-relaxed text-muted-foreground">
-            Recommendations are estimates from community data. Prices are shown only when found.{" "}
-            <Link href="/how-it-works" className="underline underline-offset-2">
-              How it works
-            </Link>
-          </div>
-        </aside>
-        <main id="main" className="min-w-0 flex-1 py-6 pb-24 sm:py-10 lg:pb-10">
-          {children}
-        </main>
-      </div>
+      <main id="main" className="mx-auto w-full max-w-6xl min-w-0 flex-1 px-4 py-8 pb-24 sm:px-6 sm:py-12 md:pb-14 [&>*]:min-w-0">
+        {children}
+      </main>
+      <footer className="hidden border-t border-foreground/10 md:block">
+        <p className="mx-auto max-w-6xl px-6 py-5 text-xs text-muted-foreground">
+          Scores, picks and pairings are estimates from community data, never measurements.{" "}
+          <Link href="/how-it-works" className="underline underline-offset-2">
+            How it works
+          </Link>
+        </p>
+      </footer>
       <BottomNav />
     </div>
   );

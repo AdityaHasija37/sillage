@@ -8,18 +8,18 @@ test("E2E-01 / DEMO-01: guest demo → Fill gaps → grounded result → exact v
   await startDemo(page);
 
   // Dashboard: real counts from the seeded sample shelf (DASH-01).
-  await expect(page.getByRole("heading", { name: "What your shelf says" })).toBeVisible();
-  await expect(page.getByText("Bottles", { exact: true }).locator("..")).toContainText("6");
-  await expect(page.getByRole("heading", { name: "Scent mix" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("6 bottles");
+  await expect(page.getByText("Scent mix")).toBeVisible();
   await expect(page.getByRole("table")).toBeVisible(); // season × time-of-day grid
+  await expect(page.getByText("Collection score").first()).toBeVisible();
 
   // Discover → Fill gaps (REC, FR-06).
-  await page.getByRole("link", { name: /Find my next fragrance/ }).click();
+  await page.getByRole("navigation", { name: "Main" }).first().getByRole("link", { name: "Discover" }).click();
   await page.getByRole("radio", { name: /Fill gaps/ }).click();
   await page.getByRole("button", { name: "Show suggestions" }).click();
   const first = page.getByRole("listitem").filter({ has: page.getByText("estimated fit") }).first();
   await expect(first).toBeVisible({ timeout: 20_000 });
-  await expect(first).toContainText("✓"); // at least one reason
+  await expect(first).toContainText("—"); // at least one reason
   await expect(page.getByText(/Ranked by Sillage's deterministic engine/)).toBeVisible();
   await expect(page.getByText(/with notes you avoid/)).toBeVisible(); // demo dislikes oud
 
@@ -40,7 +40,7 @@ test("E2E-01 / DEMO-01: guest demo → Fill gaps → grounded result → exact v
 
 test("FR-07: advisor answers from the user's collection, with a trace and grounded citations", async ({ page }) => {
   await startDemo(page);
-  await page.getByRole("button", { name: "Ask the advisor" }).click();
+  await page.goto("/app/advisor");
   await page.getByRole("button", { name: /woody winter fragrance/ }).click();
   const trace = page.getByRole("button", { name: /How I got this/ });
   await expect(trace).toBeVisible({ timeout: 60_000 });

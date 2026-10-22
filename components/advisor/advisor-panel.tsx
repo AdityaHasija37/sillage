@@ -16,7 +16,8 @@ type Turn = { role: "user"; text: string } | { role: "assistant"; reply: Advisor
 
 const SUGGESTIONS = [
   "Suggest a woody winter fragrance under $100 that isn't close to what I own",
-  "What's missing from my collection for summer?",
+  "How balanced is my collection, and what's it missing?",
+  "What should I wear to the office tomorrow? It'll be cold.",
   "Something like my favourite, but for evenings",
 ];
 
@@ -71,7 +72,7 @@ export function AdvisorPanel() {
         <ol className="grid gap-4">
           {turns.map((t, i) => (
             <li key={i}>
-              {t.role === "user" && <p className="ml-auto max-w-[85%] rounded-2xl rounded-br-sm bg-ink px-3.5 py-2 text-sm text-ink-foreground">{t.text}</p>}
+              {t.role === "user" && <p className="ml-auto max-w-[85%] rounded-lg rounded-br-sm bg-ink px-3.5 py-2 text-sm text-ink-foreground">{t.text}</p>}
               {t.role === "error" && (
                 <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
                   {t.text}
@@ -127,7 +128,7 @@ function AssistantMessage({ reply, cited }: { reply: AdvisorReply; cited: Cited[
   const parts = reply.text.split(/(\[\[f:[0-9a-f-]{36}\]\])/gi);
   return (
     <div className="grid gap-2">
-      <div className="max-w-[95%] rounded-2xl rounded-bl-sm border bg-card px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap">
+      <div className="max-w-[95%] rounded-lg rounded-bl-sm border bg-card px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap">
         {parts.map((p, i) => {
           const m = /^\[\[f:([0-9a-f-]{36})\]\]$/i.exec(p);
           if (!m) return <span key={i}>{p}</span>;

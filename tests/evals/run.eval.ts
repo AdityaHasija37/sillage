@@ -22,6 +22,10 @@ import { dayShare, displayName, FRAGRANCE_COLUMNS, PRICE_BAND_RANGE, seasonShare
 import { accordVector, cosine, EMPTY_PREFERENCES, type OwnedFragrance, type Preferences, type Sentiment } from "@/lib/domain/profile";
 import { compareOffers, matchListing, type OfferTarget } from "@/lib/offers/match";
 import { SampleOfferProvider } from "@/lib/offers/providers";
+import { collectionScore, previewCandidate } from "@/lib/intelligence/score";
+import { predictPair } from "@/lib/intelligence/lab";
+import { dailyPick } from "@/lib/intelligence/daily";
+import { toProfile } from "@/lib/intelligence/profile";
 import { ENGINE_VERSION, matchingNotes, recommendCandidates, type Mode, type RecommendationRequest } from "@/lib/recommendation/engine";
 
 const root = process.cwd();
@@ -196,6 +200,8 @@ it("eval suite", async () => {
       const target = { brand: f.brand, name: f.name, concentration, sizeMl };
       return { target, comparison: compareOffers(target, await new SampleOfferProvider(f.priceBand).searchOffers(target)), provider: { id: "sample", label: "Sample", live: false }, checkedAt: new Date().toISOString(), fromCache: false, notice: "no_live_key" };
     },
+    collectionScore: async () => collectionScore(owned.map((o) => toProfile(o.fragrance))),
+    dailyPick: async (context) => dailyPick(context, owned.map((o) => ({ profile: toProfile(o.fragrance), sentiment: o.sentiment, dislikedNoteHit: false }))),
   };
   const attacks = [
     { name: "invented fragrance id", text: (real: string) => `Try [[f:${real}]] and [[f:00000000-dead-4bee-8000-000000000000]].` },
@@ -241,7 +247,56 @@ it("eval suite", async () => {
   }
   const catalog = { fragrances: count ?? 0, coverage: coverageRows.filter((r) => r.found).length / coverageRows.length, coverageRows, medianSearchMs: [...coverageRows.map((r) => r.ms)].sort((a, b) => a - b)[10] };
 
-  // ── 5. Live agent (optional) ──
+  // ── 5. Collection Intelligence (PRD 08 §13 fixtures, real catalog data) ──
+  const demoShelf = await Promise.all(
+    [["Chanel", "Bleu de Chanel Eau de Parfum"], ["Tom Ford", "Tobacco Vanille"], ["Dior", "Sauvage"], ["Maison Martin Margiela", "Jazz Club"], ["Jo Malone London", "Wood Sage & Sea Salt"], ["Giorgio Armani", "Acqua di Gio"]].map(([b, n]) => byKey(`${b}|${n}`)),
+  );
+  const freshHeavy = pool.filter((f) => f.family === "aquatic" || f.family === "citrus").slice(0, 20);
+  const ic: { id: string; name: string; ok: boolean; detail?: string }[] = [];
+  const P = (fs: Fragrance[]) => fs.map(toProfile);
+  const empty = collectionScore([]);
+  ic.push({ id: "CS-01", name: "empty shelf has no score", ok: empty.status === "empty" });
+  const one = collectionScore(P([demoShelf[0]]));
+  ic.push({ id: "CS-small", name: "one bottle is provisional and low confidence", ok: one.status === "ok" && one.confidence === "low" && one.dimensions.some((d) => d.provisional) });
+  const mixed = collectionScore(P(demoShelf));
+  const mixedRev = collectionScore(P([...demoShelf].reverse()));
+  ic.push({ id: "CS-02", name: "same shelf, any order, same score", ok: JSON.stringify(mixed) === JSON.stringify(mixedRev) });
+  const heavy = collectionScore(P(freshHeavy));
+  const dim = (sc: typeof mixed, k: string) => (sc.status === "ok" ? sc.dimensions.find((d) => d.key === k)?.score ?? 0 : 0);
+  ic.push({ id: "CS-size", name: "20 fresh/aquatic bottles score lower diversity than 6 mixed", ok: dim(heavy, "diversity") < dim(mixed, "diversity"), detail: `${dim(heavy, "diversity")} vs ${dim(mixed, "diversity")}` });
+  const missing = collectionScore(P(demoShelf).map((p) => ({ ...p, seasonalFit: undefined, daypartFit: undefined, occasionFit: undefined })));
+  ic.push({ id: "CS-03", name: "missing metadata excluded and reweighted, low confidence", ok: missing.status === "ok" && missing.confidence === "low" && Math.abs(missing.dimensions.reduce((t, d) => t + d.appliedWeight, 0) - 1) < 0.01 });
+  ic.push({ id: "CS-04", name: "previewing an owned bottle is a duplicate", ok: previewCandidate(P(demoShelf), toProfile(demoShelf[2])).status === "duplicate" });
+  const ownedDaily = demoShelf.map((f) => ({ profile: toProfile(f), sentiment: "like" as const, dislikedNoteHit: false }));
+  let contexts = 0;
+  let compliant = 0;
+  for (const occasion of ["casual", "office", "formal", "evening", "special"] as const)
+    for (const temperature of ["cold", "mild", "hot"] as const) {
+      contexts++;
+      const avoid = demoShelf[contexts % 6].id;
+      const r = dailyPick({ occasion, weather: { temperature, source: "manual" }, excludedFragranceIds: [avoid] }, ownedDaily);
+      const ids = r.status === "ok" ? r.picks.map((p) => p.fragranceId) : [];
+      if (r.status === "ok" && ids.length === 3 && new Set(ids).size === 3 && !ids.includes(avoid) && ids.every((id) => demoShelf.some((f) => f.id === id)) && r.picks.every((p) => p.factors.length >= 2)) compliant++;
+    }
+  ic.push({ id: "DS-01/04", name: `owned-only, unique, avoid list honoured, 2+ factors across ${contexts} contexts`, ok: compliant === contexts, detail: `${compliant}/${contexts}` });
+  let symmetric = 0;
+  let pairs = 0;
+  for (let i = 0; i < demoShelf.length; i++)
+    for (let j = i + 1; j < demoShelf.length; j++) {
+      pairs++;
+      const x = { profile: toProfile(demoShelf[i]), sentiment: null };
+      const y = { profile: toProfile(demoShelf[j]), sentiment: null };
+      const a = predictPair(x, y);
+      const b = predictPair(y, x);
+      if (JSON.stringify(a) === JSON.stringify(b) && a.status === "ok" && a.score >= 0 && a.score <= 100) symmetric++;
+    }
+  ic.push({ id: "SL-02", name: `A/B equals B/A and scores stay 0–100 for all ${pairs} demo pairs`, ok: symmetric === pairs, detail: `${symmetric}/${pairs}` });
+  const tvJazz = predictPair({ profile: toProfile(demoShelf[1]), sentiment: null }, { profile: toProfile(demoShelf[3]), sentiment: null });
+  const tvAdg = predictPair({ profile: toProfile(demoShelf[1]), sentiment: null }, { profile: toProfile(demoShelf[5]), sentiment: null });
+  ic.push({ id: "SL-sense", name: "a classic complement (Tobacco Vanille + Jazz Club) beats a tension pair (Tobacco Vanille + Acqua di Gio)", ok: tvJazz.status === "ok" && tvAdg.status === "ok" && tvJazz.score > tvAdg.score, detail: tvJazz.status === "ok" && tvAdg.status === "ok" ? `${tvJazz.score} vs ${tvAdg.score}` : "" });
+  const intelligence = { checks: ic.length, passed: ic.filter((c) => c.ok).length, cases: ic, demoScore: mixed.status === "ok" ? mixed.overallScore : null };
+
+  // ── 6. Live agent (optional) ──
   const live = { ran: false as boolean, reason: process.env.ANTHROPIC_API_KEY ? "" : "ANTHROPIC_API_KEY not set; live agent eval skipped" };
 
   const report = {
@@ -253,6 +308,7 @@ it("eval suite", async () => {
     offers,
     recommendations,
     grounding,
+    intelligence,
     live,
   };
   const dir = path.join(root, "docs/evals");
@@ -266,7 +322,7 @@ it("eval suite", async () => {
     .sort()
     .map((f) => {
       const h = JSON.parse(readFileSync(path.join(dir, "history", f), "utf8"));
-      return { file: f, label: h.label, generatedAt: h.generatedAt, engineVersion: h.engineVersion, offerPrecision: h.offers.precision, offerRecall: h.offers.recall, recPassed: h.recommendations.passed, recTotal: h.recommendations.total, exclusionCompliance: h.recommendations.exclusionCompliance, relevance: h.recommendations.relevance, fabricated: h.grounding.fabricated };
+      return { file: f, label: h.label, generatedAt: h.generatedAt, engineVersion: h.engineVersion, offerPrecision: h.offers.precision, offerRecall: h.offers.recall, recPassed: h.recommendations.passed, recTotal: h.recommendations.total, exclusionCompliance: h.recommendations.exclusionCompliance, relevance: h.recommendations.relevance, fabricated: h.grounding.fabricated, intelligence: h.intelligence ? `${h.intelligence.passed}/${h.intelligence.checks}` : null };
     });
   writeFileSync(path.join(dir, "history.json"), JSON.stringify(history, null, 2));
   console.log(
@@ -282,6 +338,7 @@ function markdown(r: {
   offers: { pairs: number; precision: number; recall: number; agreement: number; disagreements: { target: string; title: string; expected: string; actual: string; reasons: string[] }[] };
   recommendations: { total: number; passed: number; exclusionCompliance: number; relevance: number; medianMs: number; poolSize: number; byMode: Record<string, { total: number; passed: number }>; cases: { id: string; persona: string; passed: boolean; checks: { name: string; ok: boolean; detail?: string }[]; top: { name: string }[] }[] };
   grounding: { injected: number; fabricated: number };
+  intelligence: { checks: number; passed: number; cases: { id: string; name: string; ok: boolean; detail?: string }[] };
   live: { ran: boolean; reason: string };
 }) {
   const pct = (n: number) => `${(n * 100).toFixed(1)}%`;
@@ -296,11 +353,18 @@ function markdown(r: {
     `| Offer matching (${r.offers.pairs} adversarial pairs) | precision of "exact" ${pct(r.offers.precision)}, recall ${pct(r.offers.recall)}, three-way agreement ${pct(r.offers.agreement)} |`,
     `| Recommendations (${r.recommendations.total} synthetic personas) | ${r.recommendations.passed}/${r.recommendations.total} pass every criterion; exclusion compliance ${pct(r.recommendations.exclusionCompliance)}; relevance checks ${pct(r.recommendations.relevance)}; median ${r.recommendations.medianMs} ms over ${r.recommendations.poolSize.toLocaleString("en-US")} candidates |`,
     `| Grounding | ${r.grounding.fabricated} of ${r.grounding.injected} planted fake ids/prices reached the user |`,
+    `| Collection Intelligence (PRD 08 fixtures) | ${r.intelligence.passed}/${r.intelligence.checks} checks pass |`,
     `| Live agent | ${r.live.ran ? "ran" : r.live.reason} |`,
     ``,
     `## Offer disagreements`,
     ``,
     r.offers.disagreements.length ? `| Target | Listing | Expected | Got | Reasons |\n|---|---|---|---|---|\n` + r.offers.disagreements.map((d) => `| ${d.target} | ${d.title} | ${d.expected} | ${d.actual} | ${d.reasons.join(", ")} |`).join("\n") : "None.",
+    ``,
+    `## Collection Intelligence checks`,
+    ``,
+    `| Check | What | Result |`,
+    `|---|---|---|`,
+    ...r.intelligence.cases.map((c) => `| ${c.id} | ${c.name} | ${c.ok ? "pass" : "**fail**"}${c.detail ? ` (${c.detail})` : ""} |`),
     ``,
     `## Recommendation cases`,
     ``,

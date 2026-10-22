@@ -43,7 +43,7 @@ export default async function FragrancePage({ params }: PageProps<"/app/fragranc
   const similarById = new Map(similar.map((s) => [s.externalId, s]));
 
   return (
-    <div className="grid gap-8">
+    <div className="grid gap-12">
       <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground">
         <Link href="/app/collection" className="hover:underline">
           Collection
@@ -52,10 +52,10 @@ export default async function FragrancePage({ params }: PageProps<"/app/fragranc
       </nav>
 
       <header className="flex flex-wrap items-start gap-8">
-        <ScentSwatch accords={f.accords} size="xl" />
+        <ScentSwatch name={f.name} accords={f.accords} size="xl" />
         <div className="min-w-0 flex-1">
-          <p className="text-sm tracking-wide text-muted-foreground uppercase">{f.brand}</p>
-          <h1 className="text-4xl font-medium tracking-tight sm:text-5xl">{f.name}</h1>
+          <p className="label">{f.brand}</p>
+          <h1 className="mt-1 text-5xl leading-[0.95] sm:text-7xl">{f.name}</h1>
           <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
             <FamilyBadge family={f.family} />
             {f.familyLabel && <span className="text-muted-foreground capitalize">{f.familyLabel}</span>}
@@ -65,8 +65,13 @@ export default async function FragrancePage({ params }: PageProps<"/app/fragranc
           </div>
           {f.perfumers.length > 0 && <p className="mt-2 text-sm text-muted-foreground">Perfumer: {f.perfumers.join(", ")}</p>}
           {c && <Rating rating={c.rating} votes={c.votes} className="mt-3 text-sm" />}
-          <div className="mt-5">
+          <div className="mt-6 flex flex-wrap items-center gap-3">
             <FragranceActions fragranceId={f.id} owned={isOwned} wishlisted={isWished} />
+            {!isOwned && (
+              <Link href={`/app/score?candidate=${f.id}`} className="text-sm text-primary underline-offset-4 hover:underline">
+                What would it change about my shelf?
+              </Link>
+            )}
           </div>
           {closest && closest.s > 0 && (
             <p className="mt-4 text-sm">
@@ -81,14 +86,14 @@ export default async function FragrancePage({ params }: PageProps<"/app/fragranc
       </header>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <section aria-labelledby="accords-h" className="rounded-2xl border bg-card p-5">
-          <h2 id="accords-h" className="mb-4 text-xl">
+        <section aria-labelledby="accords-h" className="border-t border-foreground/15 pt-5">
+          <h2 id="accords-h" className="mb-4 text-3xl">
             Accords
           </h2>
           {f.accords.length ? <AccordBars accords={f.accords} /> : <p className="text-sm text-muted-foreground">No accord data from this source.</p>}
         </section>
-        <section aria-labelledby="notes-h" className="rounded-2xl border bg-card p-5">
-          <h2 id="notes-h" className="mb-4 text-xl">
+        <section aria-labelledby="notes-h" className="border-t border-foreground/15 pt-5">
+          <h2 id="notes-h" className="mb-4 text-3xl">
             Notes
           </h2>
           {hasNotes ? (
@@ -116,8 +121,8 @@ export default async function FragrancePage({ params }: PageProps<"/app/fragranc
       </div>
 
       {c && (
-        <section aria-labelledby="community-h" className="rounded-2xl border bg-card p-5">
-          <h2 id="community-h" className="text-xl">
+        <section aria-labelledby="community-h" className="border-t border-foreground/15 pt-5">
+          <h2 id="community-h" className="text-3xl">
             What wearers report
           </h2>
           <p className="mb-4 text-sm text-muted-foreground">Community votes from {k(c.votes)} people. Estimates, not lab measurements.</p>
@@ -196,7 +201,7 @@ export default async function FragrancePage({ params }: PageProps<"/app/fragranc
 
       {f.similarTo.length > 0 && similar.length > 0 && (
         <section aria-labelledby="similar-h">
-          <h2 id="similar-h" className="mb-3 text-xl">
+          <h2 id="similar-h" className="mb-3 text-3xl">
             People say it smells like
           </h2>
           <ul className="flex flex-wrap gap-2">
@@ -218,7 +223,7 @@ export default async function FragrancePage({ params }: PageProps<"/app/fragranc
 
       <OfferPanel fragranceId={f.id} concentration={f.concentration} knownSizes={f.sizesMl} />
 
-      <footer className="rounded-xl border border-dashed p-4 text-xs leading-relaxed text-muted-foreground">
+      <footer className="border-t border-dashed pt-4 text-xs leading-relaxed text-muted-foreground">
         <p>
           <span className="font-medium text-foreground">Source:</span> {SOURCE_LABEL[f.provider] ?? f.provider}.{" "}
           {f.sourceUrl && (

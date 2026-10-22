@@ -4,9 +4,10 @@ import { getPreferences, listCollection } from "@/lib/collection/service";
 import { searchOffers } from "@/lib/offers/service";
 import { runRecommendations } from "@/lib/recommendation/service";
 import type { AdvisorContext } from "./tools";
+import { getCollectionScore, runDailyPick } from "@/lib/intelligence/service";
 
 /** The real, user-scoped advisor context: every read goes through the user's own RLS client. */
-export async function advisorContextFor(userId: string): Promise<AdvisorContext> {
+export async function advisorContextFor(userId: string, isDemo = false): Promise<AdvisorContext> {
   const [owned, preferences] = await Promise.all([listCollection(), getPreferences()]);
   return {
     owned,
@@ -16,5 +17,7 @@ export async function advisorContextFor(userId: string): Promise<AdvisorContext>
     getFragrance,
     recommend: (input) => runRecommendations(input, preferences, owned, "advisor"),
     findOffers: (fragrance, concentration, sizeMl) => searchOffers(fragrance, { fragranceId: fragrance.id, concentration, sizeMl }, userId),
+    collectionScore: () => getCollectionScore(isDemo),
+    dailyPick: (context) => runDailyPick(context, isDemo),
   };
 }

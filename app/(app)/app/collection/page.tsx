@@ -12,7 +12,7 @@ export default async function CollectionPage() {
     <div className="grid gap-6">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-medium tracking-tight">My collection</h1>
+          <h1 className="text-5xl sm:text-6xl">My collection</h1>
           <p className="mt-2 text-muted-foreground">Rate what you own. Love, like and dislike all shape your recommendations; unrated bottles count only a little.</p>
         </div>
         <ButtonLink href="/app/add">
@@ -20,7 +20,7 @@ export default async function CollectionPage() {
         </ButtonLink>
       </header>
       {items.length === 0 ? (
-        <div className="rounded-2xl border border-dashed p-10 text-center">
+        <div className="rounded-lg border border-dashed p-10 text-center">
           <p className="font-heading text-xl">Your collection is empty</p>
           <p className="mt-2 text-sm text-muted-foreground">Add the bottles on your shelf to see what they say about your taste.</p>
           <ButtonLink href="/app/add" className="mt-4">

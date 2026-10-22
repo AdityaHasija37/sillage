@@ -14,7 +14,7 @@ await page.goto(base);
 await page.waitForLoadState("networkidle");
 await shot("landing");
 
-await page.getByRole("button", { name: /Try the live demo/ }).click();
+await page.getByRole("button", { name: /Open a sample shelf/ }).click();
 await page.waitForURL(/\/app/);
 await page.waitForLoadState("networkidle");
 await shot("dashboard", { fullPage: true });

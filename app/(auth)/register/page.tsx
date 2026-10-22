@@ -9,8 +9,8 @@ export default function RegisterPage() {
   return (
     <>
       <AuthCard
-        title="Create your account"
-        subtitle="Start your collection in a couple of minutes."
+        title="Start your shelf"
+        subtitle="Free. Add what you own and see what it says about your taste."
       >
         <RegisterForm />
       </AuthCard>

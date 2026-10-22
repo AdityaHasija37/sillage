@@ -12,13 +12,13 @@ export default async function PreferencesPage() {
   return (
     <div className="grid max-w-3xl gap-8">
       <header>
-        <h1 className="text-4xl font-medium tracking-tight">Preferences</h1>
+        <h1 className="text-5xl sm:text-6xl">Preferences</h1>
         <p className="mt-2 text-muted-foreground">What you tell Sillage directly always outweighs what it infers from your collection.</p>
       </header>
-      <section className="rounded-2xl border bg-card p-6">
+      <section className="rounded-lg border bg-card p-6">
         <PreferencesForm initial={prefs} />
       </section>
-      <section className="rounded-2xl border bg-card p-6" aria-labelledby="account-h">
+      <section className="rounded-lg border bg-card p-6" aria-labelledby="account-h">
         <h2 id="account-h" className="text-xl">
           Account
         </h2>

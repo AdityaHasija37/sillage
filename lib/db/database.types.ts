@@ -83,6 +83,46 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"daily_pick_feedback": {
+                  Row: {
+                    "action": string,"created_at": string,"fragrance_id": string,"id": string,"reason": string | null,"session_id": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "action": string,"created_at"?: string,"fragrance_id": string,"id"?: string,"reason"?: string | null,"session_id": string,"user_id"?: string
+                  }
+                  Update: {
+                    "action"?: string,"created_at"?: string,"fragrance_id"?: string,"id"?: string,"reason"?: string | null,"session_id"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "daily_pick_feedback_fragrance_id_fkey"
+      columns: ["fragrance_id"]
+isOneToOne: false
+      referencedRelation: "fragrances"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "daily_pick_feedback_session_id_fkey"
+      columns: ["session_id"]
+isOneToOne: false
+      referencedRelation: "daily_pick_sessions"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"daily_pick_sessions": {
+                  Row: {
+                    "algorithm_version": string,"context_json": NonNullable<Json>,"created_at": string,"id": string,"recommendation_json": NonNullable<Json>,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "algorithm_version": string,"context_json"?: NonNullable<Json>,"created_at"?: string,"id"?: string,"recommendation_json"?: NonNullable<Json>,"user_id"?: string
+                  }
+                  Update: {
+                    "algorithm_version"?: string,"context_json"?: NonNullable<Json>,"created_at"?: string,"id"?: string,"recommendation_json"?: NonNullable<Json>,"user_id"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"demo_accounts": {
                   Row: {
                     "created_at": string,"user_id": string
@@ -110,6 +150,52 @@ isOneToOne: false
                   }
                   Relationships: [
                     
+                  ]
+                },"layering_experiments": {
+                  Row: {
+                    "algorithm_version": string,"application_order": string,"created_at": string,"fragrance_a_id": string,"fragrance_b_id": string,"id": string,"pair_key": string,"prediction_json": NonNullable<Json>,"updated_at": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "algorithm_version": string,"application_order"?: string,"created_at"?: string,"fragrance_a_id": string,"fragrance_b_id": string,"id"?: string,"pair_key": string,"prediction_json": NonNullable<Json>,"updated_at"?: string,"user_id"?: string
+                  }
+                  Update: {
+                    "algorithm_version"?: string,"application_order"?: string,"created_at"?: string,"fragrance_a_id"?: string,"fragrance_b_id"?: string,"id"?: string,"pair_key"?: string,"prediction_json"?: NonNullable<Json>,"updated_at"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "layering_experiments_fragrance_a_id_fkey"
+      columns: ["fragrance_a_id"]
+isOneToOne: false
+      referencedRelation: "fragrances"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "layering_experiments_fragrance_b_id_fkey"
+      columns: ["fragrance_b_id"]
+isOneToOne: false
+      referencedRelation: "fragrances"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"layering_feedback": {
+                  Row: {
+                    "experiment_id": string,"id": string,"notes": string | null,"perceived_intensity": string | null,"rating": number,"user_id": string,"worn_at": string,"would_repeat": boolean | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "experiment_id": string,"id"?: string,"notes"?: string | null,"perceived_intensity"?: string | null,"rating": number,"user_id"?: string,"worn_at"?: string,"would_repeat"?: boolean | null
+                  }
+                  Update: {
+                    "experiment_id"?: string,"id"?: string,"notes"?: string | null,"perceived_intensity"?: string | null,"rating"?: number,"user_id"?: string,"worn_at"?: string,"would_repeat"?: boolean | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "layering_feedback_experiment_id_fkey"
+      columns: ["experiment_id"]
+isOneToOne: false
+      referencedRelation: "layering_experiments"
+      referencedColumns: ["id"]
+    }
                   ]
                 },"offer_snapshots": {
                   Row: {
@@ -141,6 +227,20 @@ isOneToOne: false
                   }
                   Update: {
                     "disliked_notes"?: NonNullable<Json>,"include_alternatives"?: boolean,"liked_families"?: NonNullable<Json>,"liked_notes"?: NonNullable<Json>,"marketed_for"?: string,"occasions"?: NonNullable<Json>,"performance"?: NonNullable<Json>,"seasons"?: NonNullable<Json>,"updated_at"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"product_events": {
+                  Row: {
+                    "created_at": string,"id": number,"name": string,"properties": NonNullable<Json>,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"id"?: never,"name": string,"properties"?: NonNullable<Json>,"user_id"?: string
+                  }
+                  Update: {
+                    "created_at"?: string,"id"?: never,"name"?: string,"properties"?: NonNullable<Json>,"user_id"?: string
                   }
                   Relationships: [
                     
@@ -233,6 +333,26 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"wear_logs": {
+                  Row: {
+                    "fragrance_id": string,"id": string,"idempotency_key": string | null,"source": string,"user_id": string,"worn_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "fragrance_id": string,"id"?: string,"idempotency_key"?: string | null,"source"?: string,"user_id"?: string,"worn_at"?: string
+                  }
+                  Update: {
+                    "fragrance_id"?: string,"id"?: string,"idempotency_key"?: string | null,"source"?: string,"user_id"?: string,"worn_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "wear_logs_fragrance_id_fkey"
+      columns: ["fragrance_id"]
+isOneToOne: false
+      referencedRelation: "fragrances"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"wishlist_items": {
                   Row: {
                     "created_at": string,"fragrance_id": string,"id": string,"user_id": string,"variant_id": string | null
@@ -279,6 +399,15 @@ isOneToOne: false
                            },
 "owns_chat":
 { Args: { "p_session": string }; Returns: boolean
+                           },
+"owns_daily_session":
+{ Args: { "p": string }; Returns: boolean
+                           },
+"owns_experiment":
+{ Args: { "p": string }; Returns: boolean
+                           },
+"owns_fragrance":
+{ Args: { "p": string }; Returns: boolean
                            },
 "owns_run":
 { Args: { "p_run": string }; Returns: boolean

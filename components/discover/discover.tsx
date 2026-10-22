@@ -1,30 +1,42 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useTransition } from "react";
-import { AlertTriangle, ArrowRight, ChevronDown, Compass, Heart, Layers, Loader2, Sparkles, ThumbsDown, ThumbsUp } from "lucide-react";
+import { useEffect, useRef, useState, useTransition } from "react";
+import { AlertTriangle, ChevronDown, Heart, ThumbsDown, ThumbsUp } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { addWishlistAction, discoverAction, feedbackAction, type DiscoverResponse, type RecommendationCard } from "@/app/(app)/app/actions";
 import { FAMILY_LABEL, PRICE_BAND_LABEL, type Season } from "@/lib/domain/fragrance";
 import { MODE_WEIGHTS, type Mode } from "@/lib/recommendation/engine";
 import { MODE_LABEL, RELAXATION } from "@/lib/recommendation/explain";
 import { cn } from "@/lib/utils";
 import { ScentSwatch } from "@/components/fragrance/scent-swatch";
-import { AccordChips, Rating } from "@/components/fragrance/bits";
+import { Rating } from "@/components/fragrance/bits";
 
-const MODE_ICON = { similar: Layers, different: Compass, gaps: Sparkles } as const;
-const selectClass = "h-9 rounded-lg border bg-background px-2.5 text-sm focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none";
+const MODE_NUMERAL = { similar: "i", different: "ii", gaps: "iii" } as const;
+const selectClass = "h-9 rounded-full border border-foreground/20 bg-background px-3 text-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none";
 
 type Filters = { budgetMax: string; season: Season | ""; daypart: "day" | "night" | ""; performance: "soft" | "moderate" | "strong" | ""; includeAlternatives: boolean };
 
-export function Discover({ defaultBudget, ownedCount, initialMode, defaultIncludeAlternatives = true }: { defaultBudget: number | null; ownedCount: number; initialMode: Mode; defaultIncludeAlternatives?: boolean }) {
+export function Discover({
+  defaultBudget,
+  ownedCount,
+  initialMode,
+  defaultIncludeAlternatives = true,
+  initialSeason = "",
+  initialDaypart = "",
+}: {
+  defaultBudget: number | null;
+  ownedCount: number;
+  initialMode: Mode;
+  defaultIncludeAlternatives?: boolean;
+  initialSeason?: Season | "";
+  initialDaypart?: "day" | "night" | "";
+}) {
   const [mode, setMode] = useState<Mode>(initialMode);
-  const [filters, setFilters] = useState<Filters>({ budgetMax: defaultBudget ? String(defaultBudget) : "", season: "", daypart: "", performance: "", includeAlternatives: defaultIncludeAlternatives });
+  const [filters, setFilters] = useState<Filters>({ budgetMax: defaultBudget ? String(defaultBudget) : "", season: initialSeason, daypart: initialDaypart, performance: "", includeAlternatives: defaultIncludeAlternatives });
   const [res, setRes] = useState<DiscoverResponse | null>(null);
   const [pending, start] = useTransition();
+  const ran = useRef(false);
 
   const run = (m: Mode = mode, f: Filters = filters) =>
     start(async () => {
@@ -41,11 +53,19 @@ export function Discover({ defaultBudget, ownedCount, initialMode, defaultInclud
       );
     });
 
+  // Rank straight away: arriving from a "fill this gap" link should show the answer, not a form.
+  useEffect(() => {
+    if (ran.current || ownedCount === 0) return;
+    ran.current = true;
+    run();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   if (ownedCount === 0) {
     return (
-      <div className="rounded-2xl border border-dashed p-10 text-center">
-        <p className="font-heading text-xl">Add a few fragrances first</p>
-        <p className="mt-2 text-sm text-muted-foreground">Recommendations start from what you own. Add at least one bottle; five gives much better results.</p>
+      <div className="rounded-md border border-dashed p-10 text-center">
+        <p className="font-heading text-2xl">Add a few fragrances first</p>
+        <p className="mt-2 text-sm text-muted-foreground">Recommendations start from what you own. One bottle is enough to begin; five gives much better results.</p>
         <Link href="/app/add" className="mt-4 inline-block font-medium text-primary hover:underline">
           Add fragrances →
         </Link>
@@ -54,12 +74,11 @@ export function Discover({ defaultBudget, ownedCount, initialMode, defaultInclud
   }
 
   return (
-    <div className="grid gap-6">
+    <div className="grid gap-8">
       <fieldset>
-        <legend className="mb-3 text-sm font-medium">What are you looking for?</legend>
-        <div className="grid gap-3 sm:grid-cols-3" role="radiogroup">
-          {(Object.keys(MODE_LABEL) as Mode[]).map((m) => {
-            const Icon = MODE_ICON[m];
+        <legend className="sr-only">What are you looking for?</legend>
+        <div className="grid border-y border-foreground/15 sm:grid-cols-3" role="radiogroup">
+          {(Object.keys(MODE_LABEL) as Mode[]).map((m, i) => {
             const active = mode === m;
             return (
               <button
@@ -69,16 +88,14 @@ export function Discover({ defaultBudget, ownedCount, initialMode, defaultInclud
                 aria-checked={active}
                 onClick={() => {
                   setMode(m);
-                  if (res) run(m);
+                  run(m);
                 }}
-                className={cn(
-                  "rounded-xl border p-4 text-left transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none",
-                  active ? "border-primary bg-accent" : "bg-card hover:bg-muted",
-                )}
+                className={cn("relative px-5 py-5 text-left transition-colors focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none", i > 0 && "sm:border-l sm:border-foreground/15", active ? "bg-card" : "hover:bg-card/60")}
               >
-                <Icon className={cn("size-5", active ? "text-primary" : "text-muted-foreground")} aria-hidden="true" />
-                <p className="mt-2 font-heading text-lg">{MODE_LABEL[m].title}</p>
-                <p className="text-sm text-muted-foreground">{MODE_LABEL[m].blurb}</p>
+                {active && <span className="absolute inset-x-0 top-0 h-0.5 bg-primary" aria-hidden="true" />}
+                <span className={cn("font-heading text-2xl italic", active ? "text-primary" : "text-muted-foreground")}>{MODE_NUMERAL[m]}.</span>
+                <span className="ml-2 font-heading text-2xl">{MODE_LABEL[m].title}</span>
+                <span className="mt-1 block text-sm text-muted-foreground">{MODE_LABEL[m].blurb}</span>
               </button>
             );
           })}
@@ -86,64 +103,63 @@ export function Discover({ defaultBudget, ownedCount, initialMode, defaultInclud
       </fieldset>
 
       <form
-        className="flex flex-wrap items-end gap-3 rounded-xl border bg-card p-4"
+        className="flex flex-wrap items-end gap-x-4 gap-y-3"
         onSubmit={(e) => {
           e.preventDefault();
           run();
         }}
       >
-        <div className="grid gap-1.5">
-          <Label htmlFor="budget">Max budget (USD)</Label>
-          <Input id="budget" type="number" inputMode="numeric" min={10} max={5000} placeholder="Any" value={filters.budgetMax} onChange={(e) => setFilters({ ...filters, budgetMax: e.target.value })} className="h-9 w-28" />
-        </div>
-        <div className="grid gap-1.5">
-          <Label htmlFor="season">Season</Label>
-          <select id="season" className={selectClass} value={filters.season} onChange={(e) => setFilters({ ...filters, season: e.target.value as Filters["season"] })}>
+        <label className="grid gap-1">
+          <span className="label">Max budget (USD)</span>
+          <input type="number" inputMode="numeric" min={10} max={5000} placeholder="Any" value={filters.budgetMax} onChange={(e) => setFilters({ ...filters, budgetMax: e.target.value })} className={cn(selectClass, "w-28")} aria-label="Max budget (USD)" />
+        </label>
+        <label className="grid gap-1">
+          <span className="label">Season</span>
+          <select className={selectClass} value={filters.season} onChange={(e) => setFilters({ ...filters, season: e.target.value as Filters["season"] })} aria-label="Season">
             <option value="">Any season</option>
             <option value="spring">Spring</option>
             <option value="summer">Summer</option>
             <option value="fall">Fall</option>
             <option value="winter">Winter</option>
           </select>
-        </div>
-        <div className="grid gap-1.5">
-          <Label htmlFor="daypart">Time of day</Label>
-          <select id="daypart" className={selectClass} value={filters.daypart} onChange={(e) => setFilters({ ...filters, daypart: e.target.value as Filters["daypart"] })}>
+        </label>
+        <label className="grid gap-1">
+          <span className="label">Time of day</span>
+          <select className={selectClass} value={filters.daypart} onChange={(e) => setFilters({ ...filters, daypart: e.target.value as Filters["daypart"] })} aria-label="Time of day">
             <option value="">Any time</option>
             <option value="day">Daytime / office</option>
             <option value="night">Evening / date</option>
           </select>
-        </div>
-        <div className="grid gap-1.5">
-          <Label htmlFor="perf">Performance</Label>
-          <select id="perf" className={selectClass} value={filters.performance} onChange={(e) => setFilters({ ...filters, performance: e.target.value as Filters["performance"] })}>
+        </label>
+        <label className="grid gap-1">
+          <span className="label">Performance</span>
+          <select className={selectClass} value={filters.performance} onChange={(e) => setFilters({ ...filters, performance: e.target.value as Filters["performance"] })} aria-label="Performance">
             <option value="">No preference</option>
             <option value="soft">Soft, close to skin</option>
             <option value="moderate">Moderate</option>
             <option value="strong">Long-lasting</option>
           </select>
-        </div>
-        <label className="flex min-h-9 items-center gap-2 text-sm" title="Fragrances the community says smell like a pricier one">
+        </label>
+        <label className="flex h-9 items-center gap-2 text-sm" title="Fragrances the community says smell like a pricier one">
           <input type="checkbox" checked={filters.includeAlternatives} onChange={(e) => setFilters({ ...filters, includeAlternatives: e.target.checked })} className="size-4 accent-[var(--primary)]" />
           Include budget alternatives
         </label>
-        <Button type="submit" size="lg" disabled={pending} className="ml-auto">
-          {pending ? <Loader2 className="animate-spin" aria-hidden="true" /> : <ArrowRight aria-hidden="true" />}
-          {res ? "Update suggestions" : "Show suggestions"}
-        </Button>
+        <button type="submit" disabled={pending} className="ml-auto inline-flex h-10 items-center rounded-full bg-ink px-5 text-sm text-ink-foreground disabled:opacity-60">
+          {pending ? "Ranking…" : "Show suggestions"}
+        </button>
       </form>
 
       <div aria-live="polite" aria-busy={pending}>
         {pending && !res && <ResultsSkeleton />}
         {res && !res.ok && (
-          <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+          <p role="alert" className="border-l-2 border-destructive pl-3 text-sm text-destructive">
             {res.error}
           </p>
         )}
         {res && res.ok && (
-          <div className={cn("grid gap-4", pending && "opacity-60")}>
+          <div className={cn("grid gap-6", pending && "opacity-60")}>
             {res.globalCaveats.map((c) => (
-              <p key={c} className="flex items-start gap-2 rounded-lg border border-warning/40 bg-warning/5 px-3 py-2 text-sm">
+              <p key={c} className="flex items-start gap-2 border-l-2 border-warning pl-3 text-sm">
                 <AlertTriangle className="mt-0.5 size-4 shrink-0 text-warning" aria-hidden="true" /> {c}
               </p>
             ))}
@@ -160,7 +176,7 @@ export function Discover({ defaultBudget, ownedCount, initialMode, defaultInclud
                 }}
               />
             ) : (
-              <ol className="grid gap-4">
+              <ol className="divide-y divide-foreground/10 border-y border-foreground/15">
                 {res.cards.map((c, i) => (
                   <ResultCard key={c.fragrance.id} card={c} rank={i + 1} runId={res.runId} mode={mode} />
                 ))}
@@ -188,13 +204,13 @@ function EmptyResults({ restrictive, onRelax }: { restrictive: string | null; on
   const text = restrictive ? RELAXATION[restrictive as keyof typeof RELAXATION] : "";
   const canRelax = restrictive === "budget" || restrictive === "season" || restrictive === "daypart";
   return (
-    <div className="rounded-2xl border border-dashed p-8 text-center">
-      <p className="font-heading text-xl">No confident matches</p>
+    <div className="rounded-md border border-dashed p-8 text-center">
+      <p className="font-heading text-2xl">No confident matches</p>
       <p className="mt-2 text-sm text-muted-foreground">{text || "Nothing in the catalog fits all of these filters."}</p>
       {canRelax && (
-        <Button variant="outline" className="mt-4" onClick={onRelax}>
+        <button type="button" className="mt-4 inline-flex h-9 items-center rounded-full border border-foreground/30 px-4 text-sm hover:border-foreground" onClick={onRelax}>
           Relax that filter and retry
-        </Button>
+        </button>
       )}
       {restrictive === "dislikedNote" && (
         <Link href="/app/preferences" className="mt-4 inline-block text-sm font-medium text-primary hover:underline">
@@ -222,105 +238,102 @@ function ResultCard({ card, rank, runId, mode }: { card: RecommendationCard; ran
     });
 
   return (
-    <li className="rounded-2xl border bg-card p-5">
-      <div className="flex flex-wrap gap-5">
-        <div className="flex items-start gap-3">
-          <span className="font-heading text-2xl text-muted-foreground tabular-nums" aria-label={`Rank ${rank}`}>
-            {rank}
-          </span>
-          <ScentSwatch accords={f.accords.map((name, i) => ({ name, strength: 100 - i * 22 }))} size="md" />
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <p className="text-xs tracking-wide text-muted-foreground uppercase">{f.brand}</p>
-              <h3 className="font-heading text-xl">
-                <Link href={`/app/fragrance/${f.id}`} className="hover:underline">
-                  {f.name}
-                </Link>
-              </h3>
-              <p className="text-xs text-muted-foreground">
-                {f.family ? FAMILY_LABEL[f.family] : "Family unknown"}
-                {f.priceBand && ` · est. ${PRICE_BAND_LABEL[f.priceBand]}`}
-                {f.seasons.length > 0 && ` · ${f.seasons.join(", ")}`}
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="font-heading text-2xl tabular-nums">{Math.round(card.score * 100)}%</p>
-              <p className="text-xs text-muted-foreground">estimated fit</p>
-            </div>
-          </div>
-          <AccordChips accords={f.accords} className="mt-2" />
-          <ul className="mt-3 grid gap-1 text-sm">
-            {card.reasons.map((r) => (
-              <li key={r} className="flex gap-2">
-                <span aria-hidden="true" className="text-primary">
-                  ✓
-                </span>
-                {r}
-              </li>
-            ))}
-            {card.caveats.map((c) => (
-              <li key={c} className="flex gap-2 text-muted-foreground">
-                <span aria-hidden="true">!</span>
-                <span>
-                  <span className="sr-only">Caveat: </span>
-                  {c}
-                </span>
-              </li>
-            ))}
-          </ul>
-          <Rating rating={f.rating} votes={f.votes} className="mt-3" />
-
-          <div className="mt-4 flex flex-wrap items-center gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={saved || pending}
-              onClick={() =>
-                start(async () => {
-                  const r = await addWishlistAction(f.id);
-                  if (r.ok || r.error.startsWith("Already")) setSaved(true);
-                  else toast.error(r.error);
-                })
-              }
-            >
-              <Heart className={cn(saved && "fill-primary text-primary")} aria-hidden="true" /> {saved ? "On wishlist" : "Save"}
-            </Button>
-            <Link href={`/app/fragrance/${f.id}#offers-h`} className="inline-flex h-7 items-center rounded-lg px-2.5 text-[0.8rem] font-medium text-primary hover:bg-muted">
-              Compare prices
-            </Link>
-            <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className="inline-flex h-7 items-center gap-1 rounded-lg px-2.5 text-[0.8rem] text-muted-foreground hover:bg-muted">
-              Why this rank <ChevronDown className={cn("size-3.5 transition-transform", open && "rotate-180")} aria-hidden="true" />
-            </button>
-            {runId && (
-              <span className="ml-auto flex items-center gap-1" role="group" aria-label="Was this relevant?">
-                <span className="mr-1 text-xs text-muted-foreground">{reaction ? "Thanks" : "Relevant?"}</span>
-                <Button size="icon-sm" variant={reaction === "relevant" ? "secondary" : "ghost"} aria-pressed={reaction === "relevant"} aria-label="Relevant" onClick={() => react("relevant")}>
-                  <ThumbsUp />
-                </Button>
-                <Button size="icon-sm" variant={reaction === "not_relevant" ? "secondary" : "ghost"} aria-pressed={reaction === "not_relevant"} aria-label="Not relevant" onClick={() => react("not_relevant")}>
-                  <ThumbsDown />
-                </Button>
+    <li className="grid gap-5 py-7 sm:grid-cols-[3.5rem_5rem_1fr_auto]">
+      <span className="font-heading text-5xl leading-none text-muted-foreground italic" aria-label={`Rank ${rank}`}>
+        {rank}
+      </span>
+      <ScentSwatch name={f.name} accords={f.accords.map((name, i) => ({ name, strength: 100 - i * 22 }))} size="md" />
+      <div className="min-w-0">
+        <p className="label">
+          {f.brand} · {f.family ? FAMILY_LABEL[f.family] : "Family unknown"}
+          {f.priceBand && ` · est. ${PRICE_BAND_LABEL[f.priceBand]}`}
+        </p>
+        <h3 className="mt-1 text-3xl leading-tight">
+          <Link href={`/app/fragrance/${f.id}`} className="hover:underline">
+            {f.name}
+          </Link>
+        </h3>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {f.accords.join(" · ")}
+          {f.seasons.length > 0 && <span className="ml-2">({f.seasons.join(", ")})</span>}
+        </p>
+        <ul className="mt-3 grid gap-1 text-sm">
+          {card.reasons.map((r) => (
+            <li key={r} className="flex gap-2">
+              <span aria-hidden="true" className="text-primary">
+                —
               </span>
-            )}
-          </div>
-          {open && (
-            <dl className="mt-3 grid gap-1.5 rounded-lg bg-muted/50 p-3 text-xs">
-              {(Object.keys(COMPONENT_LABEL) as (keyof typeof COMPONENT_LABEL)[]).map((k) => (
-                <div key={k} className="grid grid-cols-[8rem_1fr_6rem] items-center gap-3">
-                  <dt>
-                    {COMPONENT_LABEL[k]} <span className="text-muted-foreground">({Math.round(MODE_WEIGHTS[mode][k] * 100)}%)</span>
-                  </dt>
-                  <dd className="h-1.5 rounded-full bg-background" aria-hidden="true">
-                    <span className="block h-full rounded-full bg-primary" style={{ width: `${Math.round(card.components[k] * 100)}%` }} />
-                  </dd>
-                  <dd className="text-right tabular-nums">{Math.round(card.components[k] * 100)} / 100</dd>
-                </div>
-              ))}
-            </dl>
-          )}
+              {r}
+            </li>
+          ))}
+          {card.caveats.map((c) => (
+            <li key={c} className="flex gap-2 text-muted-foreground">
+              <span aria-hidden="true">!</span>
+              <span>
+                <span className="sr-only">Caveat: </span>
+                {c}
+              </span>
+            </li>
+          ))}
+        </ul>
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            disabled={saved || pending}
+            onClick={() =>
+              start(async () => {
+                const r = await addWishlistAction(f.id);
+                if (r.ok || r.error.startsWith("Already")) setSaved(true);
+                else toast.error(r.error);
+              })
+            }
+            className="inline-flex h-8 items-center gap-1.5 rounded-full border border-foreground/25 px-3 text-xs hover:border-foreground disabled:opacity-70"
+          >
+            <Heart className={cn("size-3.5", saved && "fill-primary text-primary")} aria-hidden="true" /> {saved ? "On wishlist" : "Save"}
+          </button>
+          <Link href={`/app/score?candidate=${f.id}`} className="inline-flex h-8 items-center rounded-full px-3 text-xs text-primary hover:bg-muted">
+            Score impact
+          </Link>
+          <Link href={`/app/fragrance/${f.id}#offers-h`} className="inline-flex h-8 items-center rounded-full px-3 text-xs text-primary hover:bg-muted">
+            Compare prices
+          </Link>
+          <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className="inline-flex h-8 items-center gap-1 rounded-full px-3 text-xs text-muted-foreground hover:bg-muted">
+            Why this rank <ChevronDown className={cn("size-3.5 transition-transform", open && "rotate-180")} aria-hidden="true" />
+          </button>
         </div>
+        {open && (
+          <dl className="mt-3 grid max-w-lg gap-1.5 rounded-sm bg-muted/60 p-3 text-xs">
+            {(Object.keys(COMPONENT_LABEL) as (keyof typeof COMPONENT_LABEL)[]).map((k) => (
+              <div key={k} className="grid grid-cols-[8rem_1fr_4rem] items-center gap-3">
+                <dt>
+                  {COMPONENT_LABEL[k]} <span className="text-muted-foreground">({Math.round(MODE_WEIGHTS[mode][k] * 100)}%)</span>
+                </dt>
+                <dd className="h-1 rounded-full bg-background" aria-hidden="true">
+                  <span className="block h-full rounded-full bg-primary" style={{ width: `${Math.round(card.components[k] * 100)}%` }} />
+                </dd>
+                <dd className="text-right font-mono tabular-nums">{Math.round(card.components[k] * 100)}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
+      </div>
+      <div className="flex flex-row items-start justify-between gap-3 sm:flex-col sm:items-end">
+        <div className="text-right">
+          <p className="font-heading text-4xl leading-none tabular-nums">{Math.round(card.score * 100)}%</p>
+          <p className="label mt-1">estimated fit</p>
+          <Rating rating={f.rating} votes={f.votes} className="mt-2" />
+        </div>
+        {runId && (
+          <span className="flex items-center gap-1" role="group" aria-label="Was this relevant?">
+            <span className="mr-1 text-xs text-muted-foreground">{reaction ? "Thanks" : "Relevant?"}</span>
+            <button type="button" aria-pressed={reaction === "relevant"} aria-label="Relevant" onClick={() => react("relevant")} className={cn("rounded-full p-1.5 hover:bg-muted", reaction === "relevant" && "bg-muted text-primary")}>
+              <ThumbsUp className="size-4" />
+            </button>
+            <button type="button" aria-pressed={reaction === "not_relevant"} aria-label="Not relevant" onClick={() => react("not_relevant")} className={cn("rounded-full p-1.5 hover:bg-muted", reaction === "not_relevant" && "bg-muted text-primary")}>
+              <ThumbsDown className="size-4" />
+            </button>
+          </span>
+        )}
       </div>
     </li>
   );
@@ -331,7 +344,7 @@ function ResultsSkeleton() {
     <div className="grid gap-4" role="status">
       <span className="sr-only">Finding suggestions…</span>
       {[0, 1, 2].map((i) => (
-        <div key={i} className="h-40 animate-pulse rounded-2xl border bg-muted/50" />
+        <div key={i} className="h-36 animate-pulse rounded-md bg-muted/60" />
       ))}
     </div>
   );

@@ -14,6 +14,9 @@ import { MODES, type RecommendationResult } from "@/lib/recommendation/engine";
 import { caveatText, reasonText } from "@/lib/recommendation/explain";
 import type { OfferSearchResult } from "@/lib/offers/service";
 import type { FragranceSummary } from "@/lib/catalog/service";
+import type { CollectionScore } from "@/lib/intelligence/score";
+import type { DailyResult } from "@/lib/intelligence/daily";
+import { OCCASIONS } from "@/lib/intelligence/profile";
 
 /**
  * Everything the advisor can touch, injected so tests can run the agent against fixtures.
@@ -27,6 +30,8 @@ export type AdvisorContext = {
   getFragrance: (id: string) => Promise<Fragrance | null>;
   recommend: (input: { mode: (typeof MODES)[number]; budgetMax?: number | null; season?: (typeof SEASONS)[number] | null; daypart?: "day" | "night" | null; performance?: "soft" | "moderate" | "strong" | null; includeAlternatives?: boolean | null }) => Promise<RecommendationResult & { runId: string | null }>;
   findOffers: (fragrance: Fragrance, concentration: (typeof CONCENTRATIONS)[number], sizeMl: number) => Promise<OfferSearchResult>;
+  collectionScore: () => Promise<CollectionScore>;
+  dailyPick: (context: { occasion: (typeof OCCASIONS)[number]; daypart?: "day" | "night"; weather?: { temperature: "cold" | "mild" | "hot"; source: "manual" }; desiredIntensity?: "soft" | "moderate" | "strong" }) => Promise<DailyResult>;
 };
 
 export type PendingAction =
@@ -105,6 +110,26 @@ export const TOOL_DEFINITIONS: Anthropic.Tool[] = [
     strict: true,
   },
   {
+    name: "get_collection_score",
+    description: "The user's Collection Score (0–100) with its five dimensions (season coverage, occasion coverage, versatility, diversity, low redundancy), strengths, gaps and confidence. Use when they ask how balanced their collection is or what it lacks.",
+    input_schema: strict({}),
+    strict: true,
+  },
+  {
+    name: "pick_for_today",
+    description: "Rank the bottles the user already owns for a given occasion, time of day, temperature and intensity. Use for 'what should I wear today/tonight'. Never suggests something they don't own.",
+    input_schema: strict(
+      {
+        occasion: { type: "string", enum: [...OCCASIONS] },
+        daypart: nullable({ type: "string", enum: ["day", "night"] }),
+        temperature: nullable({ type: "string", enum: ["cold", "mild", "hot"] }),
+        desired_intensity: nullable({ type: "string", enum: ["soft", "moderate", "strong"] }),
+      },
+      ["occasion", "daypart", "temperature", "desired_intensity"],
+    ),
+    strict: true,
+  },
+  {
     name: "propose_add_to_wishlist",
     description: "Offer to add a fragrance to the user's wishlist. This does NOT save anything: the user sees a confirm button. Use only when the user asks to save or wishlist something.",
     input_schema: strict({ fragrance_id: { type: "string" } }, ["fragrance_id"]),
@@ -140,6 +165,13 @@ const inputs = {
     include_budget_alternatives: z.boolean().nullable().optional(),
   }),
   find_offers: z.object({ fragrance_id: Id, concentration: z.enum(CONCENTRATIONS), size_ml: z.number().int().min(5).max(500) }),
+  get_collection_score: z.object({}),
+  pick_for_today: z.object({
+    occasion: z.enum(OCCASIONS),
+    daypart: z.enum(["day", "night"]).nullable(),
+    temperature: z.enum(["cold", "mild", "hot"]).nullable(),
+    desired_intensity: z.enum(["soft", "moderate", "strong"]).nullable(),
+  }),
   propose_add_to_wishlist: z.object({ fragrance_id: Id }),
   propose_preference_update: z.object({
     add_disliked_notes: z.array(z.string().trim().min(1).max(40)).max(10),
@@ -278,6 +310,35 @@ export async function executeTool(name: string, rawInput: unknown, ctx: AdvisorC
         fragranceIds: [f.id],
         prices: exact.flatMap((o) => [`$${o.listed_price_usd}`, `$${o.listed_price_usd.toFixed(2)}`]),
         summary: `Compared prices: ${c.exact.length} exact (${r.provider.live ? "live" : "sample"})`,
+      };
+    }
+    case "get_collection_score": {
+      const sc = await ctx.collectionScore();
+      if (sc.status !== "ok") return { content: { status: "empty", message: sc.message }, fragranceIds: [], prices: [], summary: "Collection score: empty shelf" };
+      return {
+        content: {
+          overall: sc.overallScore,
+          band: sc.band,
+          confidence: sc.confidence,
+          dimensions: sc.dimensions.map((d) => ({ name: d.label, score: d.score, provisional: d.provisional, detail: d.detail })),
+          strengths: sc.strengths.map((x) => x.title),
+          gaps: sc.gaps.map((x) => `${x.title}: ${x.detail}`),
+          note: "Coverage descriptor, not a judgement of taste. Occasion coverage is inferred.",
+        },
+        fragranceIds: [],
+        prices: [],
+        summary: `Collection score ${sc.overallScore} (${sc.band})`,
+      };
+    }
+    case "pick_for_today": {
+      const i = input as z.infer<typeof inputs.pick_for_today>;
+      const r = await ctx.dailyPick({ occasion: i.occasion, daypart: i.daypart ?? undefined, desiredIntensity: i.desired_intensity ?? undefined, weather: i.temperature ? { temperature: i.temperature, source: "manual" } : undefined });
+      if (r.status !== "ok") return { content: { status: "empty", message: r.message }, fragranceIds: [], prices: [], summary: "Today: nothing eligible" };
+      return {
+        content: { picks: r.picks.map((p) => ({ id: p.fragranceId, name: `${p.brand} ${p.name}`, estimated_fit: p.score, reasons: p.factors.map((f) => f.text), caveats: p.caveats })), from_owned_bottles: r.considered },
+        fragranceIds: r.picks.map((p) => p.fragranceId),
+        prices: [],
+        summary: `Picked for today: ${r.picks[0]?.name ?? "none"}`,
       };
     }
     case "propose_add_to_wishlist": {

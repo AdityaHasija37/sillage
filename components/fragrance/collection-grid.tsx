@@ -69,7 +69,7 @@ export function CollectionGrid({ rows }: { rows: CollectionRow[] }) {
         Showing {filtered.length} of {rows.length}
       </p>
       {filtered.length === 0 ? (
-        <p className="rounded-xl border border-dashed p-8 text-center text-sm text-muted-foreground">Nothing matches that filter.</p>
+        <p className="rounded-md border border-dashed p-8 text-center text-sm text-muted-foreground">Nothing matches that filter.</p>
       ) : (
         <ul className={cn(view === "grid" ? "grid gap-3 sm:grid-cols-2 xl:grid-cols-3" : "grid gap-2")}>
           {filtered.map((r) => (
@@ -102,9 +102,9 @@ function Item({ row: r, compact }: { row: CollectionRow; compact: boolean }) {
     });
 
   return (
-    <li className={cn("rounded-xl border bg-card p-4", compact && "py-3")}>
+    <li className={cn("rounded-md border bg-card p-4", compact && "py-3")}>
       <div className="flex gap-4">
-        {!compact && <ScentSwatch accords={r.accords} size="sm" />}
+        {!compact && <ScentSwatch name={r.name} accords={r.accords} size="sm" />}
         <div className="min-w-0 flex-1">
           <p className="truncate text-xs tracking-wide text-muted-foreground uppercase">{r.brand}</p>
           <h3 className={cn("font-heading leading-snug", compact ? "text-base" : "text-lg")}>

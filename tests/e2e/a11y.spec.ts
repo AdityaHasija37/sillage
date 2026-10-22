@@ -22,7 +22,7 @@ test("No serious or critical WCAG 2.2 AA violations on key screens", async ({ pa
     await audit(page, path);
   }
   await startDemo(page);
-  for (const path of ["/app", "/app/collection", "/app/add", "/app/wishlist", "/app/preferences"]) {
+  for (const path of ["/app", "/app/collection", "/app/add", "/app/wishlist", "/app/preferences", "/app/score", "/app/advisor"]) {
     await page.goto(path);
     await audit(page, path);
   }
@@ -35,8 +35,14 @@ test("No serious or critical WCAG 2.2 AA violations on key screens", async ({ pa
   await page.getByRole("button", { name: "Compare prices" }).click();
   await page.getByText(/Sample offers, not live prices/).waitFor();
   await audit(page, "fragrance detail with offers");
-  await page.getByRole("button", { name: "Ask the advisor" }).click();
-  await audit(page, "advisor panel");
+  await page.goto("/app/today");
+  await page.getByText("Today's pick").waitFor({ timeout: 20_000 });
+  await audit(page, "today");
+  await page.goto("/app/lab");
+  await page.getByLabel("Bottle A").selectOption({ index: 1 });
+  await page.getByLabel("Bottle B").selectOption({ index: 2 });
+  await page.getByText(/^Predicted:/).waitFor({ timeout: 20_000 });
+  await audit(page, "scent lab with prediction");
 });
 
 test("Keyboard-only: search → add → discover → shortlist (UX accessibility acceptance)", async ({ page }) => {
@@ -49,6 +55,7 @@ test("Keyboard-only: search → add → discover → shortlist (UX accessibility
   await page.keyboard.press("Enter");
   await expect(page.getByText("Added. How do you feel about it?")).toBeVisible();
   await page.goto("/app/discover");
+  // Discover ranks on arrival; the button re-runs it from the keyboard.
   await page.getByRole("button", { name: "Show suggestions" }).focus();
   await page.keyboard.press("Enter");
   const save = page.getByRole("button", { name: "Save" }).first();

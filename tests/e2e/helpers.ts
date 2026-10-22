@@ -4,9 +4,9 @@ import { expect } from "./fixtures";
 /** One-click demo from the landing page (no email, no sign-up). */
 export async function startDemo(page: Page) {
   await page.goto("/");
-  await page.getByRole("button", { name: /Try the live demo/ }).click();
+  await page.getByRole("button", { name: /Open a sample shelf/ }).click();
   await page.waitForURL(/\/app\?welcome=demo/, { timeout: 30_000 });
-  await expect(page.getByText("Sample collection.")).toBeVisible();
+  await expect(page.getByText(/Private to you, deletes itself in 24 hours/)).toBeVisible();
 }
 
 /** Fresh account through the real sign-up form (email confirmation is off locally). */

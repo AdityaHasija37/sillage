@@ -15,8 +15,8 @@ describe("Discover empty state (ERR-04)", () => {
     discoverAction
       .mockResolvedValueOnce({ ok: true, runId: null, cards: [], globalCaveats: [], mostRestrictive: "budget", excluded: { owned: 6, dislikedNote: 0, budget: 900, season: 0, daypart: 0, lowQuality: 0, tooSimilar: 0, marketing: 0, alternatives: 0 }, considered: 3000, ownedCount: 6 })
       .mockResolvedValueOnce({ ok: true, runId: null, cards: [], globalCaveats: [], mostRestrictive: null, excluded: { owned: 6, dislikedNote: 0, budget: 0, season: 0, daypart: 0, lowQuality: 0, tooSimilar: 0, marketing: 0, alternatives: 0 }, considered: 3000, ownedCount: 6 });
+    // Ranks on arrival, without a click.
     render(<Discover defaultBudget={20} ownedCount={6} initialMode="similar" />);
-    fireEvent.click(screen.getByRole("button", { name: "Show suggestions" }));
     expect(await screen.findByText("No confident matches")).toBeInTheDocument();
     expect(screen.getByText(/budget removed the most options/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Relax that filter and retry" }));

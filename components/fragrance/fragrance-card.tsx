@@ -13,12 +13,12 @@ type CardFragrance = Pick<Fragrance, "id" | "brand" | "name" | "family"> & {
 /** Compact, linked card used in grids. The whole card is one link; actions sit outside it. */
 export function FragranceCard({ fragrance: f, footer, className }: { fragrance: CardFragrance; footer?: React.ReactNode; className?: string }) {
   return (
-    <article className={cn("group relative flex gap-4 rounded-xl border bg-card p-4 transition-shadow hover:shadow-md", className)}>
-      <ScentSwatch accords={f.accords} size="sm" />
+    <article className={cn("group relative flex gap-4 rounded-md border bg-card p-4 transition-shadow hover:shadow-md", className)}>
+      <ScentSwatch name={f.name} accords={f.accords} size="sm" />
       <div className="min-w-0 flex-1">
         <p className="truncate text-xs tracking-wide text-muted-foreground uppercase">{f.brand}</p>
         <h3 className="font-heading text-lg leading-snug">
-          <Link href={`/app/fragrance/${f.id}`} className="after:absolute after:inset-0 after:rounded-xl focus-visible:outline-none focus-visible:after:ring-3 focus-visible:after:ring-ring/50">
+          <Link href={`/app/fragrance/${f.id}`} className="after:absolute after:inset-0 after:rounded-md focus-visible:outline-none focus-visible:after:ring-3 focus-visible:after:ring-ring/50">
             {f.name}
           </Link>
         </h3>

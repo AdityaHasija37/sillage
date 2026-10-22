@@ -10,11 +10,11 @@ export default async function WishlistPage() {
   return (
     <div className="grid gap-6">
       <header>
-        <h1 className="text-4xl font-medium tracking-tight">Wishlist</h1>
+        <h1 className="text-5xl sm:text-6xl">Wishlist</h1>
         <p className="mt-2 text-muted-foreground">Fragrances you&apos;re considering. Compare prices for the exact bottle, or move one to your collection when you buy it.</p>
       </header>
       {items.length === 0 ? (
-        <div className="rounded-2xl border border-dashed p-10 text-center">
+        <div className="rounded-lg border border-dashed p-10 text-center">
           <p className="font-heading text-xl">Nothing saved yet</p>
           <p className="mt-2 text-sm text-muted-foreground">Save suggestions from Discover or the advisor to compare them later.</p>
           <ButtonLink href="/app/discover" className="mt-4">

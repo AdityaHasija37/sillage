@@ -21,8 +21,9 @@ export function OfferPanel({ fragranceId, concentration, knownSizes }: { fragran
   const [pending, start] = useTransition();
 
   return (
-    <section aria-labelledby="offers-h" className="rounded-2xl border bg-card p-5">
-      <h2 id="offers-h" className="text-xl">
+    <section aria-labelledby="offers-h" className="grain rounded-md border bg-card p-6 sm:p-8">
+      <p className="label">Price check</p>
+      <h2 id="offers-h" className="mt-1 text-4xl">
         Compare prices
       </h2>
       <p className="mt-1 text-sm text-muted-foreground">Choose the exact bottle. Only listings with the same concentration and size count as matches.</p>

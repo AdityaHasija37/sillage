@@ -21,7 +21,7 @@ test("E2E-02: new account adds five, dislikes oud, gets Different picks it doesn
 
   // Dashboard count matches (DASH-01).
   await page.goto("/app");
-  await expect(page.getByText("Bottles", { exact: true }).locator("..")).toContainText("5");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("5 bottles");
 
   // PRO-01: preferences persist and are used.
   await page.goto("/app/preferences");

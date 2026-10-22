@@ -2,6 +2,9 @@ import "server-only";
 import { randomBytes } from "node:crypto";
 import { createServiceClient } from "@/lib/supabase/admin";
 import { claimRate, clientKey } from "@/lib/security/rate";
+import { FRAGRANCE_COLUMNS, toFragrance } from "@/lib/domain/fragrance";
+import { LAB_ALGORITHM_VERSION, pairKey, predictPair } from "@/lib/intelligence/lab";
+import { toProfile } from "@/lib/intelligence/profile";
 
 export function demoEnabled(): boolean {
   return process.env.DEMO_ENABLED !== "false";
@@ -18,6 +21,11 @@ export const DEMO_COLLECTION: { brand: string; name: string; sentiment: "love" |
 ];
 export const DEMO_WISHLIST = { brand: "Hermès", name: "Terre d'Hermès" };
 export const DEMO_PREFERENCES = { disliked_notes: ["oud"], liked_notes: [], budget_max: 150 };
+/** Two sample layering experiments (PRD 08 §10), the first with a logged wear result. */
+export const DEMO_LAYERING: { a: [string, string]; b: [string, string]; feedback?: { rating: number; perceived_intensity: "soft" | "moderate" | "strong"; would_repeat: boolean } }[] = [
+  { a: ["Tom Ford", "Tobacco Vanille"], b: ["Maison Martin Margiela", "Jazz Club"], feedback: { rating: 4, perceived_intensity: "strong", would_repeat: true } },
+  { a: ["Chanel", "Bleu de Chanel Eau de Parfum"], b: ["Jo Malone London", "Wood Sage & Sea Salt"] },
+];
 
 /**
  * Creates a private, pre-filled sandbox account and returns credentials for an immediate sign-in
@@ -57,6 +65,24 @@ export async function provisionDemo(): Promise<{ status: "ok"; email: string; pa
   await db.from("collection_items").insert(items.map((x) => ({ user_id: userId, fragrance_id: x.id!, sentiment: x.sentiment, created_at: new Date(base - x.i * 60_000).toISOString() })));
   const wish = pick(DEMO_WISHLIST.brand, DEMO_WISHLIST.name);
   if (wish) await db.from("wishlist_items").insert({ user_id: userId, fragrance_id: wish });
+  // Sample layering experiments, computed with the real engine from the sandbox's own bottles.
+  const ids = items.map((x) => x.id!) as string[];
+  const { data: full } = await db.from("fragrances").select(FRAGRANCE_COLUMNS).in("id", ids);
+  const profiles = new Map((full ?? []).map((r) => toFragrance(r)).map((f) => [`${f.brand}|${f.name}`, f]));
+  const sentimentOf = new Map(DEMO_COLLECTION.map((d) => [`${d.brand}|${d.name}`, d.sentiment]));
+  for (const ex of DEMO_LAYERING) {
+    const fa = profiles.get(ex.a.join("|"));
+    const fb = profiles.get(ex.b.join("|"));
+    if (!fa || !fb) continue;
+    const prediction = predictPair({ profile: toProfile(fa), sentiment: sentimentOf.get(ex.a.join("|")) ?? null }, { profile: toProfile(fb), sentiment: sentimentOf.get(ex.b.join("|")) ?? null });
+    if (prediction.status !== "ok") continue;
+    const { data: saved } = await db
+      .from("layering_experiments")
+      .insert({ user_id: userId, pair_key: pairKey(fa.id, fb.id), fragrance_a_id: fa.id, fragrance_b_id: fb.id, application_order: "a_first", prediction_json: JSON.parse(JSON.stringify(prediction)), algorithm_version: LAB_ALGORITHM_VERSION })
+      .select("id")
+      .single();
+    if (saved && ex.feedback) await db.from("layering_feedback").insert({ user_id: userId, experiment_id: saved.id, ...ex.feedback, notes: "Sample entry: warm and boozy, lasted all evening." });
+  }
   await db.from("preferences").update({ disliked_notes: DEMO_PREFERENCES.disliked_notes, liked_notes: DEMO_PREFERENCES.liked_notes }).eq("user_id", userId);
   await db.from("profiles").update({ budget_max: DEMO_PREFERENCES.budget_max, onboarded_at: new Date().toISOString() }).eq("user_id", userId);
   return { status: "ok", email, password };

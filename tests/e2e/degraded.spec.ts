@@ -15,17 +15,16 @@ test("E2E-03 / ERR-01..03: catalog and advisor failures show honest errors and t
 
   // Advisor outage.
   await page.route("**/api/chat", (route) => route.abort());
-  await page.getByRole("button", { name: "Ask the advisor" }).click();
+  await page.goto("/app/advisor");
   await page.getByLabel("Ask the advisor").fill("anything new for summer?");
   await page.getByRole("button", { name: "Send" }).click();
-  await expect(page.getByRole("dialog").getByRole("alert")).toBeVisible();
-  await page.keyboard.press("Escape");
+  await expect(page.getByRole("region", { name: "Conversation" }).getByRole("alert")).toBeVisible();
 
   // Collection, dashboard and detail still work.
   await page.goto("/app/collection");
   await expect(page.getByText("Showing 6 of 6")).toBeVisible();
   await page.goto("/app");
-  await expect(page.getByRole("heading", { name: "What your shelf says" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("6 bottles");
 });
 
 test("SEC-04: unknown or malicious fragrance ids 404 instead of erroring", async ({ page }) => {
