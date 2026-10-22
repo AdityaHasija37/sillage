@@ -56,6 +56,18 @@ The spec pack says: when instructions conflict or are ambiguous, record the deci
 | DEC-31 | Review themes stay on the public site, attributed (resolves Q-04) | Owner decision |
 | DEC-32 | The near-duplicate diversity rule (≥ 95% accord similarity) applies within one brand only | So an original and its budget alternative can appear side by side; found by the Q-01 unit test |
 | DEC-33 | Hosted auth: email confirmation **on** for real accounts (demo sandboxes skip it); Supabase's default confirmation and reset emails are kept, because custom templates need a custom SMTP provider on the free tier. Site URL `https://sillage-rosy.vercel.app` | Same posture as Touchline; free-tier constraint (DEC-02) |
+| DEC-34 | **Occasion fit is inferred**, not sourced (resolves PRD 08 §16.2): office/formal/date/casual/special fit is derived from accord groups (fresh, warm, refined) and day/night votes, labelled "estimated" everywhere it appears, and the profile carries per-field provenance (`community` / `inferred`) and a completeness score | The catalog has no occasion data. Showing it as fact would break the "never invent data" rule |
+| DEC-35 | Intensity comes from community sillage/longevity votes; a bottle without them gets no intensity and that factor is renormalised away rather than guessed | Same rule: missing data lowers confidence, it is never scored as zero |
+| DEC-36 | Collection Score `score-1.0` weights: season .25, occasion .25, versatility .20, diversity .15, non-redundancy .15. Unavailable dimensions drop out and the rest renormalise; any unavailable dimension makes overall confidence "low"; collections under 3 are provisional and never get strengths or gaps from provisional dimensions (resolves §16.5) | A reasoned starting point, shown in the UI as such ("How this score works"), validated with qualitative tests, not claimed as industry scoring |
+| DEC-37 | No score cache: the score is computed per request from the shelf (≈ms for 50 bottles). Preview is read-only and never writes | Simpler and always consistent; revisit above ~500 bottles |
+| DEC-38 | Wear history did not exist (resolves §16.1) → `wear_logs` added, written by "Wore this" with an idempotency key `daily:{request}:{fragrance}`, so a double click logs once | The selector's rotation and feedback factors need it |
+| DEC-39 | Weather is **manual-first**; "Use my local weather" is opt-in, uses Open-Meteo (free, no key), rounds coordinates to 1 decimal and stores neither location nor weather (resolves §16.3) | Location permission must stay optional; no paid API |
+| DEC-40 | Daily feedback adjusts only that user's future picks, bounded (−0.3…+0.1 per bottle; "too strong/weak" shifts intensity up to 0.3). The model may phrase the explanation but is validated (must name the pick, no new digits, no prices, ≤ 600 chars) or a template is used, and the UI labels which | Feedback must not swing picks wildly; AI wording must not add facts |
+| DEC-41 | Scent Lab `lab-1.0`: complementarity .35, clash-inverse .25, intensity balance .20, family balance .10, preference .10, from an editable `RULESET` with provenance per rule. Complementarity calibrated as `100·(1−e^(−c/1.6)) + min(12, 6·shared)`; confidence is never "high"; past ratings personalise by at most ±10; no ratio is called optimal | First calibration saturated at 100 for unrelated pairs; predictions must read as experiments, not facts |
+| DEC-42 | Layering experiments and their feedback are visible only to their owner (resolves §16.6); predictions are recomputed server-side on save, never trusted from the client | RLS on every new table; pgTAP covers it |
+| DEC-43 | Demo persistence uses the existing disposable sandbox (resolves §16.4): the seeded shelf adds two layering experiments, one with a logged result, and everything deletes after 24 h | Visitors see a lived-in Lab without a shared account |
+| DEC-44 | Product analytics: `product_events` is insert-only with a name allowlist and a property allowlist (≤ 1 kB, no free text, no location) | PRD 08 §11 events without collecting personal data |
+| DEC-45 | **Editorial redesign, distinct from Touchline** (owner feedback "looks too AI generated"): serif display type, paper/ink/cognac palette, drawn bottles that vary in shape by name, a live catalog search and a real shelf on the landing page, no left rail, a split sign-in screen. What is shared with Touchline is the *pattern*: demo and sign-in without sign-up. The advisor gains `get_collection_score` and `pick_for_today` (10 tools); Discover now runs on load | Owner asked for the two projects to look unique; the agent story needed to be visible, not buried |
 | DEC-29 | Email confirmation is off locally; when sign-up returns a session the user goes straight to onboarding. Hosted setting: see Q-02 | Keeps E2E deterministic without Mailpit |
 
 ## Open (owner input needed)
@@ -66,10 +78,12 @@ The spec pack says: when instructions conflict or are ambiguous, record the deci
 | Q-02 | Deploy (public GitHub repo, hosted Supabase, Vercel) | **Done** 21 Oct 2026 → DEC-33 |
 | Q-03 | Live advisor and live prices | **Approved**: owner adds `ANTHROPIC_API_KEY` and `SERPAPI_API_KEY` in Vercel |
 | Q-04 | Review themes on a public site | **Resolved** → DEC-31 |
+| PRD 08 §16 | Wear history, metadata reliability, weather, demo persistence, weights, lab visibility | **Resolved** → DEC-38, DEC-34/35, DEC-39, DEC-43, DEC-36, DEC-42 |
 
 ## Change log
 
 | Date | Change |
 |---|---|
+| 22 Oct 2026 | Collection Intelligence (PRD 08) and redesign: DEC-34 to DEC-45; PRD 08 §16 resolved |
 | 21 Oct 2026 | Owner answers: Q-01 → DEC-30, Q-04 → DEC-31, Q-02/Q-03 approved. DEC-32 added |
 | 21 Oct 2026 | Register created. DEC-01 to DEC-29; Q-01 to Q-04 |

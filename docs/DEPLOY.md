@@ -11,3 +11,5 @@ Redeploy: `npx vercel deploy --prod`. Hosted Supabase settings are copied into V
 5. **Verify**: `/api/health` shows `database: true` and which integrations are live; run the demo end to end on a phone.
 
 Smoke-test a deployment: `BASE_URL=https://sillage-rosy.vercel.app npx playwright test tests/e2e/demo.spec.ts -g "E2E-01|FR-07"` (2 demo sandboxes; the live demo allows 5 per visitor per hour). Passed on 21 Oct 2026.
+
+Collection Intelligence (22 Oct 2026) adds migration `20261022100000_collection_intelligence.sql`: run `npx supabase db push` before deploying the app. No new environment variables (Open-Meteo needs no key).

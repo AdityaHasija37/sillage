@@ -43,15 +43,42 @@ Every P0/P1 requirement in the [PRD](specs/01_Sillage_PRD.md) and test ID in the
 | E2E-02 | New account, five adds, dislikes oud, Different, wishlist persists | `tests/e2e/journey.spec.ts` | Pass |
 | E2E-03 | Catalog and offer/AI failures still allow navigation | `tests/e2e/degraded.spec.ts` | Pass (offer failure covered by sample fallback + U) |
 | DEMO-01..03 | No-login walkthrough, public docs | E2E-01 timing, `/how-it-works`, `/evals`, README | Pass |
-| A11Y | WCAG 2.2 AA (serious/critical) on 13 screens and states; keyboard-only flow; mobile no-overflow | `tests/e2e/a11y.spec.ts`, `mobile.spec.ts` | Pass |
+| A11Y | WCAG 2.2 AA (serious/critical) on every app screen, including Today, Scent Lab, Score and Advisor; keyboard-only flow; mobile no-overflow | `tests/e2e/a11y.spec.ts`, `mobile.spec.ts` | Pass |
+
+## Collection Intelligence (PRD 08)
+
+| ID | Acceptance test | Implementation | Evidence |
+|---|---|---|---|
+| CS-01 | 0 bottles: helpful empty state, no fabricated score | `lib/intelligence/score.ts` `collectionScore` | U CS-01 |
+| CS-02 | Same set and version → identical score | `score.ts` (`score-1.0`) | U CS-02; EV §5 |
+| CS-03 | Dimensions 0–100; weights renormalise for missing dimensions | `score.ts` `appliedWeight` | U CS-03 |
+| CS-04 | Exact duplicate doesn't raise the score | `score.ts` dedupe by id + canonical key | U CS-04; EV §5 |
+| CS-05 | Preview doesn't mutate the shelf; changes recompute | `previewCandidate`, `POST /api/intelligence/collection-score/preview`, `components/intelligence/score-simulator.tsx` | U CS-05; E2E `intelligence.spec` CS-05 |
+| CS-06 | Strengths, gaps, methodology, completeness, version | `score.ts`, Shelf `ScorePanel` | U CS-06 |
+| CS-07 | Demo visitor sees a seeded score and previews a bottle without sign-up | `app/(app)/app/page.tsx`, `/app/score`, `lib/demo/provision.ts` | E2E CS-07 |
+| DS-01 | Only owned bottles; avoid list honoured | `lib/intelligence/daily.ts` `dailyPick` | U DS-01; E2E DS-01..05; EV §5 |
+| DS-02 | Manual weather works without location or network | `daily.ts`, `components/intelligence/daily-selector.tsx`, `lib/intelligence/weather.ts` (opt-in) | U DS-02; E2E DS-01..05 |
+| DS-03 | Occasion or intensity re-ranks without reload | `daily-selector.tsx` (debounced autorun) | U DS-03; E2E DS-01..05 |
+| DS-04 | Top 3 unique, each with 2+ grounded factors | `daily.ts` | U DS-04 |
+| DS-05 | Feedback scoped to the user/demo; writes idempotent | `service.ts` `dailyFeedback`, `wear_logs` idempotency key, RLS | DB `002_intelligence_rls`; U feedback bounds; E2E DS-01..05 |
+| DS-06 | Empty or all-excluded → helpful state, no invented picks | `daily.ts` | U DS-06 |
+| DS-07 | Factor breakdown and low-confidence indicators visible | `daily.ts` renormalisation, `daily-selector.tsx` `TopPick` | U DS-07; a11y |
+| SL-01 | Only owned bottles; not the same bottle twice | `lib/intelligence/lab.ts`, `service.ts` `predict` (`not_owned`), DB a≠b check | U SL-01; E2E SL-01..05 |
+| SL-02 | A/B and B/A share one identity; order stored separately | `lab.ts` `pairKey` | U SL-02; EV §5 |
+| SL-03 | Uncertain claims labelled; component rationale and confidence shown | `lab.ts` `RULESET`, `components/intelligence/scent-lab.tsx` | U SL-03; E2E SL-01..05 |
+| SL-04 | Saved pairs survive reload; demos follow the sandbox model | `/api/scent-lab/experiments`, `layering_experiments` | E2E SL-01..05 |
+| SL-05 | Logging a result doesn't change the stored prediction | `/api/scent-lab/experiments/[id]/feedback`, `layering_feedback` | E2E SL-01..05; DB |
+| SL-06 | Feedback personalises in a bounded, testable way (±10) | `lab.ts` | U SL-06 |
+| SL-07 | Missing accords → honest "insufficient information" | `lab.ts` | U SL-07 |
+| Agent | Advisor can read score and today's pick | `lib/agent/tools.ts` `get_collection_score`, `pick_for_today` | U advisor tools + offline intents |
 
 ## Release gates (QA doc)
 
 | Gate | Status |
 |---|---|
 | A: types, build, lint | Pass (`npm run check`) |
-| B: deterministic scoring and variant tests | Pass (52 unit tests) |
-| C: authenticated access and RLS | Pass (38 pgTAP assertions) |
-| D: demo walkthrough public without sign-up | Pass locally; public URL pending deploy (Q-02) |
+| B: deterministic scoring and variant tests | Pass (83 unit tests) |
+| C: authenticated access and RLS | Pass (60 pgTAP assertions) |
+| D: demo walkthrough public without sign-up | Pass locally and on https://sillage-rosy.vercel.app |
 | E: shipping and size caveats render | Pass (E2E-01, SHOP-05) |
 | F: docs and limitations match shipping features | This file, README "Status and honest caveats" |

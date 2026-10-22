@@ -35,3 +35,13 @@ What was built, in order, and what testing caught along the way. Dates are 21 Oc
 - pgTAP: 38/38 on first run.
 - E2E first run: 8/12. Fixes: two locator bugs in tests; one test assumed a $10 budget empties results (by design, unknown-price items stay, flagged), replaced with a component test; **two real WCAG contrast failures**: the primary button's hover state faded to 3.7:1 → darken instead of fade.
 - Final: 52 unit, 38 database, 11 E2E (desktop + mobile, WCAG 2.2 AA scan on 13 screens/states, keyboard-only flow), production build, SEC-03 bundle check.
+
+## 7. Collection Intelligence (PRD 08) and redesign, 22 Oct 2026
+- M0 audit first ([plan](../INTELLIGENCE-PLAN.md)): no wear history, no occasion data, no weather source → DEC-34, DEC-38, DEC-39.
+- CS-03 failed on first run: with season and occasion unavailable, overall confidence was still "high" → any unavailable dimension now means low confidence.
+- Ties produced "strongest in fall; thinnest in fall" → tie wording ("Every season has a well-suited bottle.").
+- Scent Lab saturated: Sauvage + Tobacco Vanille scored 100 → complementarity recalibrated (DEC-41); real pairs now spread 44–98.
+- DS-02 test was over-specific (a casual daytime pick in cold weather legitimately isn't the amber) → the test now checks that context changes the pick, not which bottle wins.
+- E2E: three contrast failures on the new editorial styles (white/45, muted numerals) → raised; invalid `<dl>` children in the Lab; the shelf overflowed on a 390 px phone (bottle row 507 px) → responsive bottle sizes and `min-w-0` on the main column.
+- Lint caught `setState` inside effects in the agent walkthrough → moved into timer callbacks.
+- Final: 83 unit, 60 database, 14 E2E, evals v4 (Collection Intelligence 9/9, offers 100%, personas 29/32, fabrications 0/7).

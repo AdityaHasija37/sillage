@@ -173,7 +173,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
                 <Perm title="Never" items={["Picks or ranks on its own", "Cites what no tool returned", "Quotes an unverified price", "Buys anything"]} />
               </dl>
               <p className="mt-6 text-sm text-ink-foreground/60">
-                One agent, eight typed tools, at most six steps per answer. No model configured? It falls back to a rule-based mode that uses the same engine and says so.{" "}
+                One agent, ten typed tools, at most six steps per answer. No model configured? It falls back to a rule-based mode that uses the same engine and says so.{" "}
                 <Link href="/how-it-works#advisor" className="underline underline-offset-4 hover:text-ink-foreground">
                   The full design
                 </Link>
