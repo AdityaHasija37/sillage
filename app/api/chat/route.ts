@@ -6,6 +6,9 @@ import { getUser } from "@/lib/auth/session";
 import { claimRate } from "@/lib/security/rate";
 import { createClient } from "@/lib/supabase/server";
 
+// The advisor may run several model rounds; its own budget (50 s) ends well before this.
+export const maxDuration = 60;
+
 const Body = z.object({
   sessionId: z.string().uuid().nullable().optional(),
   message: z.string().trim().min(1, "Type a question").max(600, "Keep it under 600 characters"),

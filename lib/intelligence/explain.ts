@@ -1,8 +1,8 @@
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
-import { ApiError, GoogleGenAI } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
 import { configuredModel, configuredProvider, geminiModels, type AdvisorProvider } from "@/lib/agent/advisor";
-import { RETRYABLE, textOf, thinkingFor } from "@/lib/agent/gemini";
+import { isRetryable, textOf, thinkingFor } from "@/lib/agent/gemini";
 import { claimRate } from "@/lib/security/rate";
 import { explainPick, type DailyPick } from "./daily";
 
@@ -53,12 +53,12 @@ async function phrase(provider: AdvisorProvider, prompt: string): Promise<string
         const res = await client.models.generateContent({
           model: m,
           contents: prompt,
-          config: { systemInstruction: SYSTEM, maxOutputTokens: 400, thinkingConfig: thinkingFor(m) },
+          config: { systemInstruction: SYSTEM, maxOutputTokens: 400, thinkingConfig: thinkingFor(m), httpOptions: { timeout: 8_000 } },
         });
         return textOf(res.candidates?.[0]?.content);
       } catch (e) {
         lastError = e;
-        if (!(e instanceof ApiError && RETRYABLE.has(e.status))) throw e;
+        if (!isRetryable(e)) throw e;
       }
     }
     throw lastError;

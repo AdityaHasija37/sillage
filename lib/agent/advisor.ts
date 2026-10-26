@@ -3,12 +3,14 @@ import { ApiError as GeminiApiError, GoogleGenAI, type Content } from "@google/g
 import { displayName, SEASONS, type Season } from "@/lib/domain/fragrance";
 import type { Mode } from "@/lib/recommendation/engine";
 import { caveatText, reasonText } from "@/lib/recommendation/explain";
-import { BLOCKED, DEFAULT_GEMINI_FALLBACKS, DEFAULT_GEMINI_MODEL, fillNulls, geminiRound, RETRYABLE, textOf, type GeminiRound } from "./gemini";
+import { BLOCKED, DEFAULT_GEMINI_FALLBACKS, DEFAULT_GEMINI_MODEL, fillNulls, geminiRound, isRetryable, textOf, type GeminiRound } from "./gemini";
 import { groundAnswer, type GroundingReport } from "./grounding";
 import { executeTool, TOOL_DEFINITIONS, ToolInputError, type AdvisorContext, type PendingAction, type ToolOutcome } from "./tools";
 
 export const DEFAULT_MODEL = "claude-opus-5-5";
 const MAX_TOOL_ROUNDS = 6;
+/** Wall-clock budget for one Gemini answer; past it the rule-based engines answer instead. */
+const GEMINI_BUDGET_MS = 50_000;
 const MAX_TOKENS = 4096;
 
 // USD per million tokens: [input, output, cache read, cache write (5 min)].
@@ -54,6 +56,10 @@ export function configuredModel(provider: AdvisorProvider, env: Record<string, s
 export function geminiModels(primary: string, env: Record<string, string | undefined> = process.env): string[] {
   const fallbacks = env.GEMINI_FALLBACK_MODELS !== undefined ? env.GEMINI_FALLBACK_MODELS.split(",").map((m) => m.trim()).filter(Boolean) : DEFAULT_GEMINI_FALLBACKS;
   return [...new Set([primary, ...fallbacks])];
+}
+
+class BudgetExceeded extends Error {
+  name = "BudgetExceeded";
 }
 
 export type TraceStep = { tool: string; input: unknown; summary: string; ok: boolean; ms: number };
@@ -163,19 +169,25 @@ async function runGemini(message: string, history: HistoryTurn[], ctx: AdvisorCo
   // belong to it).
   const candidates = geminiModels(model);
   let active: string | null = null;
+  const deadline = started + GEMINI_BUDGET_MS;
+  const remaining = () => {
+    const ms = Math.min(25_000, deadline - Date.now());
+    if (ms < 2_000) throw new BudgetExceeded();
+    return ms;
+  };
   const round = async (lastRound: boolean): Promise<GeminiRound> => {
-    if (active) return geminiRound(client, active, SYSTEM_PROMPT, contents, lastRound);
+    if (active) return geminiRound(client, active, SYSTEM_PROMPT, contents, lastRound, remaining());
     let lastError: unknown;
     for (const m of candidates)
       for (let attempt = 0; attempt < (m === candidates[0] ? 2 : 1); attempt++) {
         try {
-          const r = await geminiRound(client, m, SYSTEM_PROMPT, contents, lastRound);
+          const r = await geminiRound(client, m, SYSTEM_PROMPT, contents, lastRound, remaining());
           active = m;
           return r;
         } catch (e) {
           lastError = e;
-          if (!(e instanceof GeminiApiError && RETRYABLE.has(e.status))) throw e;
-          console.warn("advisor: gemini model unavailable, trying the next", m, e.status);
+          if (e instanceof BudgetExceeded || !isRetryable(e)) throw e;
+          console.warn("advisor: gemini model unavailable, trying the next", m, e instanceof GeminiApiError ? e.status : (e as Error).name);
           if (attempt === 0 && m === candidates[0]) await new Promise((res) => setTimeout(res, 600));
         }
       }
@@ -213,7 +225,7 @@ async function runGemini(message: string, history: HistoryTurn[], ctx: AdvisorCo
   } catch (e) {
     // Status only, never the request body. A 429 means the free tier's quota is used up for now.
     const status = e instanceof GeminiApiError ? e.status : null;
-    console.error("advisor: gemini call failed", status ?? (e as Error)?.name);
+    console.error("advisor: gemini call failed", status ?? (e as Error)?.name, `${Date.now() - started}ms`);
     return runOffline(message, ctx, started, status === 429 ? "quota" : "ai_error");
   }
   // Free tier: no charge. (On a paid Gemini plan, see the console for the bill.)

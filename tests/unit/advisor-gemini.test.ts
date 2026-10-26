@@ -123,6 +123,16 @@ describe("runAdvisor on Gemini", () => {
     expect(thinkingFor("gemini-3.8-flash")).toHaveProperty("thinkingLevel");
   });
 
+  it("treats a timeout like an overload and moves to the next model", async () => {
+    const timeout = Object.assign(new Error("timed out"), { name: "AbortError" });
+    const generateContent = vi.fn(async (req: Req) => {
+      if (req.model === "gemini-3.8-flash") throw timeout;
+      return reply({ text: "Here you go." });
+    });
+    const r = await runAdvisor("hi", [], context(), { gemini: { models: { generateContent } } as unknown as GoogleGenAI });
+    expect(r.trace).toMatchObject({ mode: "ai", model: "gemini-3.6-flash" });
+  });
+
   it("goes offline when every free model is overloaded", async () => {
     const client = { models: { generateContent: vi.fn().mockRejectedValue(new ApiError({ message: "overloaded", status: 503 })) } } as unknown as GoogleGenAI;
     const r = await runAdvisor("Something different for winter", [], context(), { gemini: client });

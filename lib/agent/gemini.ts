@@ -1,4 +1,4 @@
-import { FunctionCallingConfigMode, ThinkingLevel, type Content, type FunctionDeclaration, type GoogleGenAI, type Part } from "@google/genai";
+import { ApiError, FunctionCallingConfigMode, ThinkingLevel, type Content, type FunctionDeclaration, type GoogleGenAI, type Part } from "@google/genai";
 import { TOOL_DEFINITIONS } from "./tools";
 
 /** Free-tier Flash model (ai.google.dev/gemini-api/docs/pricing). Override with GEMINI_MODEL. */
@@ -8,6 +8,13 @@ export const DEFAULT_GEMINI_FALLBACKS = ["gemini-3.6-flash", "gemini-2.5-flash"]
 
 /** Overloaded, unavailable or unknown-model errors are worth retrying elsewhere; quota and bad requests aren't. */
 export const RETRYABLE = new Set([404, 500, 503, 504]);
+
+/** True for errors where another free model may do better: overload, outage, unknown model or a timeout. */
+export function isRetryable(e: unknown): boolean {
+  if (e instanceof ApiError) return RETRYABLE.has(e.status);
+  const name = (e as Error | undefined)?.name;
+  return name === "AbortError" || name === "TimeoutError";
+}
 
 type JsonSchema = Record<string, unknown>;
 
@@ -56,7 +63,7 @@ export const thinkingFor = (model: string) => (/^gemini-2\./.test(model) ? { thi
 export type GeminiRound = { content: Content | undefined; calls: { id?: string; name: string; args: Record<string, unknown> }[]; finishReason: string | null; inputTokens: number; outputTokens: number; cachedTokens: number };
 
 /** One generateContent call with the frozen system prompt and tool list. */
-export async function geminiRound(client: GoogleGenAI, model: string, system: string, contents: Content[], lastRound: boolean): Promise<GeminiRound> {
+export async function geminiRound(client: GoogleGenAI, model: string, system: string, contents: Content[], lastRound: boolean, timeoutMs = 25_000): Promise<GeminiRound> {
   const res = await client.models.generateContent({
     model,
     contents,
@@ -69,6 +76,8 @@ export async function geminiRound(client: GoogleGenAI, model: string, system: st
       // We run the tools ourselves (approval-free reads, confirm-only writes), never the SDK.
       automaticFunctionCalling: { disable: true },
       maxOutputTokens: 4096,
+      // A stalled free-tier request must not hold the answer hostage.
+      httpOptions: { timeout: timeoutMs },
     },
   });
   const candidate = res.candidates?.[0];
