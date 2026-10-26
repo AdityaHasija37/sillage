@@ -6,6 +6,7 @@ import {
   fitsDayparts,
   fitsSeasons,
   PRICE_BAND_LABEL,
+  PRICE_BANDS,
   SEASONS,
   type Fragrance,
 } from "@/lib/domain/fragrance";
@@ -28,7 +29,7 @@ export type AdvisorContext = {
   preferences: Preferences;
   searchCatalog: (q: string) => Promise<FragranceSummary[]>;
   getFragrance: (id: string) => Promise<Fragrance | null>;
-  recommend: (input: { mode: (typeof MODES)[number]; budgetMax?: number | null; season?: (typeof SEASONS)[number] | null; daypart?: "day" | "night" | null; performance?: "soft" | "moderate" | "strong" | null; includeAlternatives?: boolean | null }) => Promise<RecommendationResult & { runId: string | null }>;
+  recommend: (input: { mode: (typeof MODES)[number]; budgetMax?: number | null; season?: (typeof SEASONS)[number] | null; daypart?: "day" | "night" | null; performance?: "soft" | "moderate" | "strong" | null; includeAlternatives?: boolean | null; priceBand?: (typeof PRICE_BANDS)[number] | null; accord?: string | null }) => Promise<RecommendationResult & { runId: string | null }>;
   findOffers: (fragrance: Fragrance, concentration: (typeof CONCENTRATIONS)[number], sizeMl: number) => Promise<OfferSearchResult>;
   collectionScore: () => Promise<CollectionScore>;
   dailyPick: (context: { occasion: (typeof OCCASIONS)[number]; daypart?: "day" | "night"; weather?: { temperature: "cold" | "mild" | "hot"; source: "manual" }; desiredIntensity?: "soft" | "moderate" | "strong" }) => Promise<DailyResult>;
@@ -95,8 +96,10 @@ export const TOOL_DEFINITIONS: Anthropic.Tool[] = [
         daypart: nullable({ type: "string", enum: ["day", "night"] }),
         performance: nullable({ type: "string", enum: ["soft", "moderate", "strong"] }),
         include_budget_alternatives: nullable({ type: "boolean", description: "false only if the user asks for originals, not dupes/clones; null uses their saved preference" }),
+        price_band: nullable({ type: "string", enum: [...PRICE_BANDS], description: "Only this estimated price band. For 'one around $50, one around $100, one around $200', call this tool once per band (under_50, 50_100, 100_200, 200_plus)" }),
+        accord: nullable({ type: "string", description: "A style the user asked for, as one accord word: fresh, citrus, woody, aquatic, floral, amber, vanilla, spicy, leather, aromatic, green, sweet, powdery, musky" }),
       },
-      ["mode", "budget_max_usd", "season", "daypart", "performance", "include_budget_alternatives"],
+      ["mode", "budget_max_usd", "season", "daypart", "performance", "include_budget_alternatives", "price_band", "accord"],
     ),
     strict: true,
   },
@@ -163,6 +166,8 @@ const inputs = {
     daypart: z.enum(["day", "night"]).nullable(),
     performance: z.enum(["soft", "moderate", "strong"]).nullable(),
     include_budget_alternatives: z.boolean().nullable().optional(),
+    price_band: z.enum(PRICE_BANDS).nullable().optional(),
+    accord: z.string().trim().min(2).max(30).nullable().optional(),
   }),
   find_offers: z.object({ fragrance_id: Id, concentration: z.enum(CONCENTRATIONS), size_ml: z.number().int().min(5).max(500) }),
   get_collection_score: z.object({}),
@@ -269,7 +274,7 @@ export async function executeTool(name: string, rawInput: unknown, ctx: AdvisorC
     }
     case "recommend_candidates": {
       const i = input as z.infer<typeof inputs.recommend_candidates>;
-      const res = await ctx.recommend({ mode: i.mode, budgetMax: i.budget_max_usd, season: i.season, daypart: i.daypart, performance: i.performance, includeAlternatives: i.include_budget_alternatives ?? null });
+      const res = await ctx.recommend({ mode: i.mode, budgetMax: i.budget_max_usd, season: i.season, daypart: i.daypart, performance: i.performance, includeAlternatives: i.include_budget_alternatives ?? null, priceBand: i.price_band ?? null, accord: i.accord ?? null });
       return {
         content: {
           mode: res.mode,

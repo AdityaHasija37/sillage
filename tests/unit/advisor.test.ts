@@ -150,11 +150,27 @@ describe("offline Collection Intelligence answers", () => {
 
 describe("parseIntent", () => {
   it("reads the UX doc's Flow C example", () => {
-    expect(parseIntent("Suggest a woody winter fragrance under $50 that isn't close to what I own")).toEqual({ mode: "different", season: "winter", daypart: null, budgetMax: 50 });
+    expect(parseIntent("Suggest a woody winter fragrance under $50 that isn't close to what I own")).toEqual({ mode: "different", season: "winter", daypart: null, budgetMax: 50, accord: "woody" });
   });
   it("reads a request for originals only", () => {
     expect(parseIntent("something like Aventus but no dupes please")).toMatchObject({ mode: "similar", includeAlternatives: false });
     expect(parseIntent("something like Aventus")).not.toHaveProperty("includeAlternatives");
+  });
+  it("reads several price points as one pick per band, plus a style word", () => {
+    expect(parseIntent("Suggest a good winter fresh fragrance, give me 3 options - one at 50$, 100$ and 200$ resp")).toMatchObject({
+      season: "winter",
+      accord: "fresh",
+      budgetMax: null,
+      bands: ["under_50", "50_100", "100_200"],
+    });
+    expect(parseIntent("something woody under $150")).toMatchObject({ accord: "woody", budgetMax: 150 });
+    expect(parseIntent("something woody under $150")).not.toHaveProperty("bands");
+  });
+  it("answers a multi-price request offline with one grounded pick per band", async () => {
+    const reply = await runAdvisor("one fresh option at $50, $100 and $200", [], context(), { client: null });
+    expect(reply.trace.steps.map((s) => (s.input as { price_band: string }).price_band)).toEqual(["under_50", "50_100", "100_200"]);
+    expect(reply.text).toMatch(/Under \$50 \(estimated\)/);
+    expect(reply.trace.grounding.removedPrices).toEqual([]);
   });
   it("reads gap and daypart requests", () => {
     expect(parseIntent("What's missing for date night?")).toMatchObject({ mode: "gaps", daypart: "night" });

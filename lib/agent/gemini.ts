@@ -2,15 +2,21 @@ import { ApiError, FunctionCallingConfigMode, ThinkingLevel, type Content, type 
 import { TOOL_DEFINITIONS } from "./tools";
 
 /**
- * Free-tier Flash model (ai.google.dev/gemini-api/docs/pricing). Override with GEMINI_MODEL.
- * Not gemini-3.8-flash: on the free tier it returned 503/504 on every live attempt (26 Oct 2026).
+ * Free-tier models (ai.google.dev/gemini-api/docs/pricing), each with its own free quota. Measured
+ * on production, 26 Oct 2026: gemini-3.8-flash returned 503/504 on every attempt and gemini-2.5-flash
+ * is "no longer available to new users", so neither is in the default chain.
+ * Override with GEMINI_MODEL and GEMINI_FALLBACK_MODELS (comma-separated).
  */
 export const DEFAULT_GEMINI_MODEL = "gemini-3.6-flash";
-/** Free-tier models to try when the first is overloaded. Override with GEMINI_FALLBACK_MODELS (comma-separated). */
-export const DEFAULT_GEMINI_FALLBACKS = ["gemini-2.5-flash"];
+export const DEFAULT_GEMINI_FALLBACKS = ["gemini-3-flash-preview", "gemini-3.5-flash-lite", "gemini-3.1-flash-lite"];
+/** Today's one-sentence explanation runs on the light models so it never spends the advisor's quota. */
+export const DEFAULT_EXPLAIN_MODELS = ["gemini-3.5-flash-lite", "gemini-3.1-flash-lite"];
 
-/** Overloaded, unavailable or unknown-model errors are worth retrying elsewhere; quota and bad requests aren't. */
-export const RETRYABLE = new Set([404, 500, 503, 504]);
+/**
+ * Errors where another free model may do better: its own quota (429), overload or outage (5xx), a
+ * model this key can't use (404), a parameter that model rejects (400), or a timeout.
+ */
+export const RETRYABLE = new Set([400, 404, 429, 500, 503, 504]);
 
 /** True for errors where another free model may do better: overload, outage, unknown model or a timeout. */
 export function isRetryable(e: unknown): boolean {

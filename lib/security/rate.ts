@@ -10,7 +10,7 @@ export const RATE_LIMITS: Record<RateBucket, { limit: number; windowSeconds: num
   chat: { limit: 20, windowSeconds: 3600 },
   offers: { limit: 12, windowSeconds: 3600 },
   // Today's AI-phrased sentence; past the limit the deterministic template is used.
-  explain: { limit: 40, windowSeconds: 3600 },
+  explain: { limit: 12, windowSeconds: 3600 },
   catalog_live: { limit: 60, windowSeconds: 3600 },
   // Overridable for local end-to-end runs, which create many sandboxes from one address.
   demo: { limit: Number(process.env.DEMO_HOURLY_LIMIT) || 5, windowSeconds: 3600 },

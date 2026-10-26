@@ -10,6 +10,7 @@ import {
   type Daypart,
   type Family,
   type Fragrance,
+  type PriceBand,
   type Season,
 } from "@/lib/domain/fragrance";
 import {
@@ -23,7 +24,7 @@ import {
   type TasteProfile,
 } from "@/lib/domain/profile";
 
-export const ENGINE_VERSION = "rec-1.2";
+export const ENGINE_VERSION = "rec-1.3";
 
 export const MODES = ["similar", "different", "gaps"] as const;
 export type Mode = (typeof MODES)[number];
@@ -36,6 +37,10 @@ export type RecommendationRequest = {
   performance?: "soft" | "moderate" | "strong" | null;
   /** Overrides the saved preference for this request. */
   includeAlternatives?: boolean | null;
+  /** Only this estimated price band ("one at $50, one at $100…"); unknown prices are left out. */
+  priceBand?: PriceBand | null;
+  /** Only fragrances where this accord is prominent (strength ≥ 50), e.g. "fresh", "woody". */
+  accord?: string | null;
   limit?: number;
 };
 
@@ -89,7 +94,7 @@ export type Recommendation = {
   caveats: CaveatCode[];
 };
 
-export type ExclusionCounts = { owned: number; dislikedNote: number; budget: number; season: number; daypart: number; lowQuality: number; tooSimilar: number; marketing: number; alternatives: number };
+export type ExclusionCounts = { owned: number; dislikedNote: number; budget: number; season: number; daypart: number; accord: number; lowQuality: number; tooSimilar: number; marketing: number; alternatives: number };
 
 export type RecommendationResult = {
   mode: Mode;
@@ -190,6 +195,7 @@ export function recommendCandidates(
   const daypart = request.daypart ?? null;
   const performance = request.performance ?? preferences.performance.longevity ?? null;
   const includeAlternatives = request.includeAlternatives ?? preferences.includeAlternatives;
+  const accord = request.accord?.trim().toLowerCase() || null;
 
   const ownedIds = new Set(owned.map((o) => o.fragrance.id));
   const ownedKeys = new Set(owned.map((o) => o.fragrance.canonicalKey));
@@ -230,7 +236,7 @@ export function recommendCandidates(
   }
   const noClearGap = request.mode === "gaps" && familyGap.size === 0 && seasonGap.size === 0 && !daypartGap;
 
-  const excluded: ExclusionCounts = { owned: 0, dislikedNote: 0, budget: 0, season: 0, daypart: 0, lowQuality: 0, tooSimilar: 0, marketing: 0, alternatives: 0 };
+  const excluded: ExclusionCounts = { owned: 0, dislikedNote: 0, budget: 0, season: 0, daypart: 0, accord: 0, lowQuality: 0, tooSimilar: 0, marketing: 0, alternatives: 0 };
   const scored: Recommendation[] = [];
 
   for (const f of catalog) {
@@ -261,8 +267,12 @@ export function recommendCandidates(
       continue;
     }
     const budget = budgetFit(f, budgetMax);
-    if (budget.exclude) {
+    if (budget.exclude || (request.priceBand && f.priceBand !== request.priceBand)) {
       excluded.budget++;
+      continue;
+    }
+    if (accord && !f.accords.some((a) => a.strength >= 50 && a.name.toLowerCase().includes(accord))) {
+      excluded.accord++;
       continue;
     }
     const shares = seasonShares(f);

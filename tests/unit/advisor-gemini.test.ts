@@ -115,12 +115,30 @@ describe("runAdvisor on Gemini", () => {
       return ++n === 1 ? reply({ calls: [{ name: "get_user_profile", args: {} }] }) : reply({ text: "Here you go." });
     });
     const r = await runAdvisor("hi", [], context(), { gemini: { models: { generateContent } } as unknown as GoogleGenAI });
-    expect(seen).toEqual(["gemini-3.6-flash", "gemini-2.5-flash", "gemini-2.5-flash"]);
-    expect(r.trace).toMatchObject({ mode: "ai", model: "gemini-2.5-flash" });
-    expect(geminiModels("gemini-3.8-flash", {})).toEqual(["gemini-3.8-flash", "gemini-2.5-flash"]);
+    expect(seen).toEqual(["gemini-3.6-flash", "gemini-3-flash-preview", "gemini-3-flash-preview"]);
+    expect(r.trace).toMatchObject({ mode: "ai", model: "gemini-3-flash-preview" });
+    expect(geminiModels("gemini-3.8-flash", {})).toEqual(["gemini-3.8-flash", "gemini-3-flash-preview", "gemini-3.5-flash-lite", "gemini-3.1-flash-lite"]);
     expect(geminiModels("x", { GEMINI_FALLBACK_MODELS: "" })).toEqual(["x"]);
     expect(thinkingFor("gemini-2.5-flash")).toEqual({ thinkingBudget: 512 });
-    expect(thinkingFor("gemini-3.8-flash")).toHaveProperty("thinkingLevel");
+    expect(thinkingFor("gemini-3.6-flash")).toHaveProperty("thinkingLevel");
+  });
+
+  it("restarts the whole answer on the next model when the quota runs out mid-answer", async () => {
+    const seen: string[] = [];
+    const generateContent = vi.fn(async (req: Req) => {
+      seen.push(req.model);
+      // The first model answers round one, then hits its free quota on round two.
+      if (req.model === "gemini-3.6-flash") {
+        if (seen.length === 1) return reply({ calls: [{ name: "get_user_profile", args: {} }] });
+        throw new ApiError({ message: "quota", status: 429 });
+      }
+      // A fresh start: the next model sees only the user's message, no foreign thought signatures.
+      expect(req.contents).toHaveLength(1);
+      return reply({ text: "Fresh start, same tools." });
+    });
+    const r = await runAdvisor("hi", [], context(), { gemini: { models: { generateContent } } as unknown as GoogleGenAI });
+    expect(seen).toEqual(["gemini-3.6-flash", "gemini-3.6-flash", "gemini-3-flash-preview"]);
+    expect(r.trace).toMatchObject({ mode: "ai", model: "gemini-3-flash-preview", steps: [] });
   });
 
   it("treats a timeout like an overload and moves to the next model", async () => {
@@ -130,14 +148,14 @@ describe("runAdvisor on Gemini", () => {
       return reply({ text: "Here you go." });
     });
     const r = await runAdvisor("hi", [], context(), { gemini: { models: { generateContent } } as unknown as GoogleGenAI });
-    expect(r.trace).toMatchObject({ mode: "ai", model: "gemini-2.5-flash" });
+    expect(r.trace).toMatchObject({ mode: "ai", model: "gemini-3-flash-preview" });
   });
 
-  it("goes offline when every free model is overloaded", async () => {
-    const client = { models: { generateContent: vi.fn().mockRejectedValue(new ApiError({ message: "overloaded", status: 503 })) } } as unknown as GoogleGenAI;
+  it("goes offline, and says the quota is the reason, when every free model is out", async () => {
+    const client = { models: { generateContent: vi.fn().mockRejectedValue(new ApiError({ message: "quota", status: 429 })) } } as unknown as GoogleGenAI;
     const r = await runAdvisor("Something different for winter", [], context(), { gemini: client });
-    expect(r.trace).toMatchObject({ mode: "offline", offlineReason: "ai_error" });
-    expect((client.models.generateContent as ReturnType<typeof vi.fn>).mock.calls.length).toBe(2);
+    expect(r.trace).toMatchObject({ mode: "offline", offlineReason: "quota" });
+    expect((client.models.generateContent as ReturnType<typeof vi.fn>).mock.calls.length).toBe(4);
   });
 
   it("treats a safety block like a refusal", async () => {

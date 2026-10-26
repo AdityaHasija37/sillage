@@ -2,7 +2,7 @@ import "server-only";
 import { createClient as createAnonClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import type { Database } from "@/lib/db/database.types";
-import { FRAGRANCE_COLUMNS, SEASONS, toFragrance, type Fragrance } from "@/lib/domain/fragrance";
+import { FRAGRANCE_COLUMNS, PRICE_BANDS, SEASONS, toFragrance, type Fragrance } from "@/lib/domain/fragrance";
 import type { OwnedFragrance, Preferences } from "@/lib/domain/profile";
 import { supabaseAnonKey, supabaseUrl } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
@@ -15,6 +15,8 @@ export const RecommendationInput = z.object({
   daypart: z.enum(["day", "night"]).nullable().optional(),
   performance: z.enum(["soft", "moderate", "strong"]).nullable().optional(),
   includeAlternatives: z.boolean().nullable().optional(),
+  priceBand: z.enum(PRICE_BANDS).nullable().optional(),
+  accord: z.string().trim().min(2).max(30).nullable().optional(),
   limit: z.number().int().min(1).max(10).optional(),
 });
 export type RecommendationInput = z.infer<typeof RecommendationInput>;

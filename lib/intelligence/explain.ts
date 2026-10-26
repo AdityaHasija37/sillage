@@ -1,8 +1,8 @@
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenAI } from "@google/genai";
-import { configuredModel, configuredProvider, geminiModels, type AdvisorProvider } from "@/lib/agent/advisor";
-import { isRetryable, textOf, thinkingFor } from "@/lib/agent/gemini";
+import { configuredModel, configuredProvider, type AdvisorProvider } from "@/lib/agent/advisor";
+import { DEFAULT_EXPLAIN_MODELS, isRetryable, textOf, thinkingFor } from "@/lib/agent/gemini";
 import { claimRate } from "@/lib/security/rate";
 import { explainPick, type DailyPick } from "./daily";
 
@@ -48,12 +48,12 @@ export async function explainWithModel(picks: DailyPick[], subject: string, prov
 }
 
 async function phrase(provider: AdvisorProvider, prompt: string): Promise<string> {
-  const model = configuredModel(provider);
   if (provider === "gemini") {
     const client = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
     let lastError: unknown;
     // An overloaded free model moves on to the next one; anything else falls back to the template.
-    for (const m of geminiModels(model)) {
+    const models = process.env.GEMINI_EXPLAIN_MODELS ? process.env.GEMINI_EXPLAIN_MODELS.split(",").map((m) => m.trim()).filter(Boolean) : DEFAULT_EXPLAIN_MODELS;
+    for (const m of models) {
       try {
         const res = await client.models.generateContent({
           model: m,
@@ -69,7 +69,7 @@ async function phrase(provider: AdvisorProvider, prompt: string): Promise<string
     throw lastError;
   }
   const res = (await new Anthropic().messages.create({
-    model,
+    model: configuredModel(provider),
     max_tokens: 400,
     output_config: { effort: "low" },
     system: SYSTEM,

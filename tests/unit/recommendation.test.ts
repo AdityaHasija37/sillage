@@ -10,6 +10,24 @@ describe("recommendCandidates", () => {
   const c = fixtureCatalog();
   const catalog = Object.values(c);
 
+  it("filters to one estimated price band, leaving unknown prices out", () => {
+    const owned = [own(c.freshCitrus, "love")];
+    const res = recommendCandidates({ mode: "different", priceBand: "200_plus" }, prefs(), owned, catalog);
+    expect(res.results.length).toBeGreaterThan(0);
+    expect(res.results.every((r) => r.fragrance.priceBand === "200_plus")).toBe(true);
+    expect(res.excluded.budget).toBeGreaterThan(0);
+  });
+
+  it("filters to a prominent accord, and names that filter when it empties the list", () => {
+    const owned = [own(c.amberVanilla, "love")];
+    const res = recommendCandidates({ mode: "similar", accord: "Fresh" }, prefs(), owned, catalog);
+    expect(res.results.length).toBeGreaterThan(0);
+    expect(res.results.every((r) => r.fragrance.accords.some((a) => a.name.includes("fresh") && a.strength >= 50))).toBe(true);
+    const none = recommendCandidates({ mode: "similar", accord: "nonexistent" }, prefs(), owned, catalog);
+    expect(none.results).toHaveLength(0);
+    expect(none.mostRestrictive).toBe("accord");
+  });
+
   it("REC-01 similar mode favours overlap with a positively rated fragrance", () => {
     const owned = [own(c.freshCitrus, "love"), own(c.amberVanilla, "neutral")];
     const res = recommendCandidates({ mode: "similar" }, prefs(), owned, catalog);

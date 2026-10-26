@@ -84,4 +84,5 @@ export const RELAXATION: Record<keyof ExclusionCounts, string> = {
   budget: "Your budget removed the most options. Try raising it.",
   season: "The season filter removed the most options. Try “Any season”.",
   daypart: "The time-of-day filter removed the most options. Try “Any time”.",
+  accord: "The style filter removed the most options. Try a broader style.",
 };

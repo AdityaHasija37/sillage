@@ -1,9 +1,9 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { ApiError as GeminiApiError, GoogleGenAI, type Content } from "@google/genai";
-import { displayName, SEASONS, type Season } from "@/lib/domain/fragrance";
+import { displayName, PRICE_BAND_LABEL, SEASONS, type PriceBand, type Season } from "@/lib/domain/fragrance";
 import type { Mode } from "@/lib/recommendation/engine";
 import { caveatText, reasonText } from "@/lib/recommendation/explain";
-import { BLOCKED, DEFAULT_GEMINI_FALLBACKS, DEFAULT_GEMINI_MODEL, fillNulls, geminiRound, isRetryable, textOf, type GeminiRound } from "./gemini";
+import { BLOCKED, DEFAULT_GEMINI_FALLBACKS, DEFAULT_GEMINI_MODEL, fillNulls, geminiRound, isRetryable, textOf } from "./gemini";
 import { groundAnswer, type GroundingReport } from "./grounding";
 import { executeTool, TOOL_DEFINITIONS, ToolInputError, type AdvisorContext, type PendingAction, type ToolOutcome } from "./tools";
 
@@ -24,6 +24,7 @@ export const SYSTEM_PROMPT = `You are the Sillage advisor, a fragrance recommend
 
 How to work:
 - For any personal recommendation, first call get_user_profile (and get_owned_fragrances when you need specifics), then call recommend_candidates with the mode that fits the request: "similar" for more of what they love, "different" for something unlike what they own, "gaps" for seasons or styles their collection lacks. Pass budget, season, day/night and performance only when the user stated them.
+- When the user asks for a style ("fresh", "woody"), pass it as accord. When they ask for options at several price points ("one at $50, $100 and $200"), call recommend_candidates once per price_band (in parallel) and give one pick per band, saying the band is an estimate.
 - Recommend only fragrances returned by recommend_candidates or search_catalog in this conversation turn. Never name or invent a fragrance you did not get from a tool. If the tools return nothing suitable, say so plainly and suggest which constraint to relax (the result's empty_reason tells you).
 - Only quote prices that a tool returned. Price bands are estimates; say "estimated". If find_offers reports sample data, say clearly that the prices are samples, not live prices. Never claim something is the cheapest anywhere.
 - For "how balanced is my collection" or "what am I missing", call get_collection_score. For "what should I wear today/tonight", call pick_for_today: it only ranks bottles they own.
@@ -60,6 +61,9 @@ export function geminiModels(primary: string, env: Record<string, string | undef
 
 class BudgetExceeded extends Error {
   name = "BudgetExceeded";
+}
+class RefusalSignal extends Error {
+  name = "RefusalSignal";
 }
 
 export type TraceStep = { tool: string; input: unknown; summary: string; ok: boolean; ms: number };
@@ -150,8 +154,33 @@ export async function runAdvisor(message: string, history: HistoryTurn[], ctx: A
   return finish({ raw, allowedIds, prices, pending, steps, rounds, started, provider: "anthropic", model, usage, costUsd: Math.round(costUsd * 10000) / 10000, stopReason: final?.stop_reason ?? "max_rounds" });
 }
 
-/** The same bounded loop on Gemini: same prompt, same tools, same grounding check. */
+/**
+ * The same bounded loop on Gemini: same prompt, same tools, same grounding check. Free-tier models
+ * each have their own quota and are often overloaded, so if a model fails at any round (quota,
+ * overload, timeout, unavailable) the whole answer restarts on the next free model. Tools only read
+ * or propose, so re-running them is safe, and a fresh start keeps thought signatures on one model.
+ */
 async function runGemini(message: string, history: HistoryTurn[], ctx: AdvisorContext, client: GoogleGenAI, model: string, started: number): Promise<AdvisorReply> {
+  const deadline = started + GEMINI_BUDGET_MS;
+  let sawQuota = false;
+  for (const m of geminiModels(model)) {
+    try {
+      return await geminiAttempt(message, history, ctx, client, m, started, deadline);
+    } catch (e) {
+      const status = e instanceof GeminiApiError ? e.status : null;
+      if (status === 429) sawQuota = true;
+      if (e instanceof BudgetExceeded || !isRetryable(e)) {
+        console.error("advisor: gemini call failed", m, status ?? (e as Error)?.name, `${Date.now() - started}ms`);
+        if (e instanceof RefusalSignal) return runOffline(message, ctx, started, "refusal");
+        return runOffline(message, ctx, started, sawQuota ? "quota" : "ai_error");
+      }
+      console.warn("advisor: gemini model unavailable, trying the next", m, status ?? (e as Error)?.name);
+    }
+  }
+  return runOffline(message, ctx, started, sawQuota ? "quota" : "ai_error");
+}
+
+async function geminiAttempt(message: string, history: HistoryTurn[], ctx: AdvisorContext, client: GoogleGenAI, model: string, started: number, deadline: number): Promise<AdvisorReply> {
   const contents: Content[] = [
     ...history.slice(-10).map((h) => ({ role: h.role === "assistant" ? "model" : "user", parts: [{ text: h.content }] })),
     { role: "user", parts: [{ text: message }] },
@@ -164,71 +193,42 @@ async function runGemini(message: string, history: HistoryTurn[], ctx: AdvisorCo
   let rounds = 0;
   let raw = "";
   let stopReason: string | null = "max_rounds";
-  // Free-tier models are often overloaded. Before the first successful round, move to the next free
-  // model on an overload or timeout; after that, stay on the model that answered (thought signatures
-  // belong to it).
-  const candidates = geminiModels(model);
-  let active: string | null = null;
-  const deadline = started + GEMINI_BUDGET_MS;
   const remaining = () => {
     // Gemini rejects request deadlines under 10 s, so a shorter remainder ends the answer here.
     const ms = Math.min(20_000, deadline - Date.now());
     if (ms < 10_000) throw new BudgetExceeded();
     return ms;
   };
-  const round = async (lastRound: boolean): Promise<GeminiRound> => {
-    if (active) return geminiRound(client, active, SYSTEM_PROMPT, contents, lastRound, remaining());
-    let lastError: unknown;
-    for (const m of candidates) {
-      try {
-        const r = await geminiRound(client, m, SYSTEM_PROMPT, contents, lastRound, remaining());
-        active = m;
-        return r;
-      } catch (e) {
-        lastError = e;
-        if (e instanceof BudgetExceeded || !isRetryable(e)) throw e;
-        console.warn("advisor: gemini model unavailable, trying the next", m, e instanceof GeminiApiError ? e.status : (e as Error).name);
-      }
-    }
-    throw lastError;
-  };
 
-  try {
-    while (rounds < MAX_TOOL_ROUNDS + 1) {
-      rounds++;
-      const r = await round(rounds > MAX_TOOL_ROUNDS);
-      usage.inputTokens += r.inputTokens;
-      usage.outputTokens += r.outputTokens;
-      usage.cacheReadTokens += r.cachedTokens;
-      if (r.finishReason && BLOCKED.has(r.finishReason)) return runOffline(message, ctx, started, "refusal");
-      if (!r.calls.length) {
-        raw = textOf(r.content);
-        stopReason = r.finishReason;
-        break;
-      }
-      // Append the model turn unchanged: its parts carry the thought signatures Gemini needs back.
-      if (r.content) contents.push(r.content);
-      const results = await Promise.all(r.calls.map((c) => callTool(c.name, fillNulls(c.name, c.args), ctx, steps)));
-      for (const res of results) {
-        if (res.outcome) {
-          res.outcome.fragranceIds.forEach((id) => allowedIds.add(id.toLowerCase()));
-          prices.push(...res.outcome.prices);
-          if (res.outcome.pending) pending.push(res.outcome.pending);
-        }
-      }
-      contents.push({
-        role: "user",
-        parts: results.map((res, i) => ({ functionResponse: { id: r.calls[i].id, name: r.calls[i].name, response: res.ok ? { result: res.payload } : { error: res.error } } })),
-      });
+  while (rounds < MAX_TOOL_ROUNDS + 1) {
+    rounds++;
+    const r = await geminiRound(client, model, SYSTEM_PROMPT, contents, rounds > MAX_TOOL_ROUNDS, remaining());
+    usage.inputTokens += r.inputTokens;
+    usage.outputTokens += r.outputTokens;
+    usage.cacheReadTokens += r.cachedTokens;
+    if (r.finishReason && BLOCKED.has(r.finishReason)) throw new RefusalSignal();
+    if (!r.calls.length) {
+      raw = textOf(r.content);
+      stopReason = r.finishReason;
+      break;
     }
-  } catch (e) {
-    // Status only, never the request body. A 429 means the free tier's quota is used up for now.
-    const status = e instanceof GeminiApiError ? e.status : null;
-    console.error("advisor: gemini call failed", status ?? (e as Error)?.name, `${Date.now() - started}ms`);
-    return runOffline(message, ctx, started, status === 429 ? "quota" : "ai_error");
+    // Append the model turn unchanged: its parts carry the thought signatures Gemini needs back.
+    if (r.content) contents.push(r.content);
+    const results = await Promise.all(r.calls.map((c) => callTool(c.name, fillNulls(c.name, c.args), ctx, steps)));
+    for (const res of results) {
+      if (res.outcome) {
+        res.outcome.fragranceIds.forEach((id) => allowedIds.add(id.toLowerCase()));
+        prices.push(...res.outcome.prices);
+        if (res.outcome.pending) pending.push(res.outcome.pending);
+      }
+    }
+    contents.push({
+      role: "user",
+      parts: results.map((res, i) => ({ functionResponse: { id: r.calls[i].id, name: r.calls[i].name, response: res.ok ? { result: res.payload } : { error: res.error } } })),
+    });
   }
   // Free tier: no charge. (On a paid Gemini plan, see the console for the bill.)
-  return finish({ raw, allowedIds, prices, pending, steps, rounds, started, provider: "gemini", model: active ?? model, usage, costUsd: null, stopReason });
+  return finish({ raw, allowedIds, prices, pending, steps, rounds, started, provider: "gemini", model, usage, costUsd: null, stopReason });
 }
 
 function finish(r: { raw: string; allowedIds: Set<string>; prices: string[]; pending: PendingAction[]; steps: TraceStep[]; rounds: number; started: number; provider: AdvisorProvider; model: string; usage: NonNullable<AdvisorReply["trace"]["usage"]>; costUsd: number | null; stopReason: string | null }): AdvisorReply {
@@ -312,7 +312,12 @@ function dedupePending(p: PendingAction[]): PendingAction[] {
 // ── Offline mode ────────────────────────────────────────────────────────────
 // Used without an API key, on API errors, or on a refusal. Same tools, same engine, templated text.
 
-export function parseIntent(message: string): { mode: Mode; season: Season | null; daypart: "day" | "night" | null; budgetMax: number | null; includeAlternatives?: boolean } {
+const ACCORD_WORDS = ["fresh", "citrus", "woody", "aquatic", "floral", "amber", "vanilla", "spicy", "leather", "aromatic", "green", "powdery", "musky", "fruity", "gourmand", "smoky"];
+
+/** "$50" → under_50, "$100" → 50_100, "$200" → 100_200, more → 200_plus. */
+export const bandFor = (usd: number): PriceBand => (usd <= 50 ? "under_50" : usd <= 100 ? "50_100" : usd <= 200 ? "100_200" : "200_plus");
+
+export function parseIntent(message: string): { mode: Mode; season: Season | null; daypart: "day" | "night" | null; budgetMax: number | null; includeAlternatives?: boolean; accord?: string; bands?: PriceBand[] } {
   const m = message.toLowerCase();
   const mode: Mode = /\b(gap|gaps|missing|fill|round out|lack|don'?t have)\b/.test(m)
     ? "gaps"
@@ -323,7 +328,19 @@ export function parseIntent(message: string): { mode: Mode; season: Season | nul
   const daypart = /\b(night|evening|date|club|dinner)\b/.test(m) ? "night" : /\b(office|work|day|daytime|daily)\b/.test(m) ? "day" : null;
   const budget = /(?:under|below|less than|max|up to|budget of)\s*\$?\s?(\d{2,4})/.exec(m) ?? /\$\s?(\d{2,4})\b/.exec(m);
   const noDupes = /\b(no|not|without|avoid)\b[^.]*\b(dupes?|clones?|alternatives?)\b|\boriginals? only\b/.test(m);
-  return { mode, season, daypart, budgetMax: budget ? Number(budget[1]) : null, ...(noDupes ? { includeAlternatives: false } : {}) };
+  const accord = ACCORD_WORDS.find((w) => new RegExp(`\\b${w}\\b`).test(m));
+  // Several price points ("one at $50, $100 and $200") mean one pick per band, not one budget.
+  const amounts = [...new Set([...m.matchAll(/\$\s?(\d{2,4})|(\d{2,4})\s?(?:\$|usd|dollars)/g)].map((x) => Number(x[1] ?? x[2])))];
+  const bands = amounts.length >= 2 ? [...new Set(amounts.map(bandFor))] : [];
+  return {
+    mode,
+    season,
+    daypart,
+    budgetMax: bands.length ? null : budget ? Number(budget[1]) : null,
+    ...(noDupes ? { includeAlternatives: false } : {}),
+    ...(accord ? { accord } : {}),
+    ...(bands.length >= 2 ? { bands } : {}),
+  };
 }
 
 /** Offline routing for the Collection Intelligence questions (score, what to wear). */
@@ -379,10 +396,35 @@ async function runOffline(message: string, ctx: AdvisorContext, started: number,
   const intent = parseIntent(message);
   const steps: TraceStep[] = [];
   const t0 = Date.now();
-  const res = await ctx.recommend({ mode: intent.mode, budgetMax: intent.budgetMax, season: intent.season, daypart: intent.daypart, includeAlternatives: intent.includeAlternatives ?? null });
+  if (intent.bands) {
+    // One engine run per price band, best pick from each.
+    const lines: string[] = [];
+    const ids: string[] = [];
+    for (const band of intent.bands) {
+      const t1 = Date.now();
+      const r = await ctx.recommend({ mode: intent.mode, season: intent.season, daypart: intent.daypart, includeAlternatives: intent.includeAlternatives ?? null, priceBand: band, accord: intent.accord ?? null });
+      steps.push({ tool: "recommend_candidates", input: { ...intent, price_band: band }, summary: `Ran ${intent.mode} recommendations for ${PRICE_BAND_LABEL[band]} (${r.results.length})`, ok: true, ms: Date.now() - t1 });
+      const top = r.results[0];
+      if (!top) lines.push(`• ${PRICE_BAND_LABEL[band]} (estimated): nothing matched${intent.accord ? ` with a ${intent.accord} profile` : ""}.`);
+      else {
+        ids.push(top.fragranceId);
+        lines.push(`• ${PRICE_BAND_LABEL[band]} (estimated): ${displayName(top.fragrance)} [[f:${top.fragranceId}]], ${top.reasons.slice(0, 2).map(reasonText).join("; ") || "strong overall estimated fit"}.`);
+      }
+    }
+    const what = [intent.accord, intent.season].filter(Boolean).join(" ");
+    const text = `${offlineLead(reason)} One ${what ? `${what} ` : ""}pick per price band:\n${lines.join("\n")}`;
+    const grounded = groundAnswer(text, new Set(ids.map((x) => x.toLowerCase())), intent.bands.map((b) => PRICE_BAND_LABEL[b]));
+    return {
+      text: grounded.text,
+      citedIds: grounded.citedIds,
+      pendingActions: [],
+      trace: { mode: "offline", provider: null, model: null, steps, rounds: 0, latencyMs: Date.now() - started, usage: null, costUsd: 0, grounding: { citedIds: grounded.citedIds, removedIds: grounded.removedIds, removedPrices: grounded.removedPrices }, stopReason: null, offlineReason: reason },
+    };
+  }
+  const res = await ctx.recommend({ mode: intent.mode, budgetMax: intent.budgetMax, season: intent.season, daypart: intent.daypart, includeAlternatives: intent.includeAlternatives ?? null, accord: intent.accord ?? null });
   steps.push({ tool: "recommend_candidates", input: intent, summary: `Ran ${intent.mode} recommendations (${res.results.length})`, ok: true, ms: Date.now() - t0 });
   const lead = offlineLead(reason);
-  const filters = [intent.season, intent.daypart === "night" ? "evening" : intent.daypart === "day" ? "daytime" : null, intent.budgetMax ? `under $${intent.budgetMax}` : null].filter(Boolean).join(", ");
+  const filters = [intent.accord, intent.season, intent.daypart === "night" ? "evening" : intent.daypart === "day" ? "daytime" : null, intent.budgetMax ? `under $${intent.budgetMax}` : null].filter(Boolean).join(", ");
   let text: string;
   if (!res.results.length) {
     text = `${lead} I couldn't find a match for “${intent.mode}”${filters ? ` (${filters})` : ""}. ${res.mostRestrictive ? `The ${res.mostRestrictive === "dislikedNote" ? "disliked-notes" : res.mostRestrictive} filter removed the most options; try relaxing it.` : "Try adding a few more bottles to your collection."}`;
