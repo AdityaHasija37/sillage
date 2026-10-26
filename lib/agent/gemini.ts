@@ -66,7 +66,7 @@ export const thinkingFor = (model: string) => (/^gemini-2\./.test(model) ? { thi
 export type GeminiRound = { content: Content | undefined; calls: { id?: string; name: string; args: Record<string, unknown> }[]; finishReason: string | null; inputTokens: number; outputTokens: number; cachedTokens: number };
 
 /** One generateContent call with the frozen system prompt and tool list. */
-export async function geminiRound(client: GoogleGenAI, model: string, system: string, contents: Content[], lastRound: boolean, timeoutMs = 25_000): Promise<GeminiRound> {
+export async function geminiRound(client: GoogleGenAI, model: string, system: string, contents: Content[], lastRound: boolean, timeoutMs = 20_000): Promise<GeminiRound> {
   const res = await client.models.generateContent({
     model,
     contents,

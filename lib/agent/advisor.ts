@@ -171,8 +171,9 @@ async function runGemini(message: string, history: HistoryTurn[], ctx: AdvisorCo
   let active: string | null = null;
   const deadline = started + GEMINI_BUDGET_MS;
   const remaining = () => {
+    // Gemini rejects request deadlines under 10 s, so a shorter remainder ends the answer here.
     const ms = Math.min(20_000, deadline - Date.now());
-    if (ms < 2_000) throw new BudgetExceeded();
+    if (ms < 10_000) throw new BudgetExceeded();
     return ms;
   };
   const round = async (lastRound: boolean): Promise<GeminiRound> => {

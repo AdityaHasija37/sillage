@@ -36,8 +36,11 @@ export async function explainWithModel(picks: DailyPick[], subject: string, prov
   const facts = factsFor(picks);
   try {
     const text = (await phrase(provider, `Facts:\n${facts}`)).trim();
-    return acceptExplanation(text, facts, top.name) ? { text, source: "ai" } : template;
-  } catch {
+    if (acceptExplanation(text, facts, top.name)) return { text, source: "ai" };
+    console.warn("explain: model sentence rejected by the check", text.length);
+    return template;
+  } catch (e) {
+    console.warn("explain: model call failed", (e as { status?: number })?.status ?? (e as Error)?.name, String((e as Error)?.message ?? "").slice(0, 300));
     return template;
   }
 }
@@ -53,7 +56,7 @@ async function phrase(provider: AdvisorProvider, prompt: string): Promise<string
         const res = await client.models.generateContent({
           model: m,
           contents: prompt,
-          config: { systemInstruction: SYSTEM, maxOutputTokens: 400, thinkingConfig: thinkingFor(m), httpOptions: { timeout: 8_000 } },
+          config: { systemInstruction: SYSTEM, maxOutputTokens: 400, thinkingConfig: thinkingFor(m), httpOptions: { timeout: 12_000 } },
         });
         return textOf(res.candidates?.[0]?.content);
       } catch (e) {
