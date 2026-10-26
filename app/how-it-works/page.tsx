@@ -154,6 +154,9 @@ export default function HowItWorks() {
                     What the agent doesn&apos;t do matters as much. It doesn&apos;t rank fragrances, score collections or pair bottles itself: deterministic, tested engines do, and the agent calls them as tools. That keeps the numbers reproducible and the language flexible.
                   </p>
                   <p>One agent with ten typed tools is enough for this job. A multi-agent setup would add cost, latency and failure modes without a clear benefit, so it was left out on purpose.</p>
+                  <p>
+                    The loop is model-agnostic. It runs on Google Gemini&apos;s free tier today and on Anthropic&apos;s Claude with one environment variable; the tools, the six-round cap and the grounding check are identical either way, and every answer&apos;s trace names the model that wrote it.
+                  </p>
                 </div>
               </div>
               <div className="rounded-md border border-white/10 bg-white/[0.03] p-6">
