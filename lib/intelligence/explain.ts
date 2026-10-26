@@ -15,11 +15,13 @@ export function factsFor(picks: DailyPick[]): string {
   return picks.map((p) => `${p.rank}. ${p.brand} ${p.name}: ${p.factors.map((f) => f.text).join("; ")}${p.caveats.length ? `; caveat: ${p.caveats.join("; ")}` : ""}`).join("\n");
 }
 
-/** The model's sentence is used only if it names the pick, adds no numbers or prices, and stays short. */
+/** The model's sentence is used only if it names the pick, adds no numbers or prices, stays short and is complete. */
 export function acceptExplanation(text: string, facts: string, pickName: string): boolean {
   const allowedDigits = new Set(facts.match(/\d+/g) ?? []);
   const newNumbers = (text.match(/\d+/g) ?? []).filter((d) => !allowedDigits.has(d));
-  return Boolean(text) && text.length <= 600 && text.includes(pickName) && newNumbers.length === 0 && !/\$|<|>/.test(text);
+  // A cut-off reply (token limit) doesn't end like a sentence.
+  const complete = /[.!?]["'”’)]?$/.test(text);
+  return Boolean(text) && complete && text.length <= 600 && text.includes(pickName) && newNumbers.length === 0 && !/\$|<|>/.test(text);
 }
 
 /**
@@ -56,7 +58,7 @@ async function phrase(provider: AdvisorProvider, prompt: string): Promise<string
         const res = await client.models.generateContent({
           model: m,
           contents: prompt,
-          config: { systemInstruction: SYSTEM, maxOutputTokens: 400, thinkingConfig: thinkingFor(m), httpOptions: { timeout: 12_000 } },
+          config: { systemInstruction: SYSTEM, maxOutputTokens: 1024, thinkingConfig: thinkingFor(m), httpOptions: { timeout: 12_000 } },
         });
         return textOf(res.candidates?.[0]?.content);
       } catch (e) {

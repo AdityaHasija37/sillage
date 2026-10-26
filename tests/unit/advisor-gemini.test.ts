@@ -157,5 +157,7 @@ describe("Today's explanation check", () => {
     expect(acceptExplanation("Tobacco Vanille, now $199.", facts, "Tobacco Vanille")).toBe(false);
     expect(acceptExplanation("Wear Jazz Club tonight.", facts, "Tobacco Vanille")).toBe(false);
     expect(acceptExplanation("<b>Tobacco Vanille</b>", facts, "Tobacco Vanille")).toBe(false);
+    // Cut off by the token limit.
+    expect(acceptExplanation("Tobacco Vanille is today's pick because it is", facts, "Tobacco Vanille")).toBe(false);
   });
 });
