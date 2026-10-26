@@ -1,10 +1,13 @@
 import { ApiError, FunctionCallingConfigMode, ThinkingLevel, type Content, type FunctionDeclaration, type GoogleGenAI, type Part } from "@google/genai";
 import { TOOL_DEFINITIONS } from "./tools";
 
-/** Free-tier Flash model (ai.google.dev/gemini-api/docs/pricing). Override with GEMINI_MODEL. */
-export const DEFAULT_GEMINI_MODEL = "gemini-3.8-flash";
-/** Older free-tier Flash models to try when the first is overloaded. Override with GEMINI_FALLBACK_MODELS (comma-separated). */
-export const DEFAULT_GEMINI_FALLBACKS = ["gemini-3.6-flash", "gemini-2.5-flash"];
+/**
+ * Free-tier Flash model (ai.google.dev/gemini-api/docs/pricing). Override with GEMINI_MODEL.
+ * Not gemini-3.8-flash: on the free tier it returned 503/504 on every live attempt (26 Oct 2026).
+ */
+export const DEFAULT_GEMINI_MODEL = "gemini-3.6-flash";
+/** Free-tier models to try when the first is overloaded. Override with GEMINI_FALLBACK_MODELS (comma-separated). */
+export const DEFAULT_GEMINI_FALLBACKS = ["gemini-2.5-flash"];
 
 /** Overloaded, unavailable or unknown-model errors are worth retrying elsewhere; quota and bad requests aren't. */
 export const RETRYABLE = new Set([404, 500, 503, 504]);

@@ -164,33 +164,31 @@ async function runGemini(message: string, history: HistoryTurn[], ctx: AdvisorCo
   let rounds = 0;
   let raw = "";
   let stopReason: string | null = "max_rounds";
-  // Free-tier models are often briefly overloaded. Before the first successful round, retry once and
-  // then move to the next free model; after that, stay on the model that answered (thought signatures
+  // Free-tier models are often overloaded. Before the first successful round, move to the next free
+  // model on an overload or timeout; after that, stay on the model that answered (thought signatures
   // belong to it).
   const candidates = geminiModels(model);
   let active: string | null = null;
   const deadline = started + GEMINI_BUDGET_MS;
   const remaining = () => {
-    const ms = Math.min(25_000, deadline - Date.now());
+    const ms = Math.min(20_000, deadline - Date.now());
     if (ms < 2_000) throw new BudgetExceeded();
     return ms;
   };
   const round = async (lastRound: boolean): Promise<GeminiRound> => {
     if (active) return geminiRound(client, active, SYSTEM_PROMPT, contents, lastRound, remaining());
     let lastError: unknown;
-    for (const m of candidates)
-      for (let attempt = 0; attempt < (m === candidates[0] ? 2 : 1); attempt++) {
-        try {
-          const r = await geminiRound(client, m, SYSTEM_PROMPT, contents, lastRound, remaining());
-          active = m;
-          return r;
-        } catch (e) {
-          lastError = e;
-          if (e instanceof BudgetExceeded || !isRetryable(e)) throw e;
-          console.warn("advisor: gemini model unavailable, trying the next", m, e instanceof GeminiApiError ? e.status : (e as Error).name);
-          if (attempt === 0 && m === candidates[0]) await new Promise((res) => setTimeout(res, 600));
-        }
+    for (const m of candidates) {
+      try {
+        const r = await geminiRound(client, m, SYSTEM_PROMPT, contents, lastRound, remaining());
+        active = m;
+        return r;
+      } catch (e) {
+        lastError = e;
+        if (e instanceof BudgetExceeded || !isRetryable(e)) throw e;
+        console.warn("advisor: gemini model unavailable, trying the next", m, e instanceof GeminiApiError ? e.status : (e as Error).name);
       }
+    }
     throw lastError;
   };
 
