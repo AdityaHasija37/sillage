@@ -97,7 +97,7 @@ export const TOOL_DEFINITIONS: Anthropic.Tool[] = [
         performance: nullable({ type: "string", enum: ["soft", "moderate", "strong"] }),
         include_budget_alternatives: nullable({ type: "boolean", description: "false only if the user asks for originals, not dupes/clones; null uses their saved preference" }),
         price_band: nullable({ type: "string", enum: [...PRICE_BANDS], description: "Only this estimated price band. For 'one around $50, one around $100, one around $200', call this tool once per band (under_50, 50_100, 100_200, 200_plus)" }),
-        accord: nullable({ type: "string", description: "A style the user asked for, as one accord word: fresh, citrus, woody, aquatic, floral, amber, vanilla, spicy, leather, aromatic, green, sweet, powdery, musky" }),
+        accord: nullable({ type: "string", description: "A style the user asked for, as one word; results are led by that style: fresh, citrus, woody, aquatic, floral, amber, vanilla, spicy, leather, aromatic, green, sweet, powdery, musky" }),
       },
       ["mode", "budget_max_usd", "season", "daypart", "performance", "include_budget_alternatives", "price_band", "accord"],
     ),

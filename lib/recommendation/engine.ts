@@ -41,6 +41,12 @@ export const ACCORD_STYLES: Record<string, string[]> = {
   gourmand: ["vanilla", "caramel", "almond", "coconut", "honey", "nutty"],
 };
 const accordNames = (style: string) => ACCORD_STYLES[style] ?? [style];
+/** A style describes a fragrance when it's one of its two leading accords, not a supporting one. */
+const ledBy = (f: Fragrance, style: string) =>
+  [...f.accords]
+    .sort((a, b) => b.strength - a.strength)
+    .slice(0, 2)
+    .some((a) => accordNames(style).includes(a.name.toLowerCase()));
 
 export const MODES = ["similar", "different", "gaps"] as const;
 export type Mode = (typeof MODES)[number];
@@ -55,7 +61,7 @@ export type RecommendationRequest = {
   includeAlternatives?: boolean | null;
   /** Only this estimated price band ("one at $50, one at $100…"); unknown prices are left out. */
   priceBand?: PriceBand | null;
-  /** Only fragrances where this accord is prominent (strength ≥ 50), e.g. "fresh", "woody". */
+  /** Only fragrances led by this style (one of their two strongest accords), e.g. "fresh", "woody". */
   accord?: string | null;
   limit?: number;
 };
@@ -287,7 +293,7 @@ export function recommendCandidates(
       excluded.budget++;
       continue;
     }
-    if (accord && !f.accords.some((a) => a.strength >= 50 && accordNames(accord).includes(a.name.toLowerCase()))) {
+    if (accord && !ledBy(f, accord)) {
       excluded.accord++;
       continue;
     }

@@ -22,11 +22,15 @@ describe("recommendCandidates", () => {
     const owned = [own(c.amberVanilla, "love")];
     const res = recommendCandidates({ mode: "similar", accord: "Fresh" }, prefs(), owned, catalog);
     expect(res.results.length).toBeGreaterThan(0);
-    expect(res.results.every((r) => r.fragrance.accords.some((a) => ["fresh", "citrus", "aquatic"].includes(a.name) && a.strength >= 50))).toBe(true);
+    const leading = (f: (typeof res.results)[number]["fragrance"]) => [...f.accords].sort((a, b) => b.strength - a.strength).slice(0, 2).map((a) => a.name);
+    expect(res.results.every((r) => leading(r.fragrance).some((n) => ["fresh", "citrus", "aquatic"].includes(n)))).toBe(true);
     // "fresh" is the bright family, never the separate "fresh spicy" accord.
     const pepper = frag({ name: "Pepper Bomb", brand: "Spice House", family: "amber", accords: { "fresh spicy": 100, vanilla: 80 } });
-    const r2 = recommendCandidates({ mode: "different", accord: "fresh" }, prefs(), owned, [...catalog, pepper]);
+    // Fresh only as a supporting accord (third) doesn't make a fragrance "fresh".
+    const warm = frag({ name: "Warm With A Hint", brand: "Amber House", family: "amber", accords: { patchouli: 100, vanilla: 85, ozonic: 72 } });
+    const r2 = recommendCandidates({ mode: "different", accord: "fresh" }, prefs(), owned, [...catalog, pepper, warm]);
     expect(r2.results.map((r) => r.fragrance.name)).not.toContain("Pepper Bomb");
+    expect(r2.results.map((r) => r.fragrance.name)).not.toContain("Warm With A Hint");
     const none = recommendCandidates({ mode: "similar", accord: "nonexistent" }, prefs(), owned, catalog);
     expect(none.results).toHaveLength(0);
     expect(none.mostRestrictive).toBe("accord");
