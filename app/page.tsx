@@ -165,7 +165,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
                 An agent with a job description, <em className="text-[oklch(0.8_0.1_55)]">not a chatbot with opinions.</em>
               </h2>
               <p className="mt-6 leading-relaxed text-ink-foreground/75">
-                Some questions need several steps: read the shelf, decide which kind of search fits, run it, look closer at the best pick, maybe price it, then explain. That&apos;s what the advisor does. It&apos;s a Claude agent that plans and calls Sillage&apos;s own tools. It never ranks fragrances itself and never touches your data without asking.
+                Some questions need several steps: read the shelf, decide which kind of search fits, run it, look closer at the best pick, maybe price it, then explain. That&apos;s what the advisor does. It&apos;s an AI agent (Claude or Gemini) that plans and calls Sillage&apos;s own tools. It never ranks fragrances itself and never touches your data without asking.
               </p>
               <dl className="mt-10 grid gap-px overflow-hidden rounded-md border border-white/10 bg-white/10 text-sm sm:grid-cols-3">
                 <Perm title="Reads" items={["Your profile and ratings", "The catalog", "Engine results", "Prices for one bottle"]} />

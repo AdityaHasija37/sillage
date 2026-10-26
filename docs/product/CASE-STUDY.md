@@ -20,7 +20,7 @@ One rule from the PRD turned out to matter more than I expected: **ownership isn
 
 ## The decisions I'd talk through in an interview
 
-The [decision register](../DECISIONS.md) has 45 entries, including how each open question was resolved. These are the ones that shaped the product.
+The [decision register](../DECISIONS.md) has 49 entries, including how each open question was resolved. These are the ones that shaped the product.
 
 **1. Deterministic ranking, AI explanation (Decision B).** The obvious build was "LLM, recommend me a fragrance." I didn't do that. A tested engine scores every candidate on five components (taste fit, the mode's goal, budget, season and time of day, performance) and emits reason codes and caveats. The Claude agent's job is to call that engine and explain the result. *Trade-off:* less conversational flexibility, in exchange for answers that are reproducible, testable and explainable ("Why this rank" shows the score breakdown).
 
@@ -28,7 +28,7 @@ The [decision register](../DECISIONS.md) has 45 entries, including how each open
 
 **3. Writes need a human click.** The agent has two "propose" tools (wishlist, preference change) that save nothing. They return a confirm button. There's no write path for a prompt injection hidden in third-party text to trigger, and the review themes it reads are labelled untrusted in the tool output.
 
-**4. One agent, ten tools, and a fallback (D-004).** An agent earns its place because questions like "a woody winter scent under $150 that isn't like anything I own" take several dependent steps: read the shelf, pick a mode, run the engine, inspect the best pick, maybe price it. No multi-agent orchestration: there's one actor and one context, and one agent with typed tools is easier to test and cheaper to run. Eight tools read; two only propose. The agent can also read the Collection Score and ask for today's pick, so "how balanced is my collection?" and "what should I wear to the office tomorrow?" go through the same tested engines as the UI. When there's no API key, or the model errors or declines, a rule-based mode answers with the same engine and says so. The public demo never breaks and costs nothing by default.
+**4. One agent, ten tools, two possible models, and a fallback (D-004, DEC-46).** An agent earns its place because questions like "a woody winter scent under $150 that isn't like anything I own" take several dependent steps: read the shelf, pick a mode, run the engine, inspect the best pick, maybe price it. No multi-agent orchestration: there's one actor and one context, and one agent with typed tools is easier to test and cheaper to run. Eight tools read; two only propose. The agent can also read the Collection Score and ask for today's pick, so "how balanced is my collection?" and "what should I wear to the office tomorrow?" go through the same tested engines as the UI. When there's no API key, or the model errors or declines, a rule-based mode answers with the same engine and says so. The public demo never breaks and costs nothing by default.
 
 **5. Exact-variant price matching (Decision D).** A listing is an exact match only if brand, line, concentration and size agree and it's a new full bottle. Everything else is rejected or marked "needs verification", and the UI says what was hidden and why. Totals are compared only when every exact offer states shipping. Without a live key, offers are clearly labelled samples from fictional stores, with no links. Sillage never claims "cheapest anywhere."
 
@@ -47,6 +47,12 @@ The first version only helped at the moment of purchase, which happens a few tim
 The hard part wasn't the maths; it was honesty about weak data. The catalog has no occasion data, so occasion fit is *inferred* and labelled that way (DEC-34). A dimension with no data drops out and makes confidence "low" instead of scoring zero (DEC-36); the first test run caught that it didn't. Layering is a heuristic from an editable accord ruleset, so it's called experimental and is never "high confidence" (DEC-41); the first calibration scored every pair 100 and was useless. Weather is manual-first, with opt-in local weather that stores nothing (DEC-39).
 
 AI is used narrowly here. The engines rank; the model may phrase today's explanation, but the phrasing is validated (must name the pick, no new numbers, no prices) or a template is used, and the UI says which you're reading.
+
+## Making it free to run
+
+A portfolio demo that costs money per question is a demo that eventually gets switched off. Rather than pick a cheaper Claude model and hope, I made the agent provider-neutral (DEC-46): the loop, the ten tools, the grounding check and the trace don't know which model they're talking to, and Gemini and Claude are thin adapters. Sillage runs on Gemini's free tier and moves to Claude by setting one key.
+
+Two details mattered more than the swap itself. Gemini's tool schemas are narrower than Claude's strict mode, so the adapter rewrites them and restores missing nulls before the *same* Zod validation runs: one source of truth for what a tool accepts (DEC-47). And a free tier has a quota, so a 429 now produces an honest "free quota used up for now" answer from the rule-based engines instead of an error (DEC-48). The trade-off, Google's right to use free-tier requests, is disclosed on the privacy page (DEC-49). The live-agent eval, which until now was a placeholder, runs eight prompts with expectations written before the run against whichever model is configured.
 
 ## A redesign, because it looked generated
 
@@ -76,10 +82,10 @@ I worked as product owner with Claude Code as the engineer, from a seven-documen
 ## What's next
 
 1. **Five user interviews** with collectors who own 10+ bottles: does starting from the shelf actually change which suggestions they trust? Do they agree with their Collection Score, and would they open Today in the morning? Show them the clone-vs-famous results.
-2. **Live agent eval** once an API key is configured: grounding rate, latency and cost per answer on 20 real prompts.
+2. **Run the live agent eval** (`npm run evals`) now that a free model is configured, and compare Gemini with Claude on the same eight prompts.
 3. **Real offer sample:** label 50 live SerpApi results to measure precision on messy real listings, not just synthetic ones.
 4. Use the `product_events` already logged (score viewed, preview run, daily pick worn, lab saved) to measure whether Today brings people back, and calibrate the score and lab weights against real ratings.
 
 ## Status
 
-An MVP portfolio project. Built and tested (83 unit tests, 60 database security assertions, 14 end-to-end tests including an automated WCAG 2.2 AA scan, and the eval suite, v4). Live at [sillage-rosy.vercel.app](https://sillage-rosy.vercel.app) on free tiers; see the README for honest caveats.
+An MVP portfolio project. Built and tested (93 unit tests, 62 database security assertions, 14 end-to-end tests including an automated WCAG 2.2 AA scan, and the eval suite, v4). Live at [sillage-rosy.vercel.app](https://sillage-rosy.vercel.app) on free tiers; see the README for honest caveats.

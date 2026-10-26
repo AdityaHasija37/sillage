@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AdvisorPanel } from "@/components/advisor/advisor-panel";
+import { configuredProvider } from "@/lib/agent/advisor";
 import { getPreferences, listCollection } from "@/lib/collection/service";
 import { buildProfile } from "@/lib/domain/profile";
 import { TOOL_DEFINITIONS } from "@/lib/agent/tools";
@@ -23,14 +24,14 @@ const TOOL_COPY: Record<string, string> = {
 export default async function AdvisorPage() {
   const [owned, prefs] = await Promise.all([listCollection(), getPreferences()]);
   const profile = buildProfile(owned);
-  const live = Boolean(process.env.ANTHROPIC_API_KEY);
+  const provider = configuredProvider();
   const reads = TOOL_DEFINITIONS.filter((t) => !t.name.startsWith("propose_"));
   const proposes = TOOL_DEFINITIONS.filter((t) => t.name.startsWith("propose_"));
   return (
     <div className="grid gap-8">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="label">The advisor · {live ? "Claude agent" : "offline rule-based mode"}</p>
+          <p className="label">The advisor · {provider === "anthropic" ? "Claude agent" : provider === "gemini" ? "Gemini agent" : "offline rule-based mode"}</p>
           <h1 className="mt-2 text-5xl sm:text-6xl">
             Ask about your <em className="text-primary">next bottle.</em>
           </h1>

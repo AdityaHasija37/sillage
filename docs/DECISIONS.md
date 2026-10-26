@@ -68,6 +68,10 @@ The spec pack says: when instructions conflict or are ambiguous, record the deci
 | DEC-43 | Demo persistence uses the existing disposable sandbox (resolves §16.4): the seeded shelf adds two layering experiments, one with a logged result, and everything deletes after 24 h | Visitors see a lived-in Lab without a shared account |
 | DEC-44 | Product analytics: `product_events` is insert-only with a name allowlist and a property allowlist (≤ 1 kB, no free text, no location) | PRD 08 §11 events without collecting personal data |
 | DEC-45 | **Editorial redesign, distinct from Touchline** (owner feedback "looks too AI generated"): serif display type, paper/ink/cognac palette, drawn bottles that vary in shape by name, a live catalog search and a real shelf on the landing page, no left rail, a split sign-in screen. What is shared with Touchline is the *pattern*: demo and sign-in without sign-up. The advisor gains `get_collection_score` and `pick_for_today` (10 tools); Discover now runs on load | Owner asked for the two projects to look unique; the agent story needed to be visible, not buried |
+| DEC-46 | **The advisor is provider-neutral; Gemini's free tier is the default for now.** `ADVISOR_PROVIDER` picks explicitly; otherwise Claude when `ANTHROPIC_API_KEY` is set, then Gemini when `GEMINI_API_KEY` is set, else offline. Asking for a provider without its key means offline, never a silent switch. Default models `gemini-3.8-flash` (free tier, `GEMINI_MODEL`) and `claude-opus-5-5` (`ADVISOR_MODEL`). Same loop, tools, ≤ 6 rounds, grounding check and trace for both; Gemini model turns are replayed unchanged so thought signatures survive | Owner asked for a free option. Keeps Claude one key away and the agent design independent of one vendor |
+| DEC-47 | Gemini tool schemas are generated from the Claude ones: nullable unions become optional fields and missing ones are restored to `null` (arrays to `[]`) before the **shared** Zod validation | One definition of what a tool accepts; Gemini's schema subset lacks `anyOf`-with-null |
+| DEC-48 | A Gemini 429 means "free quota used up for now": the advisor answers from the rule-based engines and says so (`offlineReason: "quota"`). Today's AI sentence gets its own rate bucket (`explain`, 40/hour per user, fails closed to the template) | The selector re-runs on every chip change; free-tier quota and paid spend both need a ceiling |
+| DEC-49 | The privacy page names the provider and says Google may use free-tier requests to improve its products | Honest data-use disclosure for the free tier |
 | DEC-29 | Email confirmation is off locally; when sign-up returns a session the user goes straight to onboarding. Hosted setting: see Q-02 | Keeps E2E deterministic without Mailpit |
 
 ## Open (owner input needed)
@@ -76,7 +80,7 @@ The spec pack says: when instructions conflict or are ambiguous, record the deci
 |---|---|---|
 | Q-01 | Clones vs famous names in Similar | **Resolved** → DEC-30 |
 | Q-02 | Deploy (public GitHub repo, hosted Supabase, Vercel) | **Done** 21 Oct 2026 → DEC-33 |
-| Q-03 | Live advisor and live prices | **Approved**: owner adds `ANTHROPIC_API_KEY` and `SERPAPI_API_KEY` in Vercel |
+| Q-03 | Live advisor and live prices | **Approved**, then revised 26 Oct 2026: the advisor runs on a free Gemini key (DEC-46); Claude stays available. Owner adds `GEMINI_API_KEY` (and optionally `SERPAPI_API_KEY`). Originally: owner adds `ANTHROPIC_API_KEY` and `SERPAPI_API_KEY` in Vercel |
 | Q-04 | Review themes on a public site | **Resolved** → DEC-31 |
 | PRD 08 §16 | Wear history, metadata reliability, weather, demo persistence, weights, lab visibility | **Resolved** → DEC-38, DEC-34/35, DEC-39, DEC-43, DEC-36, DEC-42 |
 
@@ -84,6 +88,7 @@ The spec pack says: when instructions conflict or are ambiguous, record the deci
 
 | Date | Change |
 |---|---|
+| 26 Oct 2026 | Free model option: DEC-46 to DEC-49; Q-03 revised |
 | 22 Oct 2026 | Collection Intelligence (PRD 08) and redesign: DEC-34 to DEC-45; PRD 08 §16 resolved |
 | 21 Oct 2026 | Owner answers: Q-01 → DEC-30, Q-04 → DEC-31, Q-02/Q-03 approved. DEC-32 added |
 | 21 Oct 2026 | Register created. DEC-01 to DEC-29; Q-01 to Q-04 |

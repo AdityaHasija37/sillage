@@ -7,6 +7,6 @@ export async function POST(req: Request) {
   return handle(async (u) => {
     const result = await runDailyPick(await body(req), u.isDemo);
     if (result.status !== "ok") return result;
-    return { ...result, explanation: await explainWithModel(result.picks) };
+    return { ...result, explanation: await explainWithModel(result.picks, u.id) };
   });
 }

@@ -54,5 +54,19 @@
     "relevance": 0.9464285714285714,
     "fabricated": 0,
     "intelligence": "9/9"
+  },
+  {
+    "file": "2026-10-26-v5-provider-ready.json",
+    "label": "v5-provider-ready",
+    "generatedAt": "2026-10-26T19:13:19.664Z",
+    "engineVersion": "rec-1.2",
+    "offerPrecision": 1,
+    "offerRecall": 1,
+    "recPassed": 29,
+    "recTotal": 32,
+    "exclusionCompliance": 1,
+    "relevance": 0.9464285714285714,
+    "fabricated": 0,
+    "intelligence": "9/9"
   }
 ]

@@ -213,10 +213,10 @@ function Trace({ reply }: { reply: AdvisorReply }) {
               <>
                 Model <span className="font-mono">{t.model}</span> · {t.rounds} round{t.rounds === 1 ? "" : "s"} · {(t.latencyMs / 1000).toFixed(1)}s
                 {t.usage && ` · ${t.usage.inputTokens + t.usage.cacheReadTokens} in / ${t.usage.outputTokens} out tokens`}
-                {t.costUsd != null && ` · ~$${t.costUsd.toFixed(4)}`}
+                {t.costUsd != null ? ` · ~$${t.costUsd.toFixed(4)}` : t.provider === "gemini" ? " · free tier" : ""}
               </>
             ) : (
-              <>Offline rule-based mode ({t.offlineReason === "no_api_key" ? "no AI model configured" : "AI unavailable"}) · {(t.latencyMs / 1000).toFixed(1)}s · $0</>
+              <>Offline rule-based mode ({t.offlineReason === "no_api_key" ? "no AI model configured" : t.offlineReason === "quota" ? "free AI quota used up for now" : "AI unavailable"}) · {(t.latencyMs / 1000).toFixed(1)}s · $0</>
             )}
           </p>
           <ol className="grid gap-1">

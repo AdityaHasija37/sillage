@@ -19,6 +19,8 @@ const REASON: Record<string, string> = {
 
 export default function EvalsPage() {
   const r = latest;
+  // Present only after a run with a model key (npm run evals); see tests/evals/run.eval.ts §6.
+  const live = r.live as { ran: boolean; reason: string; model?: string; passed?: number; total?: number; aiAnswers?: number; medianMs?: number; removed?: number };
   return (
     <div className="min-h-dvh">
       <SiteHeader />
@@ -196,7 +198,10 @@ export default function EvalsPage() {
             ))}
           </ul>
           <p className="text-sm text-muted-foreground">
-            Live agent eval (real model, real prompts, cost and latency): {r.live.ran ? "see report" : `not run in this report: ${r.live.reason}.`}
+            Live agent eval (real model, 8 prompts on the sample shelf, expectations written before the run):{" "}
+            {live.ran
+              ? `${live.passed}/${live.total} met expectations on ${live.model}; ${live.aiAnswers}/${live.total} answered by the model; median ${((live.medianMs ?? 0) / 1000).toFixed(1)} s; ${live.removed} unsupported ids or prices removed before display.`
+              : `not run in this report: ${live.reason}.`}
           </p>
         </section>
 

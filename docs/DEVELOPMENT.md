@@ -21,6 +21,6 @@ npm run dev -- --port 3100
 | `node scripts/check-bundle.mjs` | SEC-03: no server secrets in the client bundle (after build) |
 | `node scripts/capture-screenshots.mjs` | Regenerates README screenshots from a running server |
 
-Optional keys (`.env.local`): `ANTHROPIC_API_KEY` (live advisor; without it the advisor runs in offline mode), `ADVISOR_MODEL`, `SERPAPI_API_KEY` (live prices; without it, labelled sample offers).
+Optional keys (`.env.local`): `GEMINI_API_KEY` (free live advisor) and/or `ANTHROPIC_API_KEY` (without either, the advisor runs in offline mode), `GEMINI_MODEL`, `ADVISOR_MODEL`, `ADVISOR_PROVIDER`, `SERPAPI_API_KEY` (live prices; without it, labelled sample offers).
 
 Regenerate DB types after a migration: `npm run db:types`.

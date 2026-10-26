@@ -1,7 +1,9 @@
 import Anthropic from "@anthropic-ai/sdk";
+import { ApiError as GeminiApiError, GoogleGenAI, type Content } from "@google/genai";
 import { displayName, SEASONS, type Season } from "@/lib/domain/fragrance";
 import type { Mode } from "@/lib/recommendation/engine";
 import { caveatText, reasonText } from "@/lib/recommendation/explain";
+import { BLOCKED, DEFAULT_GEMINI_MODEL, fillNulls, geminiRound, textOf } from "./gemini";
 import { groundAnswer, type GroundingReport } from "./grounding";
 import { executeTool, TOOL_DEFINITIONS, ToolInputError, type AdvisorContext, type PendingAction, type ToolOutcome } from "./tools";
 
@@ -32,6 +34,22 @@ How to answer:
 - Use "estimated fit", not "you will love". Keep it under 180 words, plain text, no tables, no headings.
 - If their collection is small or unrated, mention once that suggestions will sharpen as they rate bottles.`;
 
+export type AdvisorProvider = "anthropic" | "gemini";
+
+/**
+ * Which model runs the advisor. ADVISOR_PROVIDER picks explicitly; otherwise Claude when its key is
+ * set, then Gemini (free tier). No key at all means the offline rule-based mode.
+ */
+export function configuredProvider(env: Record<string, string | undefined> = process.env): AdvisorProvider | null {
+  if (env.ADVISOR_PROVIDER === "gemini") return env.GEMINI_API_KEY ? "gemini" : null;
+  if (env.ADVISOR_PROVIDER === "anthropic") return env.ANTHROPIC_API_KEY ? "anthropic" : null;
+  return env.ANTHROPIC_API_KEY ? "anthropic" : env.GEMINI_API_KEY ? "gemini" : null;
+}
+
+export function configuredModel(provider: AdvisorProvider, env: Record<string, string | undefined> = process.env): string {
+  return provider === "gemini" ? env.GEMINI_MODEL || DEFAULT_GEMINI_MODEL : env.ADVISOR_MODEL || DEFAULT_MODEL;
+}
+
 export type TraceStep = { tool: string; input: unknown; summary: string; ok: boolean; ms: number };
 
 export type AdvisorReply = {
@@ -40,6 +58,7 @@ export type AdvisorReply = {
   pendingActions: PendingAction[];
   trace: {
     mode: "ai" | "offline";
+    provider: AdvisorProvider | null;
     model: string | null;
     steps: TraceStep[];
     rounds: number;
@@ -48,9 +67,11 @@ export type AdvisorReply = {
     costUsd: number | null;
     grounding: Omit<GroundingReport, "text">;
     stopReason: string | null;
-    offlineReason?: "no_api_key" | "ai_error" | "refusal";
+    offlineReason?: OfflineReason;
   };
 };
+
+type OfflineReason = "no_api_key" | "ai_error" | "refusal" | "quota";
 
 export type HistoryTurn = { role: "user" | "assistant"; content: string };
 
@@ -59,11 +80,14 @@ export type HistoryTurn = { role: "user" | "assistant"; content: string };
  * the system prompt and tool list never change, so the request prefix is append-only (prompt cache
  * friendly, and no thinking blocks are ever replayed after an edit).
  */
-export async function runAdvisor(message: string, history: HistoryTurn[], ctx: AdvisorContext, opts: { client?: Anthropic | null; model?: string } = {}): Promise<AdvisorReply> {
+export async function runAdvisor(message: string, history: HistoryTurn[], ctx: AdvisorContext, opts: { client?: Anthropic | null; gemini?: GoogleGenAI | null; model?: string } = {}): Promise<AdvisorReply> {
   const started = Date.now();
-  const client = opts.client === undefined ? (process.env.ANTHROPIC_API_KEY ? new Anthropic() : null) : opts.client;
-  if (!client) return runOffline(message, ctx, started, "no_api_key");
-  const model = opts.model ?? (process.env.ADVISOR_MODEL || DEFAULT_MODEL);
+  // Tests inject a client; otherwise the environment decides.
+  const provider: AdvisorProvider | null = opts.gemini !== undefined ? (opts.gemini ? "gemini" : null) : opts.client !== undefined ? (opts.client ? "anthropic" : null) : configuredProvider();
+  if (!provider) return runOffline(message, ctx, started, "no_api_key");
+  const model = opts.model ?? configuredModel(provider);
+  if (provider === "gemini") return runGemini(message, history, ctx, opts.gemini ?? new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY }), model, started);
+  const client = opts.client ?? new Anthropic();
 
   const messages: Anthropic.MessageParam[] = [...history.slice(-10).map((h) => ({ role: h.role, content: h.content })), { role: "user", content: message }];
   const steps: TraceStep[] = [];
@@ -92,7 +116,7 @@ export async function runAdvisor(message: string, history: HistoryTurn[], ctx: A
       // Append the assistant turn unchanged (thinking blocks included) before the tool results.
       messages.push({ role: "assistant", content: response.content });
       // Parallel tool calls run concurrently; all results go back in ONE user message.
-      const results = await Promise.all(toolUses.map((t) => runTool(t, ctx, steps)));
+      const results = await Promise.all(toolUses.map(async (t) => toAnthropicResult(t.id, await callTool(t.name, t.input, ctx, steps))));
       for (const r of results) {
         if (r.outcome) {
           r.outcome.fragranceIds.forEach((id) => allowedIds.add(id.toLowerCase()));
@@ -108,24 +132,82 @@ export async function runAdvisor(message: string, history: HistoryTurn[], ctx: A
     return runOffline(message, ctx, started, "ai_error");
   }
 
-  const raw = final?.content.filter((b): b is Anthropic.TextBlock => b.type === "text").map((b) => b.text).join("\n").trim() || "I couldn't put together an answer this time. Try rephrasing, or use Discover.";
-  const grounded = groundAnswer(raw, allowedIds, prices);
+  const raw = final?.content.filter((b): b is Anthropic.TextBlock => b.type === "text").map((b) => b.text).join("\n").trim() ?? "";
   const [inP, outP, crP, cwP] = PRICING[model] ?? PRICING[DEFAULT_MODEL];
   const costUsd = (usage.inputTokens * inP + usage.outputTokens * outP + usage.cacheReadTokens * crP + usage.cacheWriteTokens * cwP) / 1_000_000;
+  return finish({ raw, allowedIds, prices, pending, steps, rounds, started, provider: "anthropic", model, usage, costUsd: Math.round(costUsd * 10000) / 10000, stopReason: final?.stop_reason ?? "max_rounds" });
+}
+
+/** The same bounded loop on Gemini: same prompt, same tools, same grounding check. */
+async function runGemini(message: string, history: HistoryTurn[], ctx: AdvisorContext, client: GoogleGenAI, model: string, started: number): Promise<AdvisorReply> {
+  const contents: Content[] = [
+    ...history.slice(-10).map((h) => ({ role: h.role === "assistant" ? "model" : "user", parts: [{ text: h.content }] })),
+    { role: "user", parts: [{ text: message }] },
+  ];
+  const steps: TraceStep[] = [];
+  const allowedIds = new Set<string>();
+  const prices: string[] = [];
+  const pending: PendingAction[] = [];
+  const usage = { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 };
+  let rounds = 0;
+  let raw = "";
+  let stopReason: string | null = "max_rounds";
+
+  try {
+    while (rounds < MAX_TOOL_ROUNDS + 1) {
+      rounds++;
+      const r = await geminiRound(client, model, SYSTEM_PROMPT, contents, rounds > MAX_TOOL_ROUNDS);
+      usage.inputTokens += r.inputTokens;
+      usage.outputTokens += r.outputTokens;
+      usage.cacheReadTokens += r.cachedTokens;
+      if (r.finishReason && BLOCKED.has(r.finishReason)) return runOffline(message, ctx, started, "refusal");
+      if (!r.calls.length) {
+        raw = textOf(r.content);
+        stopReason = r.finishReason;
+        break;
+      }
+      // Append the model turn unchanged: its parts carry the thought signatures Gemini needs back.
+      if (r.content) contents.push(r.content);
+      const results = await Promise.all(r.calls.map((c) => callTool(c.name, fillNulls(c.name, c.args), ctx, steps)));
+      for (const res of results) {
+        if (res.outcome) {
+          res.outcome.fragranceIds.forEach((id) => allowedIds.add(id.toLowerCase()));
+          prices.push(...res.outcome.prices);
+          if (res.outcome.pending) pending.push(res.outcome.pending);
+        }
+      }
+      contents.push({
+        role: "user",
+        parts: results.map((res, i) => ({ functionResponse: { id: r.calls[i].id, name: r.calls[i].name, response: res.ok ? { result: res.payload } : { error: res.error } } })),
+      });
+    }
+  } catch (e) {
+    // Status only, never the request body. A 429 means the free tier's quota is used up for now.
+    const status = e instanceof GeminiApiError ? e.status : null;
+    console.error("advisor: gemini call failed", status ?? (e as Error)?.name);
+    return runOffline(message, ctx, started, status === 429 ? "quota" : "ai_error");
+  }
+  // Free tier: no charge. (On a paid Gemini plan, see the console for the bill.)
+  return finish({ raw, allowedIds, prices, pending, steps, rounds, started, provider: "gemini", model, usage, costUsd: null, stopReason });
+}
+
+function finish(r: { raw: string; allowedIds: Set<string>; prices: string[]; pending: PendingAction[]; steps: TraceStep[]; rounds: number; started: number; provider: AdvisorProvider; model: string; usage: NonNullable<AdvisorReply["trace"]["usage"]>; costUsd: number | null; stopReason: string | null }): AdvisorReply {
+  const grounded = groundAnswer(r.raw || "I couldn't put together an answer this time. Try rephrasing, or use Discover.", r.allowedIds, r.prices);
   return {
     text: grounded.text,
     citedIds: grounded.citedIds,
-    pendingActions: dedupePending(pending),
+    pendingActions: dedupePending(r.pending),
     trace: {
       mode: "ai",
-      model,
-      steps,
-      rounds,
-      latencyMs: Date.now() - started,
-      usage,
-      costUsd: Math.round(costUsd * 10000) / 10000,
+      provider: r.provider,
+      model: r.model,
+      steps: r.steps,
+      rounds: r.rounds,
+      latencyMs: Date.now() - r.started,
+      usage: r.usage,
+      costUsd: r.costUsd,
       grounding: { citedIds: grounded.citedIds, removedIds: grounded.removedIds, removedPrices: grounded.removedPrices },
-      stopReason: final?.stop_reason ?? "max_rounds",
+      stopReason: r.stopReason,
     },
   };
 }
@@ -155,17 +237,26 @@ async function createMessage(client: Anthropic, model: string, messages: Anthrop
   }
 }
 
-async function runTool(t: Anthropic.ToolUseBlock, ctx: AdvisorContext, steps: TraceStep[]): Promise<{ block: Anthropic.ToolResultBlockParam; outcome: ToolOutcome | null }> {
+type ToolCallResult = { ok: true; payload: unknown; outcome: ToolOutcome } | { ok: false; error: string; outcome: null };
+
+/** Runs one tool call for either provider and records it in the trace. */
+async function callTool(name: string, input: unknown, ctx: AdvisorContext, steps: TraceStep[]): Promise<ToolCallResult> {
   const started = Date.now();
   try {
-    const outcome = await executeTool(t.name, t.input, ctx);
-    steps.push({ tool: t.name, input: t.input, summary: outcome.summary, ok: true, ms: Date.now() - started });
-    return { block: { type: "tool_result", tool_use_id: t.id, content: JSON.stringify(outcome.content) }, outcome };
+    const outcome = await executeTool(name, input, ctx);
+    steps.push({ tool: name, input, summary: outcome.summary, ok: true, ms: Date.now() - started });
+    return { ok: true, payload: outcome.content, outcome };
   } catch (e) {
     const msg = e instanceof ToolInputError ? e.message : "Tool failed";
-    steps.push({ tool: t.name, input: t.input, summary: msg, ok: false, ms: Date.now() - started });
-    return { block: { type: "tool_result", tool_use_id: t.id, is_error: true, content: msg }, outcome: null };
+    steps.push({ tool: name, input, summary: msg, ok: false, ms: Date.now() - started });
+    return { ok: false, error: msg, outcome: null };
   }
+}
+
+function toAnthropicResult(id: string, r: ToolCallResult): { block: Anthropic.ToolResultBlockParam; outcome: ToolOutcome | null } {
+  return r.ok
+    ? { block: { type: "tool_result", tool_use_id: id, content: JSON.stringify(r.payload) }, outcome: r.outcome }
+    : { block: { type: "tool_result", tool_use_id: id, is_error: true, content: r.error }, outcome: null };
 }
 
 function dedupePending(p: PendingAction[]): PendingAction[] {
@@ -208,8 +299,15 @@ export function parseIntelligenceIntent(message: string): { kind: "score" } | { 
   return null;
 }
 
-async function runOffline(message: string, ctx: AdvisorContext, started: number, reason: "no_api_key" | "ai_error" | "refusal"): Promise<AdvisorReply> {
-  const lead0 = reason === "no_api_key" ? "Offline mode (rule-based, no AI model connected)." : "The AI model is unavailable right now, so this answer comes from Sillage's rule-based engines.";
+const offlineLead = (reason: OfflineReason) =>
+  reason === "no_api_key"
+    ? "Offline mode (rule-based, no AI model connected)."
+    : reason === "quota"
+      ? "The AI model's free quota is used up for now, so this answer comes from Sillage's rule-based engines."
+      : "The AI model is unavailable right now, so this answer comes from Sillage's rule-based engines.";
+
+async function runOffline(message: string, ctx: AdvisorContext, started: number, reason: OfflineReason): Promise<AdvisorReply> {
+  const lead0 = offlineLead(reason);
   const special = parseIntelligenceIntent(message);
   if (special) {
     const t1 = Date.now();
@@ -235,7 +333,7 @@ async function runOffline(message: string, ctx: AdvisorContext, started: number,
       text: grounded.text,
       citedIds: grounded.citedIds,
       pendingActions: [],
-      trace: { mode: "offline", model: null, steps, rounds: 0, latencyMs: Date.now() - started, usage: null, costUsd: 0, grounding: { citedIds: grounded.citedIds, removedIds: grounded.removedIds, removedPrices: grounded.removedPrices }, stopReason: null, offlineReason: reason },
+      trace: { mode: "offline", provider: null, model: null, steps, rounds: 0, latencyMs: Date.now() - started, usage: null, costUsd: 0, grounding: { citedIds: grounded.citedIds, removedIds: grounded.removedIds, removedPrices: grounded.removedPrices }, stopReason: null, offlineReason: reason },
     };
   }
   const intent = parseIntent(message);
@@ -243,10 +341,7 @@ async function runOffline(message: string, ctx: AdvisorContext, started: number,
   const t0 = Date.now();
   const res = await ctx.recommend({ mode: intent.mode, budgetMax: intent.budgetMax, season: intent.season, daypart: intent.daypart, includeAlternatives: intent.includeAlternatives ?? null });
   steps.push({ tool: "recommend_candidates", input: intent, summary: `Ran ${intent.mode} recommendations (${res.results.length})`, ok: true, ms: Date.now() - t0 });
-  const lead =
-    reason === "no_api_key"
-      ? "Offline mode (rule-based, no AI model connected)."
-      : "The AI model is unavailable right now, so this answer comes from Sillage's rule-based engine.";
+  const lead = offlineLead(reason);
   const filters = [intent.season, intent.daypart === "night" ? "evening" : intent.daypart === "day" ? "daytime" : null, intent.budgetMax ? `under $${intent.budgetMax}` : null].filter(Boolean).join(", ");
   let text: string;
   if (!res.results.length) {
@@ -267,6 +362,7 @@ async function runOffline(message: string, ctx: AdvisorContext, started: number,
     pendingActions: [],
     trace: {
       mode: "offline",
+      provider: null,
       model: null,
       steps,
       rounds: 0,

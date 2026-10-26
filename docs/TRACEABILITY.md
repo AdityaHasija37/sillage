@@ -12,7 +12,7 @@ Every P0/P1 requirement in the [PRD](specs/01_Sillage_PRD.md) and test ID in the
 | FR-04 | Preferences: notes to seek/avoid, budget, context, performance | `components/preferences/preferences-form.tsx`, `savePreferences()`, engine `contextFit()` | E2E `journey.spec` PRO-01; U "saved preferred seasons" |
 | FR-05 | Dashboard: count, family mix, season/occasion coverage | `app/(app)/app/page.tsx`, `lib/domain/profile.ts` (`buildProfile`, `coverageCells`) | E2E `demo.spec` DASH-01 counts; a11y scan |
 | FR-06 | Similar / Different / Fill gaps with ranked suggestions | `lib/recommendation/engine.ts`, `service.ts`, `components/discover/discover.tsx` | U REC-01..05 (+ variants); EV 30 personas; E2E E2E-01/02 |
-| FR-07 | Optional AI chat using profile and collection via safe tools | `lib/agent/{advisor,tools,grounding,context}.ts`, `POST /api/chat`, `components/advisor/*` | U AI-01..03, SEC-05; EV grounding; E2E FR-07 |
+| FR-07 | Optional AI chat using profile and collection via safe tools | `lib/agent/{advisor,gemini,tools,grounding,context}.ts` (Gemini or Claude, DEC-46), `POST /api/chat`, `components/advisor/*` | U AI-01..03, SEC-05, `advisor-gemini.test` (loop, schemas, quota, safety block, round cap); EV grounding; E2E FR-07 |
 | FR-08 | Detail with sourced notes, accords, data completeness | `app/(app)/app/fragrance/[id]/page.tsx`, `GET /api/fragrances/:id` | E2E E2E-01; a11y scan |
 | FR-09 | Wishlist add/remove, move to owned | `lib/collection/service.ts`, `components/fragrance/wishlist-list.tsx` | E2E `journey.spec` WISH-01 |
 | FR-10 | On-demand price search, variant-aware, attributed | `lib/offers/{match,providers,service}.ts`, `compareOffersAction` | U SHOP-01..06; EV 61 adversarial pairs; E2E E2E-01 |
@@ -77,8 +77,8 @@ Every P0/P1 requirement in the [PRD](specs/01_Sillage_PRD.md) and test ID in the
 | Gate | Status |
 |---|---|
 | A: types, build, lint | Pass (`npm run check`) |
-| B: deterministic scoring and variant tests | Pass (83 unit tests) |
-| C: authenticated access and RLS | Pass (60 pgTAP assertions) |
+| B: deterministic scoring and variant tests | Pass (93 unit tests) |
+| C: authenticated access and RLS | Pass (62 pgTAP assertions) |
 | D: demo walkthrough public without sign-up | Pass locally and on https://sillage-rosy.vercel.app |
 | E: shipping and size caveats render | Pass (E2E-01, SHOP-05) |
 | F: docs and limitations match shipping features | This file, README "Status and honest caveats" |

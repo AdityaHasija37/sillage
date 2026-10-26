@@ -45,3 +45,11 @@ What was built, in order, and what testing caught along the way. Dates are 21 Oc
 - E2E: three contrast failures on the new editorial styles (white/45, muted numerals) → raised; invalid `<dl>` children in the Lab; the shelf overflowed on a 390 px phone (bottle row 507 px) → responsive bottle sizes and `min-w-0` on the main column.
 - Lint caught `setState` inside effects in the agent walkthrough → moved into timer callbacks.
 - Final: 83 unit, 60 database, 14 E2E, evals v4 (Collection Intelligence 9/9, offers 100%, personas 29/32, fabrications 0/7).
+
+## 8. Free model option, 26 Oct 2026
+- Gemini added as a second adapter behind the same loop, tools and grounding check (DEC-46); SDK pinned to `@google/genai` 2.29.1 (a release older than two weeks).
+- Gemini's schema subset lacks Claude-style nullable unions → schemas converted and nulls restored before the shared validation (DEC-47). Tested: no `anyOf`/`additionalProperties` reaches Gemini, and a bare `{mode: "gaps"}` call validates.
+- Found while costing it: Today's AI sentence had no rate limit and re-runs on every chip change → new `explain` bucket (migration + 2 pgTAP checks).
+- Refactor caught a test-fixture bug: fixture ids are random per call, so the shared advisor context now exports its catalog.
+- The live-agent eval was a placeholder → now 8 prompts with expectations written first, run against whichever model is configured.
+- Final: 93 unit, 62 database, 14 E2E; evals v5 unchanged (offers 100%, personas 29/32, fabrications 0/7, Collection Intelligence 9/9). The live model run is pending the owner's key.

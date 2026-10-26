@@ -26,7 +26,7 @@ export default function PrivacyPage() {
             <h2>Who can see it</h2>
             <ul>
               <li>Only you. The database enforces this with row-level security; other users can&apos;t read or change your data.</li>
-              <li>When you use the advisor, the relevant parts of your collection and preferences are sent to Anthropic&apos;s Claude API to generate the answer.</li>
+              <li>When you use the advisor or Today&apos;s explanation, the relevant parts of your collection and preferences are sent to the AI provider that powers it: Google&apos;s Gemini API (free tier) or Anthropic&apos;s Claude API. Google may use free-tier requests to improve its products, so don&apos;t put anything personal in advisor questions.</li>
               <li>Price checks send only the fragrance name, concentration and size to the shopping provider, never your account details.</li>
             </ul>
           </section>

@@ -8,7 +8,7 @@ try {
   process.loadEnvFile(".env.local");
 } catch {}
 const dir = ".next/static";
-const secrets = ["SUPABASE_SERVICE_ROLE_KEY", "ANTHROPIC_API_KEY", "SERPAPI_API_KEY", "RATE_SALT"]
+const secrets = ["SUPABASE_SERVICE_ROLE_KEY", "ANTHROPIC_API_KEY", "GEMINI_API_KEY", "SERPAPI_API_KEY", "RATE_SALT"]
   .flatMap((name) => [name, process.env[name]])
   .filter((v) => v && v.length >= 8);
 const files = [];

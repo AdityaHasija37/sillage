@@ -1,7 +1,7 @@
 -- PRD 08 §12: Collection Intelligence tables are owner-only, children must point at the caller's
 -- own parents, layering is limited to owned bottles, and analytics is write-only.
 begin;
-select plan(22);
+select plan(24);
 
 insert into auth.users (id, email) values
   ('aaaaaaaa-0000-0000-0000-00000000000a', 'a2@example.test'),
@@ -60,6 +60,11 @@ select throws_ok($$ select * from public.layering_experiments $$, '42501', null,
 
 select pg_temp.as_user('aaaaaaaa-0000-0000-0000-00000000000a');
 select is((select count(*)::int from public.layering_experiments), 1, 'B''s delete affected nothing');
+
+-- Today's AI explanation has its own metered bucket; unknown buckets are still rejected.
+reset role;
+select ok(public.claim_rate('explain', '00000000-0000-4000-8000-0000000000aa', 2, 3600), 'the explain bucket is accepted');
+select throws_ok($$ select public.claim_rate('anything', '00000000-0000-4000-8000-0000000000aa', 2, 3600) $$, '23514', null, 'unknown rate buckets are rejected');
 
 select * from finish();
 rollback;
