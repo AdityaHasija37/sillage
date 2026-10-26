@@ -3,7 +3,7 @@ import { ApiError as GeminiApiError, GoogleGenAI, type Content } from "@google/g
 import { displayName, SEASONS, type Season } from "@/lib/domain/fragrance";
 import type { Mode } from "@/lib/recommendation/engine";
 import { caveatText, reasonText } from "@/lib/recommendation/explain";
-import { BLOCKED, DEFAULT_GEMINI_MODEL, fillNulls, geminiRound, textOf } from "./gemini";
+import { BLOCKED, DEFAULT_GEMINI_FALLBACKS, DEFAULT_GEMINI_MODEL, fillNulls, geminiRound, RETRYABLE, textOf, type GeminiRound } from "./gemini";
 import { groundAnswer, type GroundingReport } from "./grounding";
 import { executeTool, TOOL_DEFINITIONS, ToolInputError, type AdvisorContext, type PendingAction, type ToolOutcome } from "./tools";
 
@@ -48,6 +48,12 @@ export function configuredProvider(env: Record<string, string | undefined> = pro
 
 export function configuredModel(provider: AdvisorProvider, env: Record<string, string | undefined> = process.env): string {
   return provider === "gemini" ? env.GEMINI_MODEL || DEFAULT_GEMINI_MODEL : env.ADVISOR_MODEL || DEFAULT_MODEL;
+}
+
+/** The configured Gemini model first, then the free fallbacks, without repeats. */
+export function geminiModels(primary: string, env: Record<string, string | undefined> = process.env): string[] {
+  const fallbacks = env.GEMINI_FALLBACK_MODELS !== undefined ? env.GEMINI_FALLBACK_MODELS.split(",").map((m) => m.trim()).filter(Boolean) : DEFAULT_GEMINI_FALLBACKS;
+  return [...new Set([primary, ...fallbacks])];
 }
 
 export type TraceStep = { tool: string; input: unknown; summary: string; ok: boolean; ms: number };
@@ -152,11 +158,34 @@ async function runGemini(message: string, history: HistoryTurn[], ctx: AdvisorCo
   let rounds = 0;
   let raw = "";
   let stopReason: string | null = "max_rounds";
+  // Free-tier models are often briefly overloaded. Before the first successful round, retry once and
+  // then move to the next free model; after that, stay on the model that answered (thought signatures
+  // belong to it).
+  const candidates = geminiModels(model);
+  let active: string | null = null;
+  const round = async (lastRound: boolean): Promise<GeminiRound> => {
+    if (active) return geminiRound(client, active, SYSTEM_PROMPT, contents, lastRound);
+    let lastError: unknown;
+    for (const m of candidates)
+      for (let attempt = 0; attempt < (m === candidates[0] ? 2 : 1); attempt++) {
+        try {
+          const r = await geminiRound(client, m, SYSTEM_PROMPT, contents, lastRound);
+          active = m;
+          return r;
+        } catch (e) {
+          lastError = e;
+          if (!(e instanceof GeminiApiError && RETRYABLE.has(e.status))) throw e;
+          console.warn("advisor: gemini model unavailable, trying the next", m, e.status);
+          if (attempt === 0 && m === candidates[0]) await new Promise((res) => setTimeout(res, 600));
+        }
+      }
+    throw lastError;
+  };
 
   try {
     while (rounds < MAX_TOOL_ROUNDS + 1) {
       rounds++;
-      const r = await geminiRound(client, model, SYSTEM_PROMPT, contents, rounds > MAX_TOOL_ROUNDS);
+      const r = await round(rounds > MAX_TOOL_ROUNDS);
       usage.inputTokens += r.inputTokens;
       usage.outputTokens += r.outputTokens;
       usage.cacheReadTokens += r.cachedTokens;
@@ -188,7 +217,7 @@ async function runGemini(message: string, history: HistoryTurn[], ctx: AdvisorCo
     return runOffline(message, ctx, started, status === 429 ? "quota" : "ai_error");
   }
   // Free tier: no charge. (On a paid Gemini plan, see the console for the bill.)
-  return finish({ raw, allowedIds, prices, pending, steps, rounds, started, provider: "gemini", model, usage, costUsd: null, stopReason });
+  return finish({ raw, allowedIds, prices, pending, steps, rounds, started, provider: "gemini", model: active ?? model, usage, costUsd: null, stopReason });
 }
 
 function finish(r: { raw: string; allowedIds: Set<string>; prices: string[]; pending: PendingAction[]; steps: TraceStep[]; rounds: number; started: number; provider: AdvisorProvider; model: string; usage: NonNullable<AdvisorReply["trace"]["usage"]>; costUsd: number | null; stopReason: string | null }): AdvisorReply {

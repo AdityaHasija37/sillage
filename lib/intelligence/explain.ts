@@ -1,8 +1,8 @@
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
-import { GoogleGenAI, ThinkingLevel } from "@google/genai";
-import { configuredModel, configuredProvider, type AdvisorProvider } from "@/lib/agent/advisor";
-import { textOf } from "@/lib/agent/gemini";
+import { ApiError, GoogleGenAI } from "@google/genai";
+import { configuredModel, configuredProvider, geminiModels, type AdvisorProvider } from "@/lib/agent/advisor";
+import { RETRYABLE, textOf, thinkingFor } from "@/lib/agent/gemini";
 import { claimRate } from "@/lib/security/rate";
 import { explainPick, type DailyPick } from "./daily";
 
@@ -45,12 +45,23 @@ export async function explainWithModel(picks: DailyPick[], subject: string, prov
 async function phrase(provider: AdvisorProvider, prompt: string): Promise<string> {
   const model = configuredModel(provider);
   if (provider === "gemini") {
-    const res = await new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY }).models.generateContent({
-      model,
-      contents: prompt,
-      config: { systemInstruction: SYSTEM, maxOutputTokens: 400, thinkingConfig: { thinkingLevel: ThinkingLevel.LOW } },
-    });
-    return textOf(res.candidates?.[0]?.content);
+    const client = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+    let lastError: unknown;
+    // An overloaded free model moves on to the next one; anything else falls back to the template.
+    for (const m of geminiModels(model)) {
+      try {
+        const res = await client.models.generateContent({
+          model: m,
+          contents: prompt,
+          config: { systemInstruction: SYSTEM, maxOutputTokens: 400, thinkingConfig: thinkingFor(m) },
+        });
+        return textOf(res.candidates?.[0]?.content);
+      } catch (e) {
+        lastError = e;
+        if (!(e instanceof ApiError && RETRYABLE.has(e.status))) throw e;
+      }
+    }
+    throw lastError;
   }
   const res = (await new Anthropic().messages.create({
     model,

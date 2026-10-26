@@ -3,6 +3,11 @@ import { TOOL_DEFINITIONS } from "./tools";
 
 /** Free-tier Flash model (ai.google.dev/gemini-api/docs/pricing). Override with GEMINI_MODEL. */
 export const DEFAULT_GEMINI_MODEL = "gemini-3.8-flash";
+/** Older free-tier Flash models to try when the first is overloaded. Override with GEMINI_FALLBACK_MODELS (comma-separated). */
+export const DEFAULT_GEMINI_FALLBACKS = ["gemini-3.6-flash", "gemini-2.5-flash"];
+
+/** Overloaded, unavailable or unknown-model errors are worth retrying elsewhere; quota and bad requests aren't. */
+export const RETRYABLE = new Set([404, 500, 503, 504]);
 
 type JsonSchema = Record<string, unknown>;
 
@@ -45,6 +50,9 @@ export function fillNulls(name: string, args: Record<string, unknown> | undefine
   return out;
 }
 
+/** Gemini 3.x takes a thinking level; 2.5 models take a token budget instead. */
+export const thinkingFor = (model: string) => (/^gemini-2\./.test(model) ? { thinkingBudget: 512 } : { thinkingLevel: ThinkingLevel.LOW });
+
 export type GeminiRound = { content: Content | undefined; calls: { id?: string; name: string; args: Record<string, unknown> }[]; finishReason: string | null; inputTokens: number; outputTokens: number; cachedTokens: number };
 
 /** One generateContent call with the frozen system prompt and tool list. */
@@ -57,7 +65,7 @@ export async function geminiRound(client: GoogleGenAI, model: string, system: st
       tools: [{ functionDeclarations: GEMINI_TOOLS }],
       // On the final allowed round the tools stay declared but the model must answer in text.
       toolConfig: { functionCallingConfig: { mode: lastRound ? FunctionCallingConfigMode.NONE : FunctionCallingConfigMode.AUTO } },
-      thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
+      thinkingConfig: thinkingFor(model),
       // We run the tools ourselves (approval-free reads, confirm-only writes), never the SDK.
       automaticFunctionCalling: { disable: true },
       maxOutputTokens: 4096,

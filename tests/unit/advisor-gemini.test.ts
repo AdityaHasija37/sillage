@@ -1,7 +1,7 @@
 import { ApiError, FunctionCallingConfigMode, type Content, type GoogleGenAI } from "@google/genai";
 import { describe, expect, it, vi } from "vitest";
-import { configuredModel, configuredProvider, runAdvisor } from "@/lib/agent/advisor";
-import { fillNulls, GEMINI_TOOLS } from "@/lib/agent/gemini";
+import { configuredModel, configuredProvider, geminiModels, runAdvisor } from "@/lib/agent/advisor";
+import { fillNulls, GEMINI_TOOLS, thinkingFor } from "@/lib/agent/gemini";
 import { executeTool, TOOL_DEFINITIONS } from "@/lib/agent/tools";
 import { acceptExplanation } from "@/lib/intelligence/explain";
 import { context } from "../fixtures/advisor-context";
@@ -103,6 +103,31 @@ describe("runAdvisor on Gemini", () => {
     expect(r.trace).toMatchObject({ mode: "offline", offlineReason: "quota" });
     expect(r.text).toMatch(/free quota/);
     expect(r.citedIds.length).toBeGreaterThan(0);
+  });
+
+  it("retries an overloaded model, then moves to the next free model and stays on it", async () => {
+    const overloaded = new ApiError({ message: "overloaded", status: 503 });
+    const seen: string[] = [];
+    let n = 0;
+    const generateContent = vi.fn(async (req: Req) => {
+      seen.push(req.model);
+      if (req.model === "gemini-3.8-flash") throw overloaded;
+      return ++n === 1 ? reply({ calls: [{ name: "get_user_profile", args: {} }] }) : reply({ text: "Here you go." });
+    });
+    const r = await runAdvisor("hi", [], context(), { gemini: { models: { generateContent } } as unknown as GoogleGenAI });
+    expect(seen).toEqual(["gemini-3.8-flash", "gemini-3.8-flash", "gemini-3.6-flash", "gemini-3.6-flash"]);
+    expect(r.trace).toMatchObject({ mode: "ai", model: "gemini-3.6-flash" });
+    expect(geminiModels("gemini-3.6-flash", {})).toEqual(["gemini-3.6-flash", "gemini-2.5-flash"]);
+    expect(geminiModels("x", { GEMINI_FALLBACK_MODELS: "" })).toEqual(["x"]);
+    expect(thinkingFor("gemini-2.5-flash")).toEqual({ thinkingBudget: 512 });
+    expect(thinkingFor("gemini-3.8-flash")).toHaveProperty("thinkingLevel");
+  });
+
+  it("goes offline when every free model is overloaded", async () => {
+    const client = { models: { generateContent: vi.fn().mockRejectedValue(new ApiError({ message: "overloaded", status: 503 })) } } as unknown as GoogleGenAI;
+    const r = await runAdvisor("Something different for winter", [], context(), { gemini: client });
+    expect(r.trace).toMatchObject({ mode: "offline", offlineReason: "ai_error" });
+    expect((client.models.generateContent as ReturnType<typeof vi.fn>).mock.calls.length).toBe(4);
   });
 
   it("treats a safety block like a refusal", async () => {
