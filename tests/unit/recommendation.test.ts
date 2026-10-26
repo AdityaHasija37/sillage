@@ -22,7 +22,11 @@ describe("recommendCandidates", () => {
     const owned = [own(c.amberVanilla, "love")];
     const res = recommendCandidates({ mode: "similar", accord: "Fresh" }, prefs(), owned, catalog);
     expect(res.results.length).toBeGreaterThan(0);
-    expect(res.results.every((r) => r.fragrance.accords.some((a) => a.name.includes("fresh") && a.strength >= 50))).toBe(true);
+    expect(res.results.every((r) => r.fragrance.accords.some((a) => ["fresh", "citrus", "aquatic"].includes(a.name) && a.strength >= 50))).toBe(true);
+    // "fresh" is the bright family, never the separate "fresh spicy" accord.
+    const pepper = frag({ name: "Pepper Bomb", brand: "Spice House", family: "amber", accords: { "fresh spicy": 100, vanilla: 80 } });
+    const r2 = recommendCandidates({ mode: "different", accord: "fresh" }, prefs(), owned, [...catalog, pepper]);
+    expect(r2.results.map((r) => r.fragrance.name)).not.toContain("Pepper Bomb");
     const none = recommendCandidates({ mode: "similar", accord: "nonexistent" }, prefs(), owned, catalog);
     expect(none.results).toHaveLength(0);
     expect(none.mostRestrictive).toBe("accord");

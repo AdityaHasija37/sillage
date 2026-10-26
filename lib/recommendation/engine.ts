@@ -26,6 +26,22 @@ import {
 
 export const ENGINE_VERSION = "rec-1.3";
 
+/**
+ * What a style word covers, as whole catalog accord names. "fresh" means the bright family, not
+ * Fragrantica's separate "fresh spicy" accord (pepper, cardamom), which a substring match let through.
+ */
+export const ACCORD_STYLES: Record<string, string[]> = {
+  fresh: ["fresh", "citrus", "aquatic", "marine", "ozonic", "green"],
+  citrus: ["citrus"],
+  aquatic: ["aquatic", "marine", "ozonic"],
+  woody: ["woody", "mossy", "earthy"],
+  floral: ["floral", "white floral", "yellow floral", "rose", "iris", "violet", "tuberose"],
+  spicy: ["warm spicy", "fresh spicy", "soft spicy", "cinnamon"],
+  sweet: ["sweet", "caramel", "honey"],
+  gourmand: ["vanilla", "caramel", "almond", "coconut", "honey", "nutty"],
+};
+const accordNames = (style: string) => ACCORD_STYLES[style] ?? [style];
+
 export const MODES = ["similar", "different", "gaps"] as const;
 export type Mode = (typeof MODES)[number];
 
@@ -271,7 +287,7 @@ export function recommendCandidates(
       excluded.budget++;
       continue;
     }
-    if (accord && !f.accords.some((a) => a.strength >= 50 && a.name.toLowerCase().includes(accord))) {
+    if (accord && !f.accords.some((a) => a.strength >= 50 && accordNames(accord).includes(a.name.toLowerCase()))) {
       excluded.accord++;
       continue;
     }
