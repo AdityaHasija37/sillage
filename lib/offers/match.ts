@@ -295,7 +295,7 @@ export const REASON_LABEL: Record<MatchReason, string> = {
   concentration_unstated: "concentration not stated",
   size_mismatch: "different size",
   size_unstated: "size not stated",
-  not_new_full_bottle: "not a new full bottle (tester, sample, travel size, used, or another product like an after-shave)",
+  not_new_full_bottle: "not a new full bottle",
   multi_item_set: "gift set or bundle",
   unrecognised_words: "extra words that may mean a different edition",
   unsafe_url: "unsafe link",

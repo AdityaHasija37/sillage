@@ -206,7 +206,8 @@ export async function compareOffersAction(input: { fragranceId: string; concentr
         merchant: o.merchant,
         title: o.title,
         listPrice: o.listPrice,
-        reason: REASON_LABEL[mainReason(o.reasons)],
+        // Say exactly what it is when we know: "not a new full bottle (tester)".
+        reason: mainReason(o.reasons) === "not_new_full_bottle" && o.parsed.condition ? `${REASON_LABEL.not_new_full_bottle} (${o.parsed.condition})` : REASON_LABEL[mainReason(o.reasons)],
       })),
     };
   } catch {
