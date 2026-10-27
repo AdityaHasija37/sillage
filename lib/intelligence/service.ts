@@ -5,7 +5,7 @@ import { getPreferences, listCollection } from "@/lib/collection/service";
 import { matchingNotes } from "@/lib/recommendation/engine";
 import { createClient } from "@/lib/supabase/server";
 import { DailyContext, dailyPick, feedbackAdjustments, type DailyResult, type OwnedForDaily } from "./daily";
-import { LAB_ALGORITHM_VERSION, pairKey, predictPair, type PairPrediction, type PastExperiment } from "./lab";
+import { LAB_ALGORITHM_VERSION, pairKey, predictPair, suggestPairs, type PairPrediction, type PairSuggestion, type PastExperiment } from "./lab";
 import { toProfile, type FragranceProfile } from "./profile";
 import { collectionScore, previewCandidate, type CollectionScore, type ScorePreview } from "./score";
 
@@ -136,6 +136,12 @@ async function pastExperiments(): Promise<PastExperiment[]> {
   return ((data ?? []) as unknown as { rating: number; experiment: { prediction_json: { dominantAccordHypotheses?: { tag: string }[] } } | null }[])
     .filter((r) => r.experiment)
     .map((r) => ({ rating: r.rating, accords: (r.experiment!.prediction_json.dominantAccordHypotheses ?? []).map((d) => d.tag) }));
+}
+
+/** Up to three untried pairings from the user's own shelf, for the empty Lab bench. */
+export async function suggestedPairs(): Promise<PairSuggestion[]> {
+  const [{ owned }, past, experiments] = await Promise.all([ownedProfiles(), pastExperiments(), listExperiments().catch(() => [])]);
+  return suggestPairs(owned, past, new Set(experiments.map((e) => e.pairKey)));
 }
 
 export const PredictInput = z.object({ fragranceAId: z.string().uuid(), fragranceBId: z.string().uuid() });

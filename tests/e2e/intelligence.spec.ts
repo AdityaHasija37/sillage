@@ -38,6 +38,8 @@ test("DS-01..05: Today picks from owned bottles, re-ranks without reload, and lo
   await expect(page.getByText("Logged as worn today")).toBeVisible();
   // Avoid list (DS-01): excluding the pick changes it.
   const name = (await pick.innerText()).trim();
+  // "Not today" lives under More options (progressive disclosure).
+  await page.getByText("More options").click();
   await page.getByRole("button", { name, exact: true }).click();
   await expect(pick).not.toHaveText(name, { timeout: 20_000 });
 });

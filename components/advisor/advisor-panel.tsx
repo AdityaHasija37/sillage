@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState, useTransition } from "react";
+import { Fragment, useEffect, useRef, useState, useTransition } from "react";
 import { Check, ChevronDown, Loader2, Send, ShieldCheck, Wrench } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { confirmAdvisorAction } from "@/app/(app)/app/actions";
 import type { AdvisorReply } from "@/lib/agent/advisor";
+import { parseAnswer, type Inline } from "@/lib/agent/format";
 import type { PendingAction } from "@/lib/agent/tools";
 import { cn } from "@/lib/utils";
 
@@ -82,11 +83,7 @@ export function AdvisorPanel() {
             </li>
           ))}
         </ol>
-        {busy && (
-          <p className="mt-4 flex items-center gap-2 text-sm text-muted-foreground" role="status">
-            <Loader2 className="size-4 animate-spin" aria-hidden="true" /> Checking your collection and running the engine…
-          </p>
-        )}
+        {busy && <Thinking />}
         <div ref={endRef} />
       </div>
       <form
@@ -122,23 +119,69 @@ export function AdvisorPanel() {
   );
 }
 
+// What a typical answer goes through, paced to real timings (most answers take 6–25 s on the free model).
+const STAGES = [
+  { at: 0, text: "Reading your shelf and preferences" },
+  { at: 2, text: "Running Sillage's ranking engine" },
+  { at: 6, text: "Checking every pick against what you own" },
+  { at: 11, text: "Writing the answer" },
+  { at: 22, text: "Still writing: the free AI model can be slow at busy times" },
+];
+
+/** A staged, honest progress indicator instead of one static line during a 6–25 s wait. */
+function Thinking() {
+  const [secs, setSecs] = useState(0);
+  useEffect(() => {
+    const started = Date.now();
+    const id = setInterval(() => setSecs(Math.floor((Date.now() - started) / 1000)), 500);
+    return () => clearInterval(id);
+  }, []);
+  const current = STAGES.filter((s) => secs >= s.at).length - 1;
+  return (
+    <div className="mt-4 grid gap-1.5 rounded-lg border border-dashed px-3.5 py-3 text-sm" role="status" aria-live="polite">
+      <ol className="grid gap-1">
+        {STAGES.slice(0, Math.max(current + 1, 1)).map((s, i) => (
+          <li key={s.text} className={cn("flex items-center gap-2", i < current ? "text-muted-foreground" : "text-foreground")}>
+            {i < current ? <Check className="size-3.5 text-primary" aria-hidden="true" /> : <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />}
+            {s.text}
+          </li>
+        ))}
+      </ol>
+      <p className="text-xs text-muted-foreground tabular-nums">{secs}s · answers usually take 6–25 seconds</p>
+    </div>
+  );
+}
+
 function AssistantMessage({ reply, cited }: { reply: AdvisorReply; cited: Cited[] }) {
   const byId = new Map(cited.map((c) => [c.id, c]));
-  // Render [[f:id]] citations as links to the fragrance page, labelled with the verified name.
-  const parts = reply.text.split(/(\[\[f:[0-9a-f-]{36}\]\])/gi);
+  const inline = (parts: Inline[]) =>
+    parts.map((p, i) => {
+      if (p.kind === "text") return <Fragment key={i}>{p.text}</Fragment>;
+      if (p.kind === "bold") return <strong key={i} className="font-semibold">{p.text}</strong>;
+      // Citations become links to the fragrance page, labelled with the verified name.
+      const c = byId.get(p.id);
+      return c ? (
+        <Link key={i} href={`/app/fragrance/${c.id}`} aria-label={`Open ${c.brand} ${c.name}`} className="mx-0.5 inline-flex items-center rounded bg-accent px-1 align-baseline text-xs font-medium text-accent-foreground hover:underline">
+          ↗
+        </Link>
+      ) : null;
+    });
   return (
     <div className="grid gap-2">
-      <div className="max-w-[95%] rounded-lg rounded-bl-sm border bg-card px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap">
-        {parts.map((p, i) => {
-          const m = /^\[\[f:([0-9a-f-]{36})\]\]$/i.exec(p);
-          if (!m) return <span key={i}>{p}</span>;
-          const c = byId.get(m[1].toLowerCase());
-          return c ? (
-            <Link key={i} href={`/app/fragrance/${c.id}`} aria-label={`Open ${c.brand} ${c.name}`} className="mx-0.5 inline-flex items-center rounded bg-accent px-1 text-xs font-medium text-accent-foreground hover:underline">
-              ↗
-            </Link>
-          ) : null;
-        })}
+      <div className="grid max-w-[95%] gap-2.5 rounded-lg rounded-bl-sm border bg-card px-3.5 py-3 text-sm leading-relaxed">
+        {parseAnswer(reply.text).map((b, i) =>
+          b.kind === "p" ? (
+            <p key={i}>{inline(b.parts)}</p>
+          ) : b.kind === "ul" ? (
+            <ul key={i} className="grid list-disc gap-1.5 pl-5 marker:text-primary">
+              {b.items.map((it, j) => <li key={j}>{inline(it)}</li>)}
+            </ul>
+          ) : (
+            <ol key={i} className="grid list-decimal gap-1.5 pl-5 marker:text-primary">
+              {b.items.map((it, j) => <li key={j}>{inline(it)}</li>)}
+            </ol>
+          ),
+        )}
       </div>
       {cited.length > 0 && (
         <ul className="flex flex-wrap gap-1.5" aria-label="Fragrances mentioned">

@@ -1,0 +1,2983 @@
+{
+  "generatedAt": "2026-10-27T08:07:27.667Z",
+  "label": "v7-ux",
+  "engineVersion": "rec-1.3",
+  "durationMs": 5449,
+  "catalog": {
+    "fragrances": 38365,
+    "coverage": 1,
+    "coverageRows": [
+      {
+        "query": "Sauvage",
+        "found": true,
+        "top": "Dior Sauvage",
+        "ms": 13
+      },
+      {
+        "query": "Bleu de Chanel",
+        "found": true,
+        "top": "Chanel Bleu de Chanel",
+        "ms": 14
+      },
+      {
+        "query": "Aventus",
+        "found": true,
+        "top": "Creed Aventus",
+        "ms": 7
+      },
+      {
+        "query": "Acqua di Gio",
+        "found": true,
+        "top": "Giorgio Armani Acqua di Gio",
+        "ms": 12
+      },
+      {
+        "query": "Light Blue",
+        "found": true,
+        "top": "Dolce&Gabbana Light Blue",
+        "ms": 8
+      },
+      {
+        "query": "La Vie Est Belle",
+        "found": true,
+        "top": "Lancôme La Vie Est Belle",
+        "ms": 9
+      },
+      {
+        "query": "Black Opium",
+        "found": true,
+        "top": "Yves Saint Laurent Black Opium",
+        "ms": 11
+      },
+      {
+        "query": "Baccarat Rouge 540",
+        "found": true,
+        "top": "Baccarat Rouge 540 Limited Edition",
+        "ms": 6
+      },
+      {
+        "query": "Tobacco Vanille",
+        "found": true,
+        "top": "Tom Ford Tobacco Vanille",
+        "ms": 18
+      },
+      {
+        "query": "Khamrah",
+        "found": true,
+        "top": "Lattafa Perfumes Khamrah",
+        "ms": 8
+      },
+      {
+        "query": "Le Male",
+        "found": true,
+        "top": "Jean Paul Gaultier Le Male",
+        "ms": 29
+      },
+      {
+        "query": "Eros",
+        "found": true,
+        "top": "Versace Eros",
+        "ms": 11
+      },
+      {
+        "query": "1 Million",
+        "found": true,
+        "top": "Rabanne 1 Million",
+        "ms": 20
+      },
+      {
+        "query": "Good Girl",
+        "found": true,
+        "top": "By Kilian Good Girl Gone Bad",
+        "ms": 10
+      },
+      {
+        "query": "Coco Mademoiselle",
+        "found": true,
+        "top": "Chanel Coco Mademoiselle",
+        "ms": 10
+      },
+      {
+        "query": "Santal 33",
+        "found": true,
+        "top": "Le Labo Santal 33",
+        "ms": 19
+      },
+      {
+        "query": "Terre d'Hermes",
+        "found": true,
+        "top": "Hermès Terre d'Hermes Parfum",
+        "ms": 16
+      },
+      {
+        "query": "Cool Water",
+        "found": true,
+        "top": "Davidoff Cool Water",
+        "ms": 10
+      },
+      {
+        "query": "Libre",
+        "found": true,
+        "top": "Librery Parfum Sun Ice",
+        "ms": 16
+      },
+      {
+        "query": "Cloud",
+        "found": true,
+        "top": "Cloudy Scents [06] été crème",
+        "ms": 13
+      }
+    ],
+    "medianSearchMs": 12
+  },
+  "offers": {
+    "pairs": 61,
+    "precision": 1,
+    "recall": 1,
+    "agreement": 0.9508196721311475,
+    "falseExact": [],
+    "disagreements": [
+      {
+        "target": "khamrah-100",
+        "title": "Lattafa Khamrah Qahwa Eau de Parfum 100 ml",
+        "expected": "rejected",
+        "actual": "probable",
+        "reasons": [
+          "unrecognised_words"
+        ],
+        "ok": false
+      },
+      {
+        "target": "1m-edt-100",
+        "title": "Paco Rabanne 1 Million Lucky Eau de Toilette 100 ml",
+        "expected": "rejected",
+        "actual": "probable",
+        "reasons": [
+          "unrecognised_words"
+        ],
+        "ok": false
+      },
+      {
+        "target": "lveb-edp-100",
+        "title": "Lancome La Vie Est Belle Intensement EDP 100 ml",
+        "expected": "rejected",
+        "actual": "probable",
+        "reasons": [
+          "unrecognised_words"
+        ],
+        "ok": false
+      }
+    ]
+  },
+  "recommendations": {
+    "total": 32,
+    "passed": 29,
+    "exclusionCompliance": 1,
+    "relevance": 0.9464285714285714,
+    "byMode": {
+      "similar": {
+        "total": 12,
+        "passed": 9
+      },
+      "different": {
+        "total": 10,
+        "passed": 10
+      },
+      "gaps": {
+        "total": 10,
+        "passed": 10
+      }
+    },
+    "medianMs": 16.2,
+    "poolSize": 3000,
+    "cases": [
+      {
+        "id": "S01",
+        "mode": "similar",
+        "persona": "Fresh-blue fan who loves Bleu de Chanel EDP",
+        "passed": true,
+        "checks": [
+          {
+            "name": "returns results",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "nothing owned",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "top-3 similarity to anchor ≥ 0.7",
+            "hard": false,
+            "ok": true,
+            "detail": "0.90"
+          },
+          {
+            "name": "an annotated good answer in top 5",
+            "hard": false,
+            "ok": true
+          }
+        ],
+        "top": [
+          {
+            "name": "Armaf Club de Nuit Blue Iconic",
+            "family": "citrus",
+            "score": 0.8886,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "COMMUNITY_SAYS_SIMILAR",
+              "BUDGET_ALTERNATIVE",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "French Avenue Zenith Deep",
+            "family": "woody",
+            "score": 0.8793,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "COMMUNITY_SAYS_SIMILAR",
+              "BUDGET_ALTERNATIVE"
+            ]
+          },
+          {
+            "name": "Armaf Club De Nuit Urban Elixir",
+            "family": "amber",
+            "score": 0.8791,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "COMMUNITY_SAYS_SIMILAR",
+              "BUDGET_ALTERNATIVE",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "French Avenue Zenith Blue",
+            "family": "aromatic",
+            "score": 0.8573,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "COMMUNITY_SAYS_SIMILAR",
+              "BUDGET_ALTERNATIVE"
+            ]
+          },
+          {
+            "name": "Dior Dior Homme Sport 2021",
+            "family": "woody",
+            "score": 0.8542,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "BUDGET_ALTERNATIVE",
+              "WELL_RATED"
+            ]
+          }
+        ],
+        "ms": 33.8
+      },
+      {
+        "id": "S02",
+        "mode": "similar",
+        "persona": "Loves Tobacco Vanille, likes Jazz Club",
+        "passed": false,
+        "checks": [
+          {
+            "name": "returns results",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "nothing owned",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "top-3 similarity to anchor ≥ 0.7",
+            "hard": false,
+            "ok": true,
+            "detail": "0.93"
+          },
+          {
+            "name": "an annotated good answer in top 5",
+            "hard": false,
+            "ok": false
+          }
+        ],
+        "top": [
+          {
+            "name": "Maison Alhambra Tobacco Touch",
+            "family": "gourmand",
+            "score": 0.8875,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "COMMUNITY_SAYS_SIMILAR",
+              "BUDGET_ALTERNATIVE"
+            ]
+          },
+          {
+            "name": "Franck Boclet Tobacco",
+            "family": "amber",
+            "score": 0.867,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "COMMUNITY_SAYS_SIMILAR",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Argos Triumph Of Bacchus",
+            "family": "amber",
+            "score": 0.8562,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Pendora Scents Charuto Tobacco Vanille",
+            "family": "amber",
+            "score": 0.841,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "COMMUNITY_SAYS_SIMILAR",
+              "BUDGET_ALTERNATIVE"
+            ]
+          },
+          {
+            "name": "Viktor&Rolf Spicebomb Extreme",
+            "family": "amber",
+            "score": 0.8401,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "WELL_RATED"
+            ]
+          }
+        ],
+        "ms": 15.7
+      },
+      {
+        "id": "S03",
+        "mode": "similar",
+        "persona": "Loves La Vie Est Belle, prefers women's and unisex",
+        "passed": false,
+        "checks": [
+          {
+            "name": "returns results",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "nothing owned",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "marketing preference",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "top-3 similarity to anchor ≥ 0.7",
+            "hard": false,
+            "ok": true,
+            "detail": "0.93"
+          },
+          {
+            "name": "an annotated good answer in top 5",
+            "hard": false,
+            "ok": false
+          }
+        ],
+        "top": [
+          {
+            "name": "La Rive Queen of Life",
+            "family": "floral",
+            "score": 0.8364,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "COMMUNITY_SAYS_SIMILAR",
+              "BUDGET_ALTERNATIVE"
+            ]
+          },
+          {
+            "name": "Chloé Nomade Naturelle Eau de Parfum",
+            "family": "amber",
+            "score": 0.8178,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS"
+            ]
+          },
+          {
+            "name": "PARIS CORNER Khair Confection",
+            "family": "gourmand",
+            "score": 0.8114,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "BUDGET_ALTERNATIVE"
+            ]
+          },
+          {
+            "name": "Zimaya Sharaf Blend",
+            "family": "aromatic",
+            "score": 0.8079,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Profumum Roma Acqua e Zucchero",
+            "family": "floral",
+            "score": 0.8078,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS"
+            ]
+          }
+        ],
+        "ms": 11.2
+      },
+      {
+        "id": "S04",
+        "mode": "similar",
+        "persona": "Loves Aventus",
+        "passed": true,
+        "checks": [
+          {
+            "name": "returns results",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "nothing owned",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "top-3 similarity to anchor ≥ 0.65",
+            "hard": false,
+            "ok": true,
+            "detail": "0.88"
+          },
+          {
+            "name": "an annotated good answer in top 5",
+            "hard": false,
+            "ok": true
+          }
+        ],
+        "top": [
+          {
+            "name": "Armaf Club de Nuit Intense Man Parfum",
+            "family": "aromatic",
+            "score": 0.8885,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "COMMUNITY_SAYS_SIMILAR",
+              "BUDGET_ALTERNATIVE",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Afnan Supremacy Silver",
+            "family": "woody",
+            "score": 0.833,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "COMMUNITY_SAYS_SIMILAR",
+              "BUDGET_ALTERNATIVE"
+            ]
+          },
+          {
+            "name": "Tiziana Terenzi Orion",
+            "family": "floral",
+            "score": 0.8171,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "COMMUNITY_SAYS_SIMILAR"
+            ]
+          },
+          {
+            "name": "Mancera Cedrat Boise",
+            "family": "citrus",
+            "score": 0.8141,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS"
+            ]
+          },
+          {
+            "name": "Sospiro Perfumes Basso",
+            "family": "woody",
+            "score": 0.8116,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "COMMUNITY_SAYS_SIMILAR",
+              "WELL_RATED"
+            ]
+          }
+        ],
+        "ms": 15.4
+      },
+      {
+        "id": "S05",
+        "mode": "similar",
+        "persona": "Loves Light Blue and Acqua di Gioia",
+        "passed": true,
+        "checks": [
+          {
+            "name": "returns results",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "nothing owned",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "top-3 similarity to anchor ≥ 0.65",
+            "hard": false,
+            "ok": true,
+            "detail": "0.84"
+          }
+        ],
+        "top": [
+          {
+            "name": "Xerjoff XJ 1861 Renaissance",
+            "family": "citrus",
+            "score": 0.8498,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Roja Dove Isola Blu",
+            "family": "citrus",
+            "score": 0.847,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Profumum Roma Acqua Viva",
+            "family": "woody",
+            "score": 0.8345,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Bvlgari Bvlgari Extreme",
+            "family": "woody",
+            "score": 0.8325,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Xerjoff Nio",
+            "family": "woody",
+            "score": 0.8203,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "WELL_RATED"
+            ]
+          }
+        ],
+        "ms": 14.7
+      },
+      {
+        "id": "S06",
+        "mode": "similar",
+        "persona": "Niche woody fan: Santal 33 and Gypsy Water",
+        "passed": true,
+        "checks": [
+          {
+            "name": "returns results",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "nothing owned",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "top-3 similarity to anchor ≥ 0.6",
+            "hard": false,
+            "ok": true,
+            "detail": "0.74"
+          },
+          {
+            "name": "top pick family in woody/aromatic/amber",
+            "hard": false,
+            "ok": true,
+            "detail": "woody"
+          }
+        ],
+        "top": [
+          {
+            "name": "Chanel Bleu de Chanel Parfum",
+            "family": "woody",
+            "score": 0.8539,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Zara Energetically New York Elixir",
+            "family": "amber",
+            "score": 0.8363,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "COMMUNITY_SAYS_SIMILAR",
+              "BUDGET_ALTERNATIVE"
+            ]
+          },
+          {
+            "name": "Creed Bois du Portugal",
+            "family": "amber",
+            "score": 0.8327,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Molinard Habanita Eau de Parfum",
+            "family": "amber",
+            "score": 0.8315,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "BUDGET_ALTERNATIVE"
+            ]
+          },
+          {
+            "name": "Lattafa Perfumes Emeer",
+            "family": "woody",
+            "score": 0.8288,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "BUDGET_ALTERNATIVE"
+            ]
+          }
+        ],
+        "ms": 38.1
+      },
+      {
+        "id": "S07",
+        "mode": "similar",
+        "persona": "Loves Encre Noire (dark vetiver)",
+        "passed": true,
+        "checks": [
+          {
+            "name": "returns results",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "nothing owned",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "top-3 similarity to anchor ≥ 0.65",
+            "hard": false,
+            "ok": true,
+            "detail": "0.93"
+          },
+          {
+            "name": "top pick family in woody/aromatic/green",
+            "hard": false,
+            "ok": true,
+            "detail": "woody"
+          },
+          {
+            "name": "reports LIMITED_PROFILE",
+            "hard": false,
+            "ok": true
+          }
+        ],
+        "top": [
+          {
+            "name": "Chanel Sycomore Eau de Parfum",
+            "family": "woody",
+            "score": 0.8816,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "COMMUNITY_SAYS_SIMILAR",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Marc-Antoine Barrois Encelade",
+            "family": "aromatic",
+            "score": 0.8775,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS"
+            ]
+          },
+          {
+            "name": "Maison Alhambra Anchor Black",
+            "family": "aromatic",
+            "score": 0.8551,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "COMMUNITY_SAYS_SIMILAR",
+              "BUDGET_ALTERNATIVE"
+            ]
+          },
+          {
+            "name": "Aesop Hwyl",
+            "family": "woody",
+            "score": 0.8502,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS"
+            ]
+          },
+          {
+            "name": "Cerruti 1881 Men",
+            "family": "aromatic",
+            "score": 0.8426,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS"
+            ]
+          }
+        ],
+        "ms": 9
+      },
+      {
+        "id": "S08",
+        "mode": "similar",
+        "persona": "Five designer bottles, none rated yet",
+        "passed": true,
+        "checks": [
+          {
+            "name": "returns results",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "nothing owned",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "reports LIMITED_PROFILE",
+            "hard": false,
+            "ok": true
+          }
+        ],
+        "top": [
+          {
+            "name": "Armaf Club De Nuit Urban Elixir",
+            "family": "amber",
+            "score": 0.8092,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "COMMUNITY_SAYS_SIMILAR",
+              "BUDGET_ALTERNATIVE",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Afnan Historic Olmeda",
+            "family": "aromatic",
+            "score": 0.8025,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "COMMUNITY_SAYS_SIMILAR"
+            ]
+          },
+          {
+            "name": "French Avenue Zenith Blue",
+            "family": "aromatic",
+            "score": 0.7963,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "COMMUNITY_SAYS_SIMILAR",
+              "BUDGET_ALTERNATIVE"
+            ]
+          },
+          {
+            "name": "Afnan Modest Pour Homme Une",
+            "family": "aromatic",
+            "score": 0.776,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "COMMUNITY_SAYS_SIMILAR",
+              "BUDGET_ALTERNATIVE"
+            ]
+          },
+          {
+            "name": "Maison Alhambra Salvo",
+            "family": "aromatic",
+            "score": 0.7636,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "COMMUNITY_SAYS_SIMILAR",
+              "BUDGET_ALTERNATIVE"
+            ]
+          }
+        ],
+        "ms": 18.8
+      },
+      {
+        "id": "S09",
+        "mode": "similar",
+        "persona": "Leather lover who avoids oud",
+        "passed": true,
+        "checks": [
+          {
+            "name": "returns results",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "nothing owned",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "no disliked notes",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "top-3 similarity to anchor ≥ 0.55",
+            "hard": false,
+            "ok": true,
+            "detail": "0.59"
+          }
+        ],
+        "top": [
+          {
+            "name": "Maison Alhambra Amber & Leather",
+            "family": "amber",
+            "score": 0.7958,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "COMMUNITY_SAYS_SIMILAR",
+              "BUDGET_ALTERNATIVE"
+            ]
+          },
+          {
+            "name": "Tom Ford Tuscan Leather",
+            "family": "leather",
+            "score": 0.7818,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "French Avenue Scorpio",
+            "family": "woody",
+            "score": 0.7588,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "COMMUNITY_SAYS_SIMILAR",
+              "BUDGET_ALTERNATIVE"
+            ]
+          },
+          {
+            "name": "Tom Ford Ombre Leather 16",
+            "family": "leather",
+            "score": 0.7477,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "COMMUNITY_SAYS_SIMILAR"
+            ]
+          },
+          {
+            "name": "Rasasi La Yuqawam Homme",
+            "family": "amber",
+            "score": 0.7472,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "BUDGET_ALTERNATIVE",
+              "WELL_RATED"
+            ]
+          }
+        ],
+        "ms": 22.5
+      },
+      {
+        "id": "S10",
+        "mode": "similar",
+        "persona": "Loves Baccarat Rouge 540 but has a $100 budget",
+        "passed": true,
+        "checks": [
+          {
+            "name": "returns results",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "nothing owned",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "within budget",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "top-3 similarity to anchor ≥ 0.6",
+            "hard": false,
+            "ok": true,
+            "detail": "0.90"
+          }
+        ],
+        "top": [
+          {
+            "name": "Armaf Club de Nuit Untold",
+            "family": "woody",
+            "score": 0.9521,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "COMMUNITY_SAYS_SIMILAR",
+              "WITHIN_BUDGET",
+              "BUDGET_ALTERNATIVE"
+            ]
+          },
+          {
+            "name": "Natura Essencial Único",
+            "family": "woody",
+            "score": 0.8781,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "WITHIN_BUDGET",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Ajmal Amber Wood",
+            "family": "amber",
+            "score": 0.8759,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "WITHIN_BUDGET",
+              "BUDGET_ALTERNATIVE"
+            ]
+          },
+          {
+            "name": "Bentley Bentley For Men Absolute",
+            "family": "amber",
+            "score": 0.8627,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "WITHIN_BUDGET",
+              "BUDGET_ALTERNATIVE",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Al Haramain Perfumes Amber Oud Rouge",
+            "family": "amber",
+            "score": 0.8601,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "COMMUNITY_SAYS_SIMILAR",
+              "WITHIN_BUDGET",
+              "BUDGET_ALTERNATIVE",
+              "WELL_RATED"
+            ]
+          }
+        ],
+        "ms": 23.4
+      },
+      {
+        "id": "S11",
+        "mode": "similar",
+        "persona": "Added in v3 for Q-01: loves Tobacco Vanille, wants originals only (no budget alternatives)",
+        "passed": false,
+        "checks": [
+          {
+            "name": "returns results",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "nothing owned",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "top-3 similarity to anchor ≥ 0.65",
+            "hard": false,
+            "ok": true,
+            "detail": "0.89"
+          },
+          {
+            "name": "an annotated good answer in top 5",
+            "hard": false,
+            "ok": false
+          },
+          {
+            "name": "no budget alternatives when switched off",
+            "hard": true,
+            "ok": true
+          }
+        ],
+        "top": [
+          {
+            "name": "Franck Boclet Tobacco",
+            "family": "amber",
+            "score": 0.867,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "COMMUNITY_SAYS_SIMILAR",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Argos Triumph Of Bacchus",
+            "family": "amber",
+            "score": 0.8562,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Viktor&Rolf Spicebomb Extreme",
+            "family": "amber",
+            "score": 0.8401,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "The Merchant of Venice Arabesque",
+            "family": "amber",
+            "score": 0.8198,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "COMMUNITY_SAYS_SIMILAR",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Initio Parfums Prives Narcotic Delight",
+            "family": "gourmand",
+            "score": 0.8143,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "WELL_RATED"
+            ]
+          }
+        ],
+        "ms": 25.2
+      },
+      {
+        "id": "S12",
+        "mode": "similar",
+        "persona": "Added in v3 for Q-01: loves Aventus, budget alternatives on (default)",
+        "passed": true,
+        "checks": [
+          {
+            "name": "returns results",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "nothing owned",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "top-3 similarity to anchor ≥ 0.65",
+            "hard": false,
+            "ok": true,
+            "detail": "0.88"
+          },
+          {
+            "name": "a top-5 pick has BUDGET_ALTERNATIVE",
+            "hard": false,
+            "ok": true
+          }
+        ],
+        "top": [
+          {
+            "name": "Afnan Supremacy Silver",
+            "family": "woody",
+            "score": 0.8784,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "COMMUNITY_SAYS_SIMILAR",
+              "BUDGET_ALTERNATIVE"
+            ]
+          },
+          {
+            "name": "Armaf Club de Nuit Intense Man Parfum",
+            "family": "aromatic",
+            "score": 0.8747,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "COMMUNITY_SAYS_SIMILAR",
+              "BUDGET_ALTERNATIVE",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Tiziana Terenzi Orion",
+            "family": "floral",
+            "score": 0.8476,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "COMMUNITY_SAYS_SIMILAR"
+            ]
+          },
+          {
+            "name": "Frederic Malle Editions de Parfums The Moon",
+            "family": "amber",
+            "score": 0.8422,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Armaf Club de Nuit Precieux I",
+            "family": "amber",
+            "score": 0.8027,
+            "reasons": [
+              "SIMILAR_TO_OWNED",
+              "SHARES_ACCORDS",
+              "BUDGET_ALTERNATIVE",
+              "WELL_RATED"
+            ]
+          }
+        ],
+        "ms": 18.5
+      },
+      {
+        "id": "D01",
+        "mode": "different",
+        "persona": "All-fresh blue collection wants something new",
+        "passed": true,
+        "checks": [
+          {
+            "name": "returns results",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "nothing owned",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "every pick < 0.75 overlap with owned",
+            "hard": false,
+            "ok": true,
+            "detail": "0.64"
+          },
+          {
+            "name": "top pick family not aquatic",
+            "hard": false,
+            "ok": true,
+            "detail": "amber"
+          }
+        ],
+        "top": [
+          {
+            "name": "Montale Oud Tobacco",
+            "family": "amber",
+            "score": 0.8173,
+            "reasons": [
+              "NEW_DIRECTION",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Roja Dove Enigma Pour Homme",
+            "family": "amber",
+            "score": 0.8102,
+            "reasons": [
+              "NEW_DIRECTION",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Xerjoff Pikovaya Dama 2018",
+            "family": "floral",
+            "score": 0.8069,
+            "reasons": [
+              "NEW_DIRECTION",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Gisada Ambassador Intense",
+            "family": "amber",
+            "score": 0.8024,
+            "reasons": [
+              "NEW_DIRECTION",
+              "BUDGET_ALTERNATIVE",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Lattafa Perfumes Tharwah Gold",
+            "family": "amber",
+            "score": 0.8015,
+            "reasons": [
+              "NEW_DIRECTION",
+              "BUDGET_ALTERNATIVE",
+              "WELL_RATED"
+            ]
+          }
+        ],
+        "ms": 24.6
+      },
+      {
+        "id": "D02",
+        "mode": "different",
+        "persona": "Sweet-gourmand collection wants a change",
+        "passed": true,
+        "checks": [
+          {
+            "name": "returns results",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "nothing owned",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "marketing preference",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "every pick < 0.75 overlap with owned",
+            "hard": false,
+            "ok": true,
+            "detail": "0.60"
+          },
+          {
+            "name": "top pick family not gourmand",
+            "hard": false,
+            "ok": true,
+            "detail": "floral"
+          }
+        ],
+        "top": [
+          {
+            "name": "Amouage Guidance",
+            "family": "floral",
+            "score": 0.8073,
+            "reasons": [
+              "NEW_DIRECTION"
+            ]
+          },
+          {
+            "name": "Mancera Red Tobacco Intense",
+            "family": "woody",
+            "score": 0.8067,
+            "reasons": [
+              "NEW_DIRECTION"
+            ]
+          },
+          {
+            "name": "BDK Parfums Gris Charnel Extrait",
+            "family": "woody",
+            "score": 0.7993,
+            "reasons": [
+              "NEW_DIRECTION",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Serge Lutens Fils de Joie",
+            "family": "floral",
+            "score": 0.7959,
+            "reasons": [
+              "NEW_DIRECTION"
+            ]
+          },
+          {
+            "name": "Maison Crivelli Oud Maracujá",
+            "family": "leather",
+            "score": 0.7946,
+            "reasons": [
+              "NEW_DIRECTION",
+              "WELL_RATED"
+            ]
+          }
+        ],
+        "ms": 18.2
+      },
+      {
+        "id": "D03",
+        "mode": "different",
+        "persona": "UX doc Flow C: woody winter scent under $150, unlike what they own",
+        "passed": true,
+        "checks": [
+          {
+            "name": "returns results",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "nothing owned",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "within budget",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "every pick < 0.75 overlap with owned",
+            "hard": false,
+            "ok": true,
+            "detail": "0.62"
+          },
+          {
+            "name": "top pick family in woody/amber/leather",
+            "hard": false,
+            "ok": true,
+            "detail": "woody"
+          },
+          {
+            "name": "every pick suits winter",
+            "hard": true,
+            "ok": true
+          }
+        ],
+        "top": [
+          {
+            "name": "Aramis Aramis",
+            "family": "woody",
+            "score": 0.8769,
+            "reasons": [
+              "MATCHES_LIKED_FAMILY",
+              "NEW_DIRECTION",
+              "SUITS_SEASON",
+              "WITHIN_BUDGET",
+              "BUDGET_ALTERNATIVE"
+            ]
+          },
+          {
+            "name": "Montblanc Explorer Extreme",
+            "family": "woody",
+            "score": 0.8738,
+            "reasons": [
+              "MATCHES_LIKED_FAMILY",
+              "NEW_DIRECTION",
+              "SUITS_SEASON",
+              "WITHIN_BUDGET",
+              "BUDGET_ALTERNATIVE",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Lalique Encre Noire A L'Extreme",
+            "family": "woody",
+            "score": 0.8684,
+            "reasons": [
+              "MATCHES_LIKED_FAMILY",
+              "NEW_DIRECTION",
+              "SUITS_SEASON",
+              "WITHIN_BUDGET",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Rasasi Shuhrah Pour Homme",
+            "family": "woody",
+            "score": 0.8679,
+            "reasons": [
+              "MATCHES_LIKED_FAMILY",
+              "NEW_DIRECTION",
+              "SUITS_SEASON",
+              "WITHIN_BUDGET"
+            ]
+          },
+          {
+            "name": "Zara Ebony Wood",
+            "family": "woody",
+            "score": 0.8636,
+            "reasons": [
+              "MATCHES_LIKED_FAMILY",
+              "NEW_DIRECTION",
+              "SUITS_SEASON",
+              "WITHIN_BUDGET",
+              "WELL_RATED"
+            ]
+          }
+        ],
+        "ms": 14.5
+      },
+      {
+        "id": "D04",
+        "mode": "different",
+        "persona": "Men's-marketed only, avoids oud",
+        "passed": true,
+        "checks": [
+          {
+            "name": "returns results",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "nothing owned",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "no disliked notes",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "marketing preference",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "every pick < 0.75 overlap with owned",
+            "hard": false,
+            "ok": true,
+            "detail": "0.57"
+          }
+        ],
+        "top": [
+          {
+            "name": "Gisada Ambassador Intense",
+            "family": "amber",
+            "score": 0.8314,
+            "reasons": [
+              "NEW_DIRECTION",
+              "BUDGET_ALTERNATIVE",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Orto Parisi Terroni",
+            "family": "amber",
+            "score": 0.8296,
+            "reasons": [
+              "NEW_DIRECTION",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Roja Dove Enigma Pour Homme",
+            "family": "amber",
+            "score": 0.8294,
+            "reasons": [
+              "NEW_DIRECTION",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Louis Vuitton Stellar Times",
+            "family": "amber",
+            "score": 0.8284,
+            "reasons": [
+              "NEW_DIRECTION",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Yves Saint Laurent Babycat Raw Bourbon",
+            "family": "amber",
+            "score": 0.8262,
+            "reasons": [
+              "NEW_DIRECTION",
+              "WELL_RATED"
+            ]
+          }
+        ],
+        "ms": 12.1
+      },
+      {
+        "id": "D05",
+        "mode": "different",
+        "persona": "Wants something new that features iris",
+        "passed": true,
+        "checks": [
+          {
+            "name": "returns results",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "nothing owned",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "every pick < 0.75 overlap with owned",
+            "hard": false,
+            "ok": true,
+            "detail": "0.49"
+          },
+          {
+            "name": "a top-3 pick has MATCHES_LIKED_NOTES",
+            "hard": false,
+            "ok": true
+          }
+        ],
+        "top": [
+          {
+            "name": "Chanel Chance Eau de Toilette",
+            "family": "chypre",
+            "score": 0.8419,
+            "reasons": [
+              "MATCHES_LIKED_NOTES",
+              "NEW_DIRECTION"
+            ]
+          },
+          {
+            "name": "Ex Nihilo Blue Talisman Extrait de Parfum",
+            "family": "floral",
+            "score": 0.8355,
+            "reasons": [
+              "NEW_DIRECTION",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Dior Dior Homme Intense 2007",
+            "family": "floral",
+            "score": 0.8338,
+            "reasons": [
+              "MATCHES_LIKED_NOTES",
+              "NEW_DIRECTION",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Emanuel Ungaro Diva",
+            "family": "chypre",
+            "score": 0.83,
+            "reasons": [
+              "MATCHES_LIKED_NOTES",
+              "NEW_DIRECTION"
+            ]
+          },
+          {
+            "name": "Nishane Hacivat",
+            "family": "chypre",
+            "score": 0.8297,
+            "reasons": [
+              "NEW_DIRECTION",
+              "WELL_RATED"
+            ]
+          }
+        ],
+        "ms": 16.5
+      },
+      {
+        "id": "D06",
+        "mode": "different",
+        "persona": "Owns just one bottle",
+        "passed": true,
+        "checks": [
+          {
+            "name": "returns results",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "nothing owned",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "every pick < 0.75 overlap with owned",
+            "hard": false,
+            "ok": true,
+            "detail": "0.61"
+          },
+          {
+            "name": "reports LIMITED_PROFILE",
+            "hard": false,
+            "ok": true
+          }
+        ],
+        "top": [
+          {
+            "name": "Roja Dove Enigma Pour Homme",
+            "family": "amber",
+            "score": 0.817,
+            "reasons": [
+              "NEW_DIRECTION",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Amouage Interlude Man",
+            "family": "amber",
+            "score": 0.8142,
+            "reasons": [
+              "NEW_DIRECTION",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Amouage Interlude Black Iris",
+            "family": "amber",
+            "score": 0.8129,
+            "reasons": [
+              "NEW_DIRECTION",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Tauer Perfumes Au Coeur du Désert",
+            "family": "amber",
+            "score": 0.8077,
+            "reasons": [
+              "NEW_DIRECTION",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Majda Bekkali Mon Nom est Rouge",
+            "family": "floral",
+            "score": 0.8075,
+            "reasons": [
+              "NEW_DIRECTION"
+            ]
+          }
+        ],
+        "ms": 10.1
+      },
+      {
+        "id": "D07",
+        "mode": "different",
+        "persona": "Heavy woody-amber shelf wants a change",
+        "passed": true,
+        "checks": [
+          {
+            "name": "returns results",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "nothing owned",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "every pick < 0.75 overlap with owned",
+            "hard": false,
+            "ok": true,
+            "detail": "0.67"
+          },
+          {
+            "name": "top pick family in citrus/aquatic/aromatic/green/floral/chypre",
+            "hard": false,
+            "ok": true,
+            "detail": "floral"
+          }
+        ],
+        "top": [
+          {
+            "name": "Dior Dior Homme Intense 2007",
+            "family": "floral",
+            "score": 0.8127,
+            "reasons": [
+              "NEW_DIRECTION",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Nishane Nefs",
+            "family": "gourmand",
+            "score": 0.808,
+            "reasons": [
+              "NEW_DIRECTION",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Dior Sauvage Elixir",
+            "family": "aromatic",
+            "score": 0.8066,
+            "reasons": [
+              "NEW_DIRECTION",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Toskovat' Last Birthday Cake",
+            "family": "gourmand",
+            "score": 0.8062,
+            "reasons": [
+              "NEW_DIRECTION"
+            ]
+          },
+          {
+            "name": "Nishane Hacivat",
+            "family": "chypre",
+            "score": 0.8059,
+            "reasons": [
+              "NEW_DIRECTION",
+              "WELL_RATED"
+            ]
+          }
+        ],
+        "ms": 13.1
+      },
+      {
+        "id": "D08",
+        "mode": "different",
+        "persona": "Something new for daytime under $60",
+        "passed": true,
+        "checks": [
+          {
+            "name": "returns results",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "nothing owned",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "within budget",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "every pick < 0.75 overlap with owned",
+            "hard": false,
+            "ok": true,
+            "detail": "0.58"
+          },
+          {
+            "name": "every pick works in the daytime",
+            "hard": true,
+            "ok": true
+          }
+        ],
+        "top": [
+          {
+            "name": "Lattafa Perfumes Khamrah Waha",
+            "family": "aquatic",
+            "score": 0.8559,
+            "reasons": [
+              "NEW_DIRECTION",
+              "SUITS_DAYPART",
+              "WITHIN_BUDGET"
+            ]
+          },
+          {
+            "name": "Rasasi Hawas Tropical",
+            "family": "aromatic",
+            "score": 0.848,
+            "reasons": [
+              "NEW_DIRECTION",
+              "SUITS_DAYPART",
+              "WITHIN_BUDGET",
+              "BUDGET_ALTERNATIVE",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Lattafa Perfumes Angham",
+            "family": "gourmand",
+            "score": 0.8433,
+            "reasons": [
+              "NEW_DIRECTION",
+              "WITHIN_BUDGET",
+              "BUDGET_ALTERNATIVE",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "French Avenue Vulcan Feu",
+            "family": "floral",
+            "score": 0.8341,
+            "reasons": [
+              "NEW_DIRECTION",
+              "SUITS_DAYPART",
+              "WITHIN_BUDGET",
+              "BUDGET_ALTERNATIVE",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Rasasi Hawas Ice",
+            "family": "aromatic",
+            "score": 0.8331,
+            "reasons": [
+              "NEW_DIRECTION",
+              "SUITS_DAYPART",
+              "WITHIN_BUDGET",
+              "BUDGET_ALTERNATIVE",
+              "WELL_RATED"
+            ]
+          }
+        ],
+        "ms": 3.7
+      },
+      {
+        "id": "D09",
+        "mode": "different",
+        "persona": "Floral collection, women's and unisex only",
+        "passed": true,
+        "checks": [
+          {
+            "name": "returns results",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "nothing owned",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "marketing preference",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "every pick < 0.75 overlap with owned",
+            "hard": false,
+            "ok": true,
+            "detail": "0.63"
+          },
+          {
+            "name": "top pick family not floral",
+            "hard": false,
+            "ok": true,
+            "detail": "amber"
+          }
+        ],
+        "top": [
+          {
+            "name": "Frederic Malle Editions de Parfums The Moon",
+            "family": "amber",
+            "score": 0.8233,
+            "reasons": [
+              "NEW_DIRECTION",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Al Haramain Perfumes Amber Oud Gold Edition",
+            "family": "gourmand",
+            "score": 0.8179,
+            "reasons": [
+              "NEW_DIRECTION",
+              "BUDGET_ALTERNATIVE",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Dior Dior Addict Eau de Parfum",
+            "family": "amber",
+            "score": 0.8017,
+            "reasons": [
+              "NEW_DIRECTION",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Xerjoff Via Cavour I",
+            "family": "gourmand",
+            "score": 0.8016,
+            "reasons": [
+              "NEW_DIRECTION",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Yves Saint Laurent Yvresse (Champagne)",
+            "family": "chypre",
+            "score": 0.7999,
+            "reasons": [
+              "NEW_DIRECTION"
+            ]
+          }
+        ],
+        "ms": 8
+      },
+      {
+        "id": "D10",
+        "mode": "different",
+        "persona": "Wants a long-lasting change",
+        "passed": true,
+        "checks": [
+          {
+            "name": "returns results",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "nothing owned",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "every pick < 0.75 overlap with owned",
+            "hard": false,
+            "ok": true,
+            "detail": "0.52"
+          },
+          {
+            "name": "top-3 longevity ≥ 3.5",
+            "hard": false,
+            "ok": true
+          }
+        ],
+        "top": [
+          {
+            "name": "Estée Lauder Beautiful",
+            "family": "floral",
+            "score": 0.8224,
+            "reasons": [
+              "NEW_DIRECTION",
+              "PERFORMANCE_MATCH"
+            ]
+          },
+          {
+            "name": "Creed Royal Oud",
+            "family": "aromatic",
+            "score": 0.8193,
+            "reasons": [
+              "NEW_DIRECTION",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Prada Infusion d'Homme",
+            "family": "woody",
+            "score": 0.8149,
+            "reasons": [
+              "NEW_DIRECTION",
+              "PERFORMANCE_MATCH",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Maison Crivelli Hibiscus Mahajád",
+            "family": "floral",
+            "score": 0.8148,
+            "reasons": [
+              "NEW_DIRECTION",
+              "PERFORMANCE_MATCH",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Lancôme Magie Noire",
+            "family": "chypre",
+            "score": 0.8138,
+            "reasons": [
+              "NEW_DIRECTION",
+              "PERFORMANCE_MATCH"
+            ]
+          }
+        ],
+        "ms": 12.4
+      },
+      {
+        "id": "G01",
+        "mode": "gaps",
+        "persona": "Summer-only fresh collection",
+        "passed": true,
+        "checks": [
+          {
+            "name": "returns results",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "nothing owned",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "every top-3 pick names a gap it fills",
+            "hard": false,
+            "ok": true
+          },
+          {
+            "name": "a top-3 pick has FILLS_SEASON_GAP",
+            "hard": false,
+            "ok": true
+          },
+          {
+            "name": "top pick's strongest season in fall/winter",
+            "hard": false,
+            "ok": true,
+            "detail": "winter"
+          }
+        ],
+        "top": [
+          {
+            "name": "Nishane Nefs",
+            "family": "gourmand",
+            "score": 0.8655,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "FILLS_SEASON_GAP",
+              "FILLS_DAYPART_GAP",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Amouage Interlude Black Iris",
+            "family": "amber",
+            "score": 0.8585,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "FILLS_SEASON_GAP",
+              "FILLS_DAYPART_GAP",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Orto Parisi Terroni",
+            "family": "amber",
+            "score": 0.8548,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "FILLS_SEASON_GAP",
+              "FILLS_DAYPART_GAP",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Dior Dior Homme Intense 2011",
+            "family": "woody",
+            "score": 0.8531,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "FILLS_SEASON_GAP",
+              "FILLS_DAYPART_GAP",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Azzaro The Most Wanted Parfum",
+            "family": "woody",
+            "score": 0.8513,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "FILLS_SEASON_GAP",
+              "FILLS_DAYPART_GAP",
+              "WELL_RATED"
+            ]
+          }
+        ],
+        "ms": 16.2
+      },
+      {
+        "id": "G02",
+        "mode": "gaps",
+        "persona": "Winter-only cozy collection",
+        "passed": true,
+        "checks": [
+          {
+            "name": "returns results",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "nothing owned",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "every top-3 pick names a gap it fills",
+            "hard": false,
+            "ok": true
+          },
+          {
+            "name": "a top-3 pick has FILLS_SEASON_GAP",
+            "hard": false,
+            "ok": true
+          },
+          {
+            "name": "top pick's strongest season in spring/summer",
+            "hard": false,
+            "ok": true,
+            "detail": "summer"
+          }
+        ],
+        "top": [
+          {
+            "name": "Rasasi Hawas Tropical",
+            "family": "aromatic",
+            "score": 0.8444,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "FILLS_SEASON_GAP",
+              "FILLS_DAYPART_GAP",
+              "BUDGET_ALTERNATIVE",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Jean Paul Gaultier Le Beau Paradise Garden",
+            "family": "green",
+            "score": 0.8397,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "FILLS_SEASON_GAP",
+              "FILLS_DAYPART_GAP",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Kenzo Kenzo Homme Marine",
+            "family": "aquatic",
+            "score": 0.8378,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "FILLS_SEASON_GAP",
+              "FILLS_DAYPART_GAP"
+            ]
+          },
+          {
+            "name": "Lattafa Perfumes Khamrah Waha",
+            "family": "aquatic",
+            "score": 0.8345,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "FILLS_SEASON_GAP",
+              "FILLS_DAYPART_GAP"
+            ]
+          },
+          {
+            "name": "Amouage Sunshine Man",
+            "family": "aromatic",
+            "score": 0.8301,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "FILLS_SEASON_GAP",
+              "FILLS_DAYPART_GAP"
+            ]
+          }
+        ],
+        "ms": 15.7
+      },
+      {
+        "id": "G03",
+        "mode": "gaps",
+        "persona": "Balanced shelf within the families they like: no real gap",
+        "passed": true,
+        "checks": [
+          {
+            "name": "returns results",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "nothing owned",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "reports NO_CLEAR_GAP",
+            "hard": false,
+            "ok": true
+          }
+        ],
+        "top": [
+          {
+            "name": "Montale Black Aoud",
+            "family": "woody",
+            "score": 0.7754,
+            "reasons": [
+              "MATCHES_LIKED_FAMILY",
+              "BUDGET_ALTERNATIVE"
+            ]
+          },
+          {
+            "name": "Amouage Guidance 46",
+            "family": "amber",
+            "score": 0.7705,
+            "reasons": [
+              "MATCHES_LIKED_FAMILY",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Louis Vuitton Attrape-Rêves",
+            "family": "amber",
+            "score": 0.7694,
+            "reasons": [
+              "MATCHES_LIKED_FAMILY",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Guerlain L'Instant de Guerlain pour Homme Eau Extreme",
+            "family": "woody",
+            "score": 0.7687,
+            "reasons": [
+              "MATCHES_LIKED_FAMILY",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Giorgio Armani Armani Privé Rose d'Arabie",
+            "family": "amber",
+            "score": 0.7667,
+            "reasons": [
+              "MATCHES_LIKED_FAMILY",
+              "WELL_RATED"
+            ]
+          }
+        ],
+        "ms": 23.1
+      },
+      {
+        "id": "G04",
+        "mode": "gaps",
+        "persona": "Two bottles: too few to call anything missing",
+        "passed": true,
+        "checks": [
+          {
+            "name": "returns results",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "nothing owned",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "reports NO_CLEAR_GAP + LIMITED_PROFILE",
+            "hard": false,
+            "ok": true
+          },
+          {
+            "name": "invents no gap",
+            "hard": false,
+            "ok": true
+          }
+        ],
+        "top": [
+          {
+            "name": "Maison Francis Kurkdjian Oud Satin Mood Extrait de Parfum",
+            "family": "amber",
+            "score": 0.785,
+            "reasons": [
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Maison Crivelli Oud Stallion",
+            "family": "amber",
+            "score": 0.7839,
+            "reasons": [
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Dior Dior Homme Parfum",
+            "family": "leather",
+            "score": 0.7818,
+            "reasons": [
+              "BUDGET_ALTERNATIVE",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Xerjoff Alexandria II",
+            "family": "amber",
+            "score": 0.78,
+            "reasons": [
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Louis Vuitton Ombre Nomade",
+            "family": "amber",
+            "score": 0.7792,
+            "reasons": [
+              "WELL_RATED"
+            ]
+          }
+        ],
+        "ms": 7.6
+      },
+      {
+        "id": "G05",
+        "mode": "gaps",
+        "persona": "Fresh shelf, avoids oud",
+        "passed": true,
+        "checks": [
+          {
+            "name": "returns results",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "nothing owned",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "no disliked notes",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "every top-3 pick names a gap it fills",
+            "hard": false,
+            "ok": true
+          }
+        ],
+        "top": [
+          {
+            "name": "Orto Parisi Terroni",
+            "family": "amber",
+            "score": 0.7116,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Amouage Guidance 46",
+            "family": "amber",
+            "score": 0.7051,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Amouage Purpose 50",
+            "family": "woody",
+            "score": 0.7043,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Xerjoff XJ 1861 Zefiro",
+            "family": "amber",
+            "score": 0.7041,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "CoSTUME NATIONAL Costume National Homme",
+            "family": "amber",
+            "score": 0.7005,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "WELL_RATED"
+            ]
+          }
+        ],
+        "ms": 15.3
+      },
+      {
+        "id": "G06",
+        "mode": "gaps",
+        "persona": "Gap filling on a $50 budget",
+        "passed": true,
+        "checks": [
+          {
+            "name": "returns results",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "nothing owned",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "within budget",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "every top-3 pick names a gap it fills",
+            "hard": false,
+            "ok": true
+          }
+        ],
+        "top": [
+          {
+            "name": "Rasasi Shuhrah Pour Homme",
+            "family": "woody",
+            "score": 0.7435,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "WITHIN_BUDGET"
+            ]
+          },
+          {
+            "name": "Ted Lapidus Lapidus Pour Homme",
+            "family": "amber",
+            "score": 0.7336,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "WITHIN_BUDGET"
+            ]
+          },
+          {
+            "name": "Rasasi La Yuqawam Homme",
+            "family": "amber",
+            "score": 0.7331,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "WITHIN_BUDGET",
+              "BUDGET_ALTERNATIVE",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Natura Essencial Único",
+            "family": "woody",
+            "score": 0.7309,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "WITHIN_BUDGET",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Lattafa Perfumes Tharwah Gold",
+            "family": "amber",
+            "score": 0.7304,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "WITHIN_BUDGET",
+              "BUDGET_ALTERNATIVE",
+              "WELL_RATED"
+            ]
+          }
+        ],
+        "ms": 2.4
+      },
+      {
+        "id": "G07",
+        "mode": "gaps",
+        "persona": "Evening-only shelf needs a daytime scent",
+        "passed": true,
+        "checks": [
+          {
+            "name": "returns results",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "nothing owned",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "a top-3 pick has FILLS_DAYPART_GAP/FILLS_SEASON_GAP",
+            "hard": false,
+            "ok": true
+          },
+          {
+            "name": "top pick is daytime-leaning",
+            "hard": false,
+            "ok": true
+          }
+        ],
+        "top": [
+          {
+            "name": "Rasasi Hawas Ice",
+            "family": "aromatic",
+            "score": 0.8494,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "FILLS_SEASON_GAP",
+              "FILLS_DAYPART_GAP",
+              "BUDGET_ALTERNATIVE",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "French Avenue Vulcan Feu",
+            "family": "floral",
+            "score": 0.8425,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "FILLS_SEASON_GAP",
+              "FILLS_DAYPART_GAP",
+              "BUDGET_ALTERNATIVE",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Jean Paul Gaultier Le Beau Paradise Garden",
+            "family": "green",
+            "score": 0.8378,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "FILLS_SEASON_GAP",
+              "FILLS_DAYPART_GAP",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Xerjoff Erba Gold",
+            "family": "citrus",
+            "score": 0.8356,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "FILLS_SEASON_GAP",
+              "FILLS_DAYPART_GAP",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Lattafa Perfumes Atlas",
+            "family": "aquatic",
+            "score": 0.8304,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "FILLS_SEASON_GAP",
+              "FILLS_DAYPART_GAP",
+              "BUDGET_ALTERNATIVE",
+              "WELL_RATED"
+            ]
+          }
+        ],
+        "ms": 16.8
+      },
+      {
+        "id": "G08",
+        "mode": "gaps",
+        "persona": "Feminine floral-gourmand shelf, women's and unisex only",
+        "passed": true,
+        "checks": [
+          {
+            "name": "returns results",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "nothing owned",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "marketing preference",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "every top-3 pick names a gap it fills",
+            "hard": false,
+            "ok": true
+          }
+        ],
+        "top": [
+          {
+            "name": "Maison Crivelli Oud Maracujá",
+            "family": "leather",
+            "score": 0.7114,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Roja Dove Diaghilev",
+            "family": "chypre",
+            "score": 0.708,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Nishane Hacivat",
+            "family": "chypre",
+            "score": 0.6978,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Profumum Roma Acqua di Sale",
+            "family": "aquatic",
+            "score": 0.6965,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Mancera Aoud Lemon Mint",
+            "family": "woody",
+            "score": 0.6958,
+            "reasons": [
+              "FILLS_FAMILY_GAP"
+            ]
+          }
+        ],
+        "ms": 20.4
+      },
+      {
+        "id": "G09",
+        "mode": "gaps",
+        "persona": "Winter shelf asks explicitly for summer",
+        "passed": true,
+        "checks": [
+          {
+            "name": "returns results",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "nothing owned",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "a top-3 pick has FILLS_SEASON_GAP",
+            "hard": false,
+            "ok": true
+          },
+          {
+            "name": "every pick suits summer",
+            "hard": true,
+            "ok": true
+          }
+        ],
+        "top": [
+          {
+            "name": "Rasasi Hawas Tropical",
+            "family": "aromatic",
+            "score": 0.8755,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "FILLS_SEASON_GAP",
+              "FILLS_DAYPART_GAP",
+              "SUITS_SEASON",
+              "BUDGET_ALTERNATIVE",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Jean Paul Gaultier Le Beau Paradise Garden",
+            "family": "green",
+            "score": 0.8723,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "FILLS_SEASON_GAP",
+              "FILLS_DAYPART_GAP",
+              "SUITS_SEASON",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Kenzo Kenzo Homme Marine",
+            "family": "aquatic",
+            "score": 0.8657,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "FILLS_SEASON_GAP",
+              "FILLS_DAYPART_GAP",
+              "SUITS_SEASON"
+            ]
+          },
+          {
+            "name": "Lattafa Perfumes Khamrah Waha",
+            "family": "aquatic",
+            "score": 0.8648,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "FILLS_SEASON_GAP",
+              "FILLS_DAYPART_GAP",
+              "SUITS_SEASON"
+            ]
+          },
+          {
+            "name": "Marc-Antoine Barrois Tilia",
+            "family": "floral",
+            "score": 0.8601,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "FILLS_SEASON_GAP",
+              "FILLS_DAYPART_GAP",
+              "SUITS_SEASON"
+            ]
+          }
+        ],
+        "ms": 19.2
+      },
+      {
+        "id": "G10",
+        "mode": "gaps",
+        "persona": "Aquatic-only shelf",
+        "passed": true,
+        "checks": [
+          {
+            "name": "returns results",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "nothing owned",
+            "hard": true,
+            "ok": true
+          },
+          {
+            "name": "every pick < 0.85 overlap with owned",
+            "hard": false,
+            "ok": true,
+            "detail": "0.43"
+          },
+          {
+            "name": "top pick family not aquatic",
+            "hard": false,
+            "ok": true,
+            "detail": "amber"
+          }
+        ],
+        "top": [
+          {
+            "name": "Orto Parisi Terroni",
+            "family": "amber",
+            "score": 0.8684,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "FILLS_SEASON_GAP",
+              "FILLS_DAYPART_GAP",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Afnan 9 PM Night Out",
+            "family": "amber",
+            "score": 0.8569,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "FILLS_SEASON_GAP",
+              "FILLS_DAYPART_GAP",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Roja Dove Enigma Pour Homme",
+            "family": "amber",
+            "score": 0.8557,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "FILLS_SEASON_GAP",
+              "FILLS_DAYPART_GAP",
+              "WELL_RATED"
+            ]
+          },
+          {
+            "name": "Nasomatto Black Afgano",
+            "family": "woody",
+            "score": 0.8551,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "FILLS_SEASON_GAP",
+              "FILLS_DAYPART_GAP",
+              "BUDGET_ALTERNATIVE"
+            ]
+          },
+          {
+            "name": "Nishane Nefs",
+            "family": "gourmand",
+            "score": 0.8546,
+            "reasons": [
+              "FILLS_FAMILY_GAP",
+              "FILLS_SEASON_GAP",
+              "FILLS_DAYPART_GAP",
+              "WELL_RATED"
+            ]
+          }
+        ],
+        "ms": 26.7
+      }
+    ]
+  },
+  "grounding": {
+    "injected": 7,
+    "fabricated": 0,
+    "scenarios": [
+      {
+        "attack": "invented fragrance id",
+        "planted": 1,
+        "survived": 0,
+        "removedIds": 1,
+        "removedPrices": 0,
+        "keptValid": 1
+      },
+      {
+        "attack": "id of a real fragrance the tools never returned",
+        "planted": 1,
+        "survived": 0,
+        "removedIds": 1,
+        "removedPrices": 0,
+        "keptValid": 1
+      },
+      {
+        "attack": "invented price",
+        "planted": 1,
+        "survived": 0,
+        "removedIds": 0,
+        "removedPrices": 1,
+        "keptValid": 1
+      },
+      {
+        "attack": "invented price range",
+        "planted": 2,
+        "survived": 0,
+        "removedIds": 0,
+        "removedPrices": 2,
+        "keptValid": 1
+      },
+      {
+        "attack": "uppercase citation of a valid id",
+        "planted": 0,
+        "survived": 0,
+        "removedIds": 0,
+        "removedPrices": 0,
+        "keptValid": 1
+      }
+    ]
+  },
+  "intelligence": {
+    "checks": 9,
+    "passed": 9,
+    "cases": [
+      {
+        "id": "CS-01",
+        "name": "empty shelf has no score",
+        "ok": true
+      },
+      {
+        "id": "CS-small",
+        "name": "one bottle is provisional and low confidence",
+        "ok": true
+      },
+      {
+        "id": "CS-02",
+        "name": "same shelf, any order, same score",
+        "ok": true
+      },
+      {
+        "id": "CS-size",
+        "name": "20 fresh/aquatic bottles score lower diversity than 6 mixed",
+        "ok": true,
+        "detail": "24 vs 85"
+      },
+      {
+        "id": "CS-03",
+        "name": "missing metadata excluded and reweighted, low confidence",
+        "ok": true
+      },
+      {
+        "id": "CS-04",
+        "name": "previewing an owned bottle is a duplicate",
+        "ok": true
+      },
+      {
+        "id": "DS-01/04",
+        "name": "owned-only, unique, avoid list honoured, 2+ factors across 15 contexts",
+        "ok": true,
+        "detail": "15/15"
+      },
+      {
+        "id": "SL-02",
+        "name": "A/B equals B/A and scores stay 0–100 for all 15 demo pairs",
+        "ok": true,
+        "detail": "15/15"
+      },
+      {
+        "id": "SL-sense",
+        "name": "a classic complement (Tobacco Vanille + Jazz Club) beats a tension pair (Tobacco Vanille + Acqua di Gio)",
+        "ok": true,
+        "detail": "90 vs 51"
+      }
+    ],
+    "demoScore": 82
+  },
+  "live": {
+    "ran": false,
+    "reason": "no GEMINI_API_KEY or ANTHROPIC_API_KEY set; live agent eval skipped"
+  }
+}

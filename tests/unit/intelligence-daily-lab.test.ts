@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { dailyPick, explainPick, feedbackAdjustments, rotationFit } from "@/lib/intelligence/daily";
-import { pairKey, predictPair, RULESET } from "@/lib/intelligence/lab";
+import { pairKey, predictPair, RULESET, suggestPairs } from "@/lib/intelligence/lab";
 import { toProfile } from "@/lib/intelligence/profile";
 import { bandFromReading } from "@/lib/intelligence/weather";
 import { fixtureCatalog, frag } from "../fixtures/fragrances";
@@ -144,5 +144,26 @@ describe("scent lab (M4)", () => {
   it("the ruleset is symmetric-safe and carries provenance", () => {
     expect(RULESET.provenance).toMatch(/heuristic/);
     for (const [a, b] of RULESET.complements) expect(a).not.toBe(b);
+  });
+});
+
+describe("Scent Lab suggestions for an empty bench", () => {
+  const c = fixtureCatalog();
+  const shelf = [c.freshCitrus, c.freshAquatic, c.woodyClean, c.amberVanilla, c.floralRose, c.leather].map((f) => ({ profile: toProfile(f), sentiment: "like" as const }));
+  it("offers the best untried pairs, highest first, never the same bottle more than twice", () => {
+    const s = suggestPairs(shelf, [], new Set());
+    expect(s.length).toBe(3);
+    expect(s.map((x) => x.score)).toEqual([...s.map((x) => x.score)].sort((a, b) => b - a));
+    const uses = new Map<string, number>();
+    for (const x of s) for (const id of [x.aId, x.bId]) uses.set(id, (uses.get(id) ?? 0) + 1);
+    expect(Math.max(...uses.values())).toBeLessThanOrEqual(2);
+  });
+  it("skips pairs already saved in the notebook", () => {
+    const first = suggestPairs(shelf, [], new Set())[0];
+    const again = suggestPairs(shelf, [], new Set([pairKey(first.aId, first.bId)]));
+    expect(again.map((x) => pairKey(x.aId, x.bId))).not.toContain(pairKey(first.aId, first.bId));
+  });
+  it("needs at least two bottles", () => {
+    expect(suggestPairs(shelf.slice(0, 1), [], new Set())).toEqual([]);
   });
 });

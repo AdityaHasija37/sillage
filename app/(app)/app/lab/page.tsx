@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import { ScentLab } from "@/components/intelligence/scent-lab";
 import { getUser } from "@/lib/auth/session";
 import { listCollection } from "@/lib/collection/service";
-import { listExperiments } from "@/lib/intelligence/service";
+import { listExperiments, suggestedPairs } from "@/lib/intelligence/service";
 
 export const metadata: Metadata = { title: "Scent Lab" };
 
 export default async function LabPage() {
-  const [owned, experiments, user] = await Promise.all([listCollection(), listExperiments().catch(() => []), getUser()]);
+  const [owned, experiments, user, suggestions] = await Promise.all([listCollection(), listExperiments().catch(() => []), getUser(), suggestedPairs().catch(() => [])]);
   return (
     <div className="grid gap-10">
       <header>
@@ -17,7 +17,7 @@ export default async function LabPage() {
         </h1>
         <p className="mt-3 max-w-2xl text-muted-foreground">Pair two fragrances you own. Sillage predicts how they might layer and why, then you wear it and log what really happened. Over time your own results nudge future predictions.</p>
       </header>
-      <ScentLab owned={owned.map((o) => ({ id: o.fragrance.id, brand: o.fragrance.brand, name: o.fragrance.name, accords: o.fragrance.accords }))} initialExperiments={experiments} />
+      <ScentLab owned={owned.map((o) => ({ id: o.fragrance.id, brand: o.fragrance.brand, name: o.fragrance.name, accords: o.fragrance.accords }))} initialExperiments={experiments} suggestions={suggestions} />
     </div>
   );
 }

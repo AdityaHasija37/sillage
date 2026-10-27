@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { compareOffers } from "@/lib/offers/match";
+import { compareOffers, matchListing } from "@/lib/offers/match";
 import { normalizeUrl, parseDelivery, SampleOfferProvider } from "@/lib/offers/providers";
-import { matchListing } from "@/lib/offers/match";
 
 describe("SampleOfferProvider", () => {
   const target = { brand: "Dior", name: "Sauvage", concentration: "EDP" as const, sizeMl: 100 };
@@ -21,6 +20,15 @@ describe("SampleOfferProvider", () => {
     expect(res.exact.length).toBeGreaterThanOrEqual(2);
     expect(res.needsVerification.length).toBe(1);
     expect(Object.keys(res.rejectedSummary).sort()).toEqual(["concentration_mismatch", "different_edition", "not_new_full_bottle", "size_mismatch"]);
+  });
+});
+
+describe("sample offers when the catalog name carries the concentration", () => {
+  it("still demonstrate one wrong-concentration listing being rejected, not matched", async () => {
+    const target = { brand: "Chanel", name: "Bleu de Chanel Eau de Parfum", concentration: "EDP" as const, sizeMl: 100 };
+    const res = compareOffers(target, await new SampleOfferProvider("100_200").searchOffers(target));
+    expect(res.exact.every((o) => !/toilette/i.test(o.title))).toBe(true);
+    expect(res.rejectedSummary.concentration_mismatch).toBe(1);
   });
 });
 

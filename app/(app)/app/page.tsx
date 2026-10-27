@@ -13,6 +13,9 @@ import { createClient } from "@/lib/supabase/server";
 export const metadata: Metadata = { title: "Your shelf" };
 
 const SENTIMENT_MARK = { love: "♥", like: "+", neutral: "·", dislike: "–" } as const;
+const SENTIMENT_WORD = { love: "loved", like: "liked", neutral: "neutral", dislike: "disliked" } as const;
+/** Shelf labels are tiny: drop the concentration ("Bleu de Chanel Eau de Parfum" → "Bleu de Chanel"). */
+const shelfName = (name: string) => name.replace(/\s+(Eau de (Parfum|Toilette|Cologne)|Extrait de Parfum|EDP|EDT)$/i, "") || name;
 
 export default async function ShelfPage() {
   const user = await getUser();
@@ -59,25 +62,28 @@ export default async function ShelfPage() {
       <section aria-label="Your bottles" className="grain overflow-hidden rounded-md border bg-card/70 px-2 pt-8 pb-5 sm:px-8">
         {rows.map((row, r) => (
           <div key={r} className={r ? "mt-12" : ""}>
-            <ul className="shelf flex items-end justify-around gap-3 px-2">
+            <ul className="shelf flex items-end justify-around gap-1 px-1 sm:gap-3 sm:px-2">
               {row.map((o) => (
-                <li key={o.id}>
-                  <Link href={`/app/fragrance/${o.fragrance.id}`} className="group block rounded-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none" aria-label={`${o.fragrance.brand} ${o.fragrance.name}`}>
+                <li key={o.id} className="flex w-12 justify-center sm:w-24">
+                  <Link href={`/app/fragrance/${o.fragrance.id}`} className="group block rounded-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none" aria-label={`${o.fragrance.brand} ${o.fragrance.name}${o.sentiment ? `, ${SENTIMENT_WORD[o.sentiment]}` : ", not rated"}`} title={`${o.fragrance.brand} ${o.fragrance.name}`}>
                     <ScentSwatch name={o.fragrance.name} accords={o.fragrance.accords} size="md" className="-mb-px h-16 w-11 transition-transform duration-300 group-hover:-translate-y-1.5 sm:h-24 sm:w-[4.5rem]" />
                   </Link>
                 </li>
               ))}
             </ul>
-            <ul className="mt-2 flex justify-around gap-3 px-2" aria-hidden="true">
+            <ul className="mt-2 flex justify-around gap-1 px-1 sm:gap-3 sm:px-2" aria-hidden="true">
               {row.map((o) => (
-                <li key={o.id} className="w-11 text-center sm:w-[4.5rem]">
-                  <span className="block truncate font-mono text-[9px] tracking-wide text-muted-foreground uppercase">{o.fragrance.name}</span>
+                <li key={o.id} className="w-12 text-center sm:w-24">
+                  <span className="line-clamp-2 font-mono text-[9px] leading-tight tracking-wide text-muted-foreground uppercase sm:text-[10px]">{shelfName(o.fragrance.name)}</span>
                   <span className="text-xs text-primary">{o.sentiment ? SENTIMENT_MARK[o.sentiment] : ""}</span>
                 </li>
               ))}
             </ul>
           </div>
         ))}
+        <p className="mt-5 text-center text-[11px] text-muted-foreground">
+          <span className="text-primary">♥</span> loved · <span className="text-primary">+</span> liked · <span className="text-primary">·</span> neutral · tap a bottle for details
+        </p>
       </section>
 
       <div className="grid gap-6 lg:grid-cols-[1.35fr_1fr]">

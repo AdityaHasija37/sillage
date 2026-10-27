@@ -169,3 +169,10 @@ describe("rejection reasons on live-style listings", () => {
     expect(matchListing(bdc, listing("Chanel Bleu De Chanel Eau De Parfum Spray 3.4 Fl Oz")).status).toBe("exact");
   });
 });
+
+describe("contradictory titles", () => {
+  it("never calls a title naming two concentrations an exact match", () => {
+    const bdc: OfferTarget = { brand: "Chanel", name: "Bleu de Chanel Eau de Parfum", concentration: "EDP", sizeMl: 100 };
+    expect(matchListing(bdc, listing("Chanel Bleu de Chanel Eau de Parfum Eau de Toilette 100 ml")).status).toBe("rejected");
+  });
+});

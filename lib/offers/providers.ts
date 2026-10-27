@@ -2,7 +2,7 @@ import "server-only";
 import { createHash } from "node:crypto";
 import { z } from "zod";
 import { PRICE_BAND_RANGE, type PriceBand } from "@/lib/domain/fragrance";
-import type { OfferTarget, RawListing } from "./match";
+import { coreName, type OfferTarget, type RawListing } from "./match";
 
 export interface OfferProvider {
   id: RawListing["provider"];
@@ -54,7 +54,9 @@ export class SampleOfferProvider implements OfferProvider {
     const [lo, hi] = PRICE_BAND_RANGE[this.priceBand ?? "50_100"];
     const base = ((Number.isFinite(hi) ? (lo + hi) / 2 : lo * 1.4) * Math.sqrt(target.sizeMl / 100)) || 60;
     const price = (f: number) => Math.round(base * f * 100) / 100 - 0.01;
-    const title = (extra = "", conc = target.concentration, size = target.sizeMl) => `${target.brand} ${target.name} ${CONC_TEXT[conc]} ${size} ml${extra}`;
+    // Titles use the core name: catalog names often carry the concentration already.
+    const name = titleCase(coreName(target.name));
+    const title = (extra = "", conc = target.concentration, size = target.sizeMl) => `${target.brand} ${name} ${CONC_TEXT[conc]} ${size} ml${extra}`;
     const url = (n: number) => `https://example.com/sample-offer/${encodeURIComponent(target.name.toLowerCase().replace(/\s+/g, "-"))}-${n}`;
     const otherConc = target.concentration === "EDP" ? "EDT" : "EDP";
     const otherSize = target.sizeMl >= 100 ? 50 : 100;
@@ -73,14 +75,16 @@ export class SampleOfferProvider implements OfferProvider {
       mk(SAMPLE_MERCHANTS[0], title(), price(0.88 + rnd() * 0.1), 0, 1),
       mk(SAMPLE_MERCHANTS[1], title(), price(0.92 + rnd() * 0.12), rnd() > 0.5 ? 6.95 : null, 2),
       mk(SAMPLE_MERCHANTS[2], title(), price(0.8 + rnd() * 0.08), 8.99, 3),
-      mk(SAMPLE_MERCHANTS[3], `${target.brand} ${target.name} ${CONC_TEXT[target.concentration]}`, price(0.75 + rnd() * 0.1), null, 4),
+      mk(SAMPLE_MERCHANTS[3], `${target.brand} ${name} ${CONC_TEXT[target.concentration]}`, price(0.75 + rnd() * 0.1), null, 4),
       mk(SAMPLE_MERCHANTS[2], title(" Tester"), price(0.62), 4.99, 5),
       mk(SAMPLE_MERCHANTS[0], title("", otherConc), price(0.7), 0, 6),
       mk(SAMPLE_MERCHANTS[1], title("", target.concentration, otherSize), price(0.6), 0, 7),
-      mk(SAMPLE_MERCHANTS[3], `${target.brand} ${target.name} Intense ${CONC_TEXT[target.concentration]} ${target.sizeMl} ml`, price(1.05), 0, 8),
+      mk(SAMPLE_MERCHANTS[3], `${target.brand} ${name} Intense ${CONC_TEXT[target.concentration]} ${target.sizeMl} ml`, price(1.05), 0, 8),
     ];
   }
 }
+
+const titleCase = (s: string) => s.replace(/\b([a-z])/g, (c) => c.toUpperCase());
 
 const CONC_TEXT = { EDC: "Eau de Cologne", EDT: "Eau de Toilette", EDP: "Eau de Parfum", Parfum: "Parfum", Extrait: "Extrait de Parfum", Elixir: "Elixir", Cologne: "Cologne" } as const;
 

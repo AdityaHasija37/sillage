@@ -226,6 +226,7 @@ const COMPONENT_LABEL = { preference: "Taste fit", objective: "Mode goal", budge
 function ResultCard({ card, rank, runId, mode }: { card: RecommendationCard; rank: number; runId: string | null; mode: Mode }) {
   const f = card.fragrance;
   const [open, setOpen] = useState(false);
+  const [allReasons, setAllReasons] = useState(false);
   const [reaction, setReaction] = useState<"relevant" | "not_relevant" | null>(null);
   const [saved, setSaved] = useState(false);
   const [pending, start] = useTransition();
@@ -258,7 +259,7 @@ function ResultCard({ card, rank, runId, mode }: { card: RecommendationCard; ran
           {f.seasons.length > 0 && <span className="ml-2">({f.seasons.join(", ")})</span>}
         </p>
         <ul className="mt-3 grid gap-1 text-sm">
-          {card.reasons.map((r) => (
+          {(allReasons ? card.reasons : card.reasons.slice(0, 3)).map((r) => (
             <li key={r} className="flex gap-2">
               <span aria-hidden="true" className="text-primary">
                 —
@@ -266,6 +267,14 @@ function ResultCard({ card, rank, runId, mode }: { card: RecommendationCard; ran
               {r}
             </li>
           ))}
+          {card.reasons.length > 3 && (
+            <li>
+              <button type="button" onClick={() => setAllReasons((v) => !v)} aria-expanded={allReasons} className="pl-5 text-xs text-primary hover:underline">
+                {allReasons ? "Show fewer reasons" : `+ ${card.reasons.length - 3} more reason${card.reasons.length - 3 === 1 ? "" : "s"}`}
+              </button>
+            </li>
+          )}
+          {/* Caveats always show: they're what keeps a pick honest. */}
           {card.caveats.map((c) => (
             <li key={c} className="flex gap-2 text-muted-foreground">
               <span aria-hidden="true">!</span>

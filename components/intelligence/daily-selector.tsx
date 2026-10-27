@@ -56,6 +56,8 @@ function Chips<T extends string>({ label, value, options, onChange, allowNone = 
 
 export function DailySelector({ owned }: { owned: Owned[] }) {
   const [ctx, setCtx] = useState<Ctx>({ occasion: "casual", daypart: new Date().getHours() >= 17 ? "night" : "day", temperature: null, humidity: null, sky: null, weatherSource: "manual", indoors: false, desiredIntensity: null, mood: null, excluded: [] });
+  // How many of the tucked-away options are in use (shown on the "More options" summary).
+  const moreSet = [ctx.desiredIntensity, ctx.indoors || null, ctx.mood, ctx.excluded.length || null].filter(Boolean).length;
   const [res, setRes] = useState<Response | null>(null);
   const [loading, setLoading] = useState(false);
   const [locating, setLocating] = useState<string | null>(null);
@@ -127,7 +129,8 @@ export function DailySelector({ owned }: { owned: Owned[] }) {
 
   return (
     <div className="grid gap-10 lg:grid-cols-[22rem_1fr]">
-      <form className="grid content-start gap-6" onSubmit={(e) => e.preventDefault()} aria-label="Today's context">
+      {/* On a phone the answer comes first; the controls follow (lg: side by side, controls left). */}
+      <form id="today-context" className="order-2 grid scroll-mt-24 content-start gap-6 lg:order-1" onSubmit={(e) => e.preventDefault()} aria-label="Today's context">
         <Chips label="Occasion" value={ctx.occasion} options={OCCASIONS.map((o) => [o, OCCASION_LABEL[o]] as const)} onChange={(v) => v && set("occasion", v)} />
         <Chips label="Time of day" value={ctx.daypart} options={[["day", "Daytime"], ["night", "Evening"]] as const} onChange={(v) => set("daypart", v)} allowNone />
         <div className="grid gap-3">
@@ -156,27 +159,45 @@ export function DailySelector({ owned }: { owned: Owned[] }) {
             </div>
           )}
         </div>
-        <Chips label="How strong" value={ctx.desiredIntensity} options={[["soft", "Soft"], ["moderate", "Moderate"], ["strong", "Strong"]] as const} onChange={(v) => set("desiredIntensity", v)} allowNone />
-        <label className="inline-flex items-center gap-2 text-sm">
-          <input type="checkbox" checked={ctx.indoors} onChange={(e) => set("indoors", e.target.checked)} className="size-4 accent-[var(--primary)]" /> Mostly indoors, close to people
-        </label>
-        <Chips label="Mood (optional)" value={ctx.mood} options={[["fresh", "Fresh"], ["cozy", "Cozy"], ["confident", "Confident"], ["romantic", "Romantic"], ["calm", "Calm"]] as const} onChange={(v) => set("mood", v)} allowNone />
-        <fieldset>
-          <legend className="label mb-2">Not today</legend>
-          <div className="flex flex-wrap gap-1.5">
-            {owned.map((o) => {
-              const on = ctx.excluded.includes(o.id);
-              return (
-                <button key={o.id} type="button" aria-pressed={on} onClick={() => set("excluded", on ? ctx.excluded.filter((x) => x !== o.id) : [...ctx.excluded, o.id])} className={cn("rounded-full border px-3 py-1 text-xs", on ? "border-destructive/50 text-destructive line-through" : "border-foreground/20 text-muted-foreground hover:border-foreground/50")}>
-                  {o.name}
-                </button>
-              );
-            })}
+        <details className="group rounded-md border px-4 py-3">
+          <summary className="flex cursor-pointer items-center justify-between text-sm select-none">
+            <span>More options{moreSet ? <span className="text-muted-foreground"> · {moreSet} set</span> : null}</span>
+            <span className="label">strength, mood, skip a bottle</span>
+          </summary>
+          <div className="mt-4 grid gap-6">
+            <Chips label="How strong" value={ctx.desiredIntensity} options={[["soft", "Soft"], ["moderate", "Moderate"], ["strong", "Strong"]] as const} onChange={(v) => set("desiredIntensity", v)} allowNone />
+            <label className="inline-flex items-center gap-2 text-sm">
+              <input type="checkbox" checked={ctx.indoors} onChange={(e) => set("indoors", e.target.checked)} className="size-4 accent-[var(--primary)]" /> Mostly indoors, close to people
+            </label>
+            <Chips label="Mood (optional)" value={ctx.mood} options={[["fresh", "Fresh"], ["cozy", "Cozy"], ["confident", "Confident"], ["romantic", "Romantic"], ["calm", "Calm"]] as const} onChange={(v) => set("mood", v)} allowNone />
+            <fieldset>
+              <legend className="label mb-2">Not today</legend>
+              <div className="flex flex-wrap gap-1.5">
+                {owned.map((o) => {
+                  const on = ctx.excluded.includes(o.id);
+                  return (
+                    <button key={o.id} type="button" aria-pressed={on} onClick={() => set("excluded", on ? ctx.excluded.filter((x) => x !== o.id) : [...ctx.excluded, o.id])} className={cn("rounded-full border px-3 py-1 text-xs", on ? "border-destructive/50 text-destructive line-through" : "border-foreground/20 text-muted-foreground hover:border-foreground/50")}>
+                      {o.name}
+                    </button>
+                  );
+                })}
+              </div>
+            </fieldset>
           </div>
-        </fieldset>
+        </details>
       </form>
 
-      <div aria-live="polite" aria-busy={loading} className={cn("transition-opacity", loading && res && "opacity-60")}>
+      <div aria-live="polite" aria-busy={loading} className={cn("order-1 transition-opacity lg:order-2", loading && res && "opacity-60")}>
+        <p className="mb-3 flex flex-wrap items-baseline gap-x-2 text-sm text-muted-foreground lg:hidden">
+          <span>
+            For {OCCASION_LABEL[ctx.occasion].toLowerCase()}
+            {ctx.daypart ? ` · ${ctx.daypart === "day" ? "daytime" : "evening"}` : ""}
+            {ctx.temperature ? ` · ${ctx.temperature}` : ""}
+          </span>
+          <a href="#today-context" className="text-primary underline underline-offset-2">
+            Adjust
+          </a>
+        </p>
         {!res && <div className="h-96 animate-pulse rounded-md border bg-muted/40" role="status" aria-label="Choosing" />}
         {res && "code" in res && (
           <p role="alert" className="border-l-2 border-destructive pl-3 text-sm text-destructive">

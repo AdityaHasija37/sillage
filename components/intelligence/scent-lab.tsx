@@ -4,14 +4,14 @@ import { useEffect, useRef, useState } from "react";
 import { AlertTriangle, Plus, Star, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { ScentSwatch } from "@/components/fragrance/scent-swatch";
-import type { PairPrediction } from "@/lib/intelligence/lab";
+import type { PairPrediction, PairSuggestion } from "@/lib/intelligence/lab";
 import type { Experiment } from "@/lib/intelligence/service";
 import { cn } from "@/lib/utils";
 
 type Owned = { id: string; brand: string; name: string; accords: { name: string; strength: number }[] };
 type Ok = Extract<PairPrediction, { status: "ok" }>;
 
-export function ScentLab({ owned, initialExperiments }: { owned: Owned[]; initialExperiments: Experiment[] }) {
+export function ScentLab({ owned, initialExperiments, suggestions = [] }: { owned: Owned[]; initialExperiments: Experiment[]; suggestions?: PairSuggestion[] }) {
   const [a, setA] = useState<string | null>(null);
   const [b, setB] = useState<string | null>(null);
   const [pred, setPred] = useState<PairPrediction | { status: "error"; message: string } | null>(null);
@@ -19,6 +19,13 @@ export function ScentLab({ owned, initialExperiments }: { owned: Owned[]; initia
   const [order, setOrder] = useState<"a_first" | "b_first" | "together">("a_first");
   const [showRatio, setShowRatio] = useState(true);
   const [experiments, setExperiments] = useState(initialExperiments);
+  const benchRef = useRef<HTMLElement>(null);
+  /** Load a pair onto the bench (from a suggestion or the notebook) and bring the bench into view. */
+  const pickPair = (x: string, y: string) => {
+    setA(x);
+    setB(y);
+    benchRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
   const req = useRef(0);
   const byId = new Map(owned.map((o) => [o.id, o]));
 
@@ -69,7 +76,27 @@ export function ScentLab({ owned, initialExperiments }: { owned: Owned[]; initia
   return (
     <div className="grid gap-14">
       {/* The bench */}
-      <section aria-label="Choose two bottles" className="grain rounded-md border bg-card px-4 py-8 sm:px-8">
+      <section ref={benchRef} aria-label="Choose two bottles" className="grain scroll-mt-24 rounded-md border bg-card px-4 py-8 sm:px-8">
+        {!a && !b && suggestions.length > 0 && (
+          <div className="mb-8">
+            <p className="label mb-2">Not sure where to start? Best-predicted pairs on your shelf</p>
+            <ul className="flex flex-wrap gap-2">
+              {suggestions.map((s) => {
+                const sa = byId.get(s.aId);
+                const sb = byId.get(s.bId);
+                if (!sa || !sb) return null;
+                return (
+                  <li key={`${s.aId}:${s.bId}`}>
+                    <button type="button" onClick={() => pickPair(s.aId, s.bId)} className="inline-flex items-center gap-2 rounded-full border border-foreground/20 bg-card px-3.5 py-1.5 text-sm hover:border-foreground/60 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none">
+                      {sa.name} <Plus className="size-3 text-muted-foreground" aria-hidden="true" /> {sb.name}
+                      <span className="font-mono text-xs text-muted-foreground tabular-nums">{s.score}</span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
         <div className="grid items-end gap-6 sm:grid-cols-[1fr_auto_1fr_auto_1fr]">
           <Slot label="Bottle A" value={a} other={b} owned={owned} onChange={setA} />
           <Plus className="mx-auto mb-16 hidden size-6 text-muted-foreground sm:block" aria-hidden="true" />
@@ -181,7 +208,7 @@ export function ScentLab({ owned, initialExperiments }: { owned: Owned[]; initia
         {!pred && <p className="text-sm text-muted-foreground">Choose two of your bottles to see a predicted pairing. It&apos;s a heuristic from accords and community data, not chemistry: the real test is wearing it.</p>}
       </div>
 
-      <Notebook experiments={experiments} byId={byId} onChange={refresh} />
+      <Notebook experiments={experiments} byId={byId} onChange={refresh} onOpen={pickPair} />
     </div>
   );
 }
@@ -206,7 +233,7 @@ function Slot({ label, value, other, owned, onChange }: { label: string; value: 
   );
 }
 
-function Notebook({ experiments, byId, onChange }: { experiments: Experiment[]; byId: Map<string, Owned>; onChange: () => void }) {
+function Notebook({ experiments, byId, onChange, onOpen }: { experiments: Experiment[]; byId: Map<string, Owned>; onChange: () => void; onOpen: (a: string, b: string) => void }) {
   return (
     <section aria-labelledby="notebook-h">
       <div className="flex items-baseline justify-between border-b pb-2">
@@ -220,7 +247,7 @@ function Notebook({ experiments, byId, onChange }: { experiments: Experiment[]; 
       ) : (
         <ul className="divide-y">
           {experiments.map((e) => (
-            <ExperimentRow key={e.id} e={e} accordsA={byId.get(e.a.id)?.accords ?? e.a.accords} accordsB={byId.get(e.b.id)?.accords ?? e.b.accords} onChange={onChange} />
+            <ExperimentRow key={e.id} e={e} accordsA={byId.get(e.a.id)?.accords ?? e.a.accords} accordsB={byId.get(e.b.id)?.accords ?? e.b.accords} onChange={onChange} onOpen={byId.has(e.a.id) && byId.has(e.b.id) ? () => onOpen(e.a.id, e.b.id) : undefined} />
           ))}
         </ul>
       )}
@@ -228,7 +255,7 @@ function Notebook({ experiments, byId, onChange }: { experiments: Experiment[]; 
   );
 }
 
-function ExperimentRow({ e, accordsA, accordsB, onChange }: { e: Experiment; accordsA: Owned["accords"]; accordsB: Owned["accords"]; onChange: () => void }) {
+function ExperimentRow({ e, accordsA, accordsB, onChange, onOpen }: { e: Experiment; accordsA: Owned["accords"]; accordsB: Owned["accords"]; onChange: () => void; onOpen?: () => void }) {
   const [open, setOpen] = useState(false);
   const [rating, setRating] = useState(0);
   const [intensity, setIntensity] = useState<"soft" | "moderate" | "strong" | null>(null);
@@ -322,6 +349,11 @@ function ExperimentRow({ e, accordsA, accordsB, onChange }: { e: Experiment; acc
         {!open && (
           <button type="button" onClick={() => setOpen(true)} className="inline-flex h-9 items-center rounded-full border border-foreground/25 px-4 text-sm hover:border-foreground">
             Log a wear
+          </button>
+        )}
+        {onOpen && (
+          <button type="button" onClick={onOpen} aria-label={`Open ${e.a.name} + ${e.b.name} on the bench`} className="inline-flex h-9 items-center rounded-full px-3 text-xs text-primary hover:underline">
+            Open on bench
           </button>
         )}
         <button type="button" onClick={remove} aria-label={`Delete ${e.a.name} + ${e.b.name}`} className="inline-flex h-9 items-center gap-1 rounded-full px-3 text-xs text-muted-foreground hover:text-destructive">

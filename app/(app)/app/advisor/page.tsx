@@ -39,7 +39,7 @@ export default async function AdvisorPage() {
         <p className="max-w-sm text-sm text-muted-foreground">It plans, calls Sillage&apos;s own tools, and explains. It never ranks on its own, cites nothing a tool didn&apos;t return, and saves nothing without your click.</p>
       </header>
       <div className="grid gap-8 lg:grid-cols-[1fr_20rem]">
-        <section aria-label="Conversation" className="flex h-[min(44rem,calc(100dvh-16rem))] min-h-[30rem] flex-col overflow-hidden rounded-md border bg-card">
+        <section aria-label="Conversation" className="flex h-[calc(100dvh-14rem)] min-h-[28rem] flex-col overflow-hidden rounded-md border bg-card lg:h-[min(44rem,calc(100dvh-16rem))] lg:min-h-[30rem]">
           <AdvisorPanel />
         </section>
         <aside className="grid content-start gap-6 text-sm">
@@ -57,26 +57,14 @@ export default async function AdvisorPage() {
               Edit what it knows →
             </Link>
           </div>
-          <div className="rounded-md border p-5">
+          {/* On a phone the reference panels collapse, so the conversation stays the focus. */}
+          <details className="rounded-md border p-5 lg:hidden">
+            <summary className="label cursor-pointer">How it works: {reads.length} read tools, {proposes.length} that only propose</summary>
+            <ToolList reads={reads} proposes={proposes} />
+          </details>
+          <div className="hidden rounded-md border p-5 lg:block">
             <p className="label">Tools it can call</p>
-            <p className="mt-3 text-xs text-muted-foreground">Reads</p>
-            <ul className="mt-1 grid gap-1">
-              {reads.map((t) => (
-                <li key={t.name}>
-                  <span className="font-mono text-[11px] text-primary">{t.name}</span>
-                  <span className="block text-xs text-muted-foreground">{TOOL_COPY[t.name]}</span>
-                </li>
-              ))}
-            </ul>
-            <p className="mt-4 text-xs text-muted-foreground">Proposes (you confirm)</p>
-            <ul className="mt-1 grid gap-1">
-              {proposes.map((t) => (
-                <li key={t.name}>
-                  <span className="font-mono text-[11px] text-primary">{t.name}</span>
-                  <span className="block text-xs text-muted-foreground">{TOOL_COPY[t.name]}</span>
-                </li>
-              ))}
-            </ul>
+            <ToolList reads={reads} proposes={proposes} />
           </div>
           <div className="rounded-md bg-ink p-5 text-ink-foreground">
             <p className="font-mono text-[11px] tracking-[0.08em] text-[oklch(0.8_0.1_55)] uppercase">Guardrails</p>
@@ -90,5 +78,32 @@ export default async function AdvisorPage() {
         </aside>
       </div>
     </div>
+  );
+}
+
+type ToolDef = (typeof TOOL_DEFINITIONS)[number];
+
+function ToolList({ reads, proposes }: { reads: ToolDef[]; proposes: ToolDef[] }) {
+  return (
+    <>
+      <p className="mt-3 text-xs text-muted-foreground">Reads</p>
+      <ul className="mt-1 grid gap-1">
+        {reads.map((t) => (
+          <li key={t.name}>
+            <span className="font-mono text-[11px] text-primary">{t.name}</span>
+            <span className="block text-xs text-muted-foreground">{TOOL_COPY[t.name]}</span>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-4 text-xs text-muted-foreground">Proposes (you confirm)</p>
+      <ul className="mt-1 grid gap-1">
+        {proposes.map((t) => (
+          <li key={t.name}>
+            <span className="font-mono text-[11px] text-primary">{t.name}</span>
+            <span className="block text-xs text-muted-foreground">{TOOL_COPY[t.name]}</span>
+          </li>
+        ))}
+      </ul>
+    </>
   );
 }

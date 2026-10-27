@@ -63,6 +63,18 @@ const CONCENTRATION_PATTERNS: [RegExp, Concentration][] = [
   [/\bcologne\b/, "Cologne"],
 ];
 
+/** The name without a concentration phrase ("Bleu de Chanel Eau de Parfum" → "bleu de chanel"), normalised. */
+export function coreName(name: string): string {
+  const n = norm(name);
+  return n.replace(/\b(extrait de parfum|eau de parfum|eau de toilette|eau de cologne|edp|edt|edc|parfum|extrait)\b/g, " ").replace(/\s+/g, " ").trim() || n;
+}
+
+/** EDP, EDT and EDC named together ("…Eau de Parfum Eau de Toilette…") is a contradiction, not a match. */
+function conflictingConcentrations(title: string): boolean {
+  const t = norm(title);
+  return [/\beau de parfum\b|\bedp\b/, /\beau de toilette\b|\bedt\b/, /\beau de cologne\b|\bedc\b/].filter((re) => re.test(t)).length > 1;
+}
+
 export function parseConcentration(title: string): Concentration | null {
   // Chinese listings name the concentration in characters that normalisation would strip.
   if (/淡香精/.test(title)) return "EDP";
@@ -142,8 +154,7 @@ export function matchListing(target: OfferTarget, listing: RawListing): MatchedO
   // Catalog names sometimes include the concentration ("Bleu de Chanel Eau de Parfum"). The name
   // check uses the core name, so an EDT listing is rejected as the wrong concentration (the true
   // reason) rather than as a different fragrance. The concentration check still applies.
-  const coreName = name.replace(/\b(extrait de parfum|eau de parfum|eau de toilette|eau de cologne|edp|edt|edc|parfum|extrait)\b/g, " ").replace(/\s+/g, " ").trim() || name;
-  const nameTokens = coreName.split(" ").filter((w) => w.length > 1 || /\d/.test(w));
+  const nameTokens = coreName(target.name).split(" ").filter((w) => w.length > 1 || /\d/.test(w));
   if (!nameTokens.every((w) => new RegExp(`\\b${escapeRe(w)}\\b`).test(t))) reasons.push("name_missing");
 
   const own = ` ${norm(target.brand)} ${name} `;
@@ -169,7 +180,7 @@ export function matchListing(target: OfferTarget, listing: RawListing): MatchedO
   if (SET_PATTERN.test(t)) reasons.push("multi_item_set");
 
   if (concentration == null) reasons.push("concentration_unstated");
-  else if (concentration !== target.concentration) reasons.push("concentration_mismatch");
+  else if (concentration !== target.concentration || conflictingConcentrations(listing.title)) reasons.push("concentration_mismatch");
 
   if (leftovers.length && !reasons.includes("different_edition") && !reasons.includes("not_new_full_bottle")) reasons.push("unrecognised_words");
   if (sizeMl == null) reasons.push("size_unstated");

@@ -186,3 +186,34 @@ export function predictPair(a: LabInput, b: LabInput, past: PastExperiment[] = [
     provenance: RULESET.provenance,
   };
 }
+
+export type PairSuggestion = { aId: string; bId: string; score: number; character: string };
+
+/**
+ * Starting points for an empty bench: the best-predicted pairs among bottles the user owns that
+ * they haven't saved yet, using no bottle more than twice so the three ideas differ. Capped at the
+ * first 20 bottles (190 pairs) to stay instant.
+ */
+export function suggestPairs(owned: LabInput[], past: PastExperiment[], tried: Set<string>, limit = 3): PairSuggestion[] {
+  const pool = owned.slice(0, 20);
+  const scored: PairSuggestion[] = [];
+  for (let i = 0; i < pool.length; i++)
+    for (let j = i + 1; j < pool.length; j++) {
+      const a = pool[i];
+      const b = pool[j];
+      if (tried.has(pairKey(a.profile.id, b.profile.id))) continue;
+      const p = predictPair(a, b, past);
+      if (p.status === "ok") scored.push({ aId: a.profile.id, bId: b.profile.id, score: p.score, character: p.character });
+    }
+  scored.sort((x, y) => y.score - x.score || x.aId.localeCompare(y.aId));
+  const uses = new Map<string, number>();
+  const out: PairSuggestion[] = [];
+  for (const s of scored) {
+    if ((uses.get(s.aId) ?? 0) >= 2 || (uses.get(s.bId) ?? 0) >= 2) continue;
+    out.push(s);
+    uses.set(s.aId, (uses.get(s.aId) ?? 0) + 1);
+    uses.set(s.bId, (uses.get(s.bId) ?? 0) + 1);
+    if (out.length === limit) break;
+  }
+  return out;
+}
