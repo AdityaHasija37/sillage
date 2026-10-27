@@ -1,91 +1,123 @@
-# Sillage: a case study
+# Sillage: case study
 
-*How I scoped and built an AI fragrance advisor that can't make things up, how evals changed the product, and how a second PRD turned it from a buying tool into something you use every day.*
+*How I scoped, built and shipped an AI fragrance advisor that can't make things up: what I decided, what evals and production changed, and what I'd do next.*
 
-## The thesis
+**Aditya Hasija · Product owner · 21–27 Oct 2026 · [Live demo](https://sillage-rosy.vercel.app) · [GitHub](https://github.com/AdityaHasija37/sillage)**
 
-Fragrance people own a lot of bottles and still buy the wrong next one: another fresh blue scent when they already have four, an EDT when they wanted the EDP, a "deal" that turns out to be a tester. The tools they use don't connect. Fragrantica knows every perfume but not your shelf. A spreadsheet knows your shelf but suggests nothing. A chatbot will happily recommend things, but it doesn't know what you own and will invent a price if you ask.
+---
 
-**The bet: recommendations get much more relevant once they start from what you own and what you've said you like, and they're only trustworthy if every claim can be traced to data.** That's a hypothesis. I haven't run user interviews; the evals described below test that the system behaves as specified, not that people want it.
+## TL;DR
 
-## Who it's for
+- **Problem.** Collectors buy redundant or wrong bottles and wear the same few, and no tool connects decisions to what they already own. Chatbots invent products and prices.
+- **What I built.** A shelf-first web app: Collection Score, a daily pick, a layering lab, explained recommendations, an exact-bottle price check, and one AI agent over all of it.
+- **The judgment calls.** Code ranks and AI explains; grounding enforced in code; an eval suite written before tuning; a product decision where tuning would have hidden a trade-off; honest handling of weak data; a free, provider-neutral model.
+- **Evidence.** 100% exact-match precision on 61 adversarial listings (from 83%), 0 of 7 planted fakes reached users, 119 / 62 / 14 unit, database-security and end-to-end tests, live on production.
+- **Honest gap.** No real users yet. The next step is five interviews, not more features.
 
-Casual-to-engaged enthusiasts with roughly 5–50 bottles. Three jobs from the PRD shaped everything:
+## Context and my role
 
-1. *Show me what I own and what it says about my taste.*
-2. *Recommend something similar, or intentionally different, and don't make me buy something I effectively already have.*
-3. *Find a trustworthy price for the exact bottle without opening five stores.*
+A personal portfolio project, built in a week, with me as product owner and Claude Code as the engineer. I wrote and owned the product calls: problem framing, scope, data strategy under a zero-cost constraint, model and provider, trade-offs, and launch. The agent proposed defaults for everything else, and every decision was logged ([61 in the decision log](../DECISIONS.md)). Each stage ended with evidence (tests run, numbers measured, bugs written down) before the next began.
 
-One rule from the PRD turned out to matter more than I expected: **ownership isn't liking.** Plenty of people own bottles they regret. So Sillage weights each bottle by how you feel about it (love 1.0, like 0.7, neutral 0.2, unrated 0.15, dislike counts against), and the dashboard nudges you to rate.
+| Stage | Output |
+|---|---|
+| Spec | A seven-document spec pack (PRD, architecture, UX flows, QA plan, decisions) |
+| v1 | Catalog, collection, recommendations, price check, advisor, public evals |
+| v2 | [PRD 08](../specs/08_Collection_Intelligence_PRD.md): Collection Score, Today, Scent Lab; an editorial redesign |
+| v2.1 | Free, provider-neutral AI; style and price-band filters |
+| v2.2 | Live prices with trust signals; a [UX audit](../design/UX-AUDIT-2026-10.md) with 8 shipped fixes |
+
+## The problem, and the bet
+
+Fragrance people own a lot of bottles and still buy the wrong next one: another fresh blue scent when they have four, an EDT when they wanted the EDP, a "deal" that's a tester. And most of the shelf goes unworn. The tools don't connect: Fragrantica knows every perfume but not your shelf; a spreadsheet knows your shelf but suggests nothing; a chatbot will recommend confidently and invent a price.
+
+> **The bet:** recommendations get far more relevant when they start from what you own and what you've said you like, and they're only trustworthy when every claim traces back to data.
+
+One rule from the spec mattered more than I expected: **ownership isn't liking.** Each bottle counts by how you feel about it (love 1.0, like 0.7, neutral 0.2, unrated 0.15, and dislike counts against).
 
 ## The decisions I'd talk through in an interview
 
-The [decision register](../DECISIONS.md) has 53 entries, including how each open question was resolved. These are the ones that shaped the product.
+### 1. Code ranks, the AI explains
 
-**1. Deterministic ranking, AI explanation (Decision B).** The obvious build was "LLM, recommend me a fragrance." I didn't do that. A tested engine scores every candidate on five components (taste fit, the mode's goal, budget, season and time of day, performance) and emits reason codes and caveats. The Claude agent's job is to call that engine and explain the result. *Trade-off:* less conversational flexibility, in exchange for answers that are reproducible, testable and explainable ("Why this rank" shows the score breakdown).
+The obvious build was "LLM, recommend me a fragrance". I didn't build that. A tested engine scores every candidate on taste fit, the mode's goal, budget, season and time of day, and performance, and emits reason codes and caveats. The agent's job is to choose which tools to call and explain the result.
 
-**2. An output contract enforced in code, not in the prompt.** The agent must cite fragrances by id. Before an answer reaches the user, any id that didn't come back from a tool in that turn, and any dollar amount that didn't appear in a tool result, is stripped and counted. Every answer carries an inspectable trace: tool calls, latency, tokens, estimated cost, grounding result. In the eval, 0 of 7 planted fabrications got through.
+*Trade-off:* less conversational freedom, in exchange for answers that are reproducible, testable and explainable ("Why this rank" shows the breakdown). It also made the AI cheap to swap: when cost mattered, moving to a free model changed the voice, not the recommendations.
 
-**3. Writes need a human click.** The agent has two "propose" tools (wishlist, preference change) that save nothing. They return a confirm button. There's no write path for a prompt injection hidden in third-party text to trigger, and the review themes it reads are labelled untrusted in the tool output.
+### 2. Grounding enforced in code, not asked for in a prompt
 
-**4. One agent, ten tools, two possible models, and a fallback (D-004, DEC-46).** An agent earns its place because questions like "a woody winter scent under $150 that isn't like anything I own" take several dependent steps: read the shelf, pick a mode, run the engine, inspect the best pick, maybe price it. No multi-agent orchestration: there's one actor and one context, and one agent with typed tools is easier to test and cheaper to run. Eight tools read; two only propose. The agent can also read the Collection Score and ask for today's pick, so "how balanced is my collection?" and "what should I wear to the office tomorrow?" go through the same tested engines as the UI. When there's no API key, or the model errors or declines, a rule-based mode answers with the same engine and says so. The public demo never breaks and costs nothing by default.
+The agent cites fragrances by id. Before an answer reaches the user, any id that didn't come back from a tool in that turn, and any price that didn't appear in a tool result, is removed and counted in a trace shown under every answer. There's no write tool at all: saving is only ever *proposed*, and the user clicks to confirm, so a prompt injection hidden in review text has nothing to trigger. In the adversarial eval, **0 of 7** planted fakes got through.
 
-**5. Exact-variant price matching (Decision D).** A listing is an exact match only if brand, line, concentration and size agree and it's a new full bottle. Everything else is rejected or marked "needs verification", and the UI says what was hidden and why. Totals are compared only when every exact offer states shipping. Without a live key, offers are clearly labelled samples from fictional stores, with no links. Sillage never claims "cheapest anywhere."
+### 3. Evals before tuning, and a failure I chose not to fix
 
-**6. Free, open data that actually works (Decision A).** The owner constraint was "free, and make sure it works." I evaluated the options: the only real fragrance API had a 20-request free tier; Fragrantica has no API and its terms forbid scraping. I used a published open dump of Fragrantica's catalogue (Decant), downloaded at build time and never committed, keeping only facts and aggregates and linking every page back to its source. That gives 38,365 fragrances with weighted notes, accords, ratings, longevity, season votes and community "smells like" links. Open Beauty Facts covers searches the dataset misses. The dataset has no prices, so the budget filter uses estimated price bands from a 395-brand tier map, always labelled as estimates.
-
-**7. A demo that's a sandbox, not a shared login (D-006).** "Try the demo" creates a private account with six bottles across distinct styles, a wishlist item and a preference ("avoids oud"), and deletes it after 24 hours.
-
-## Round two: from buying to using (PRD 08)
-
-The first version only helped at the moment of purchase, which happens a few times a year. Collectors open their shelf every morning. So the second PRD added three features aimed at daily use, each with written acceptance tests (CS/DS/SL-01..07) before any code:
-
-- **Collection Score**: a 0–100 score across season, occasion, versatility, diversity and redundancy, with strengths, gaps and a fix for each gap, plus a simulator that shows what a bottle would change *before* you buy it. This connects back to the original job: "don't make me buy something I effectively already have" now has a number and a reason.
-- **Today**: a ranked pick from bottles you own, for the occasion and the weather, that learns from "Wore this" and "Not for me" within bounds.
-- **Scent Lab**: predict how two owned bottles might layer, wear it, log what really happened.
-
-The hard part wasn't the maths; it was honesty about weak data. The catalog has no occasion data, so occasion fit is *inferred* and labelled that way (DEC-34). A dimension with no data drops out and makes confidence "low" instead of scoring zero (DEC-36); the first test run caught that it didn't. Layering is a heuristic from an editable accord ruleset, so it's called experimental and is never "high confidence" (DEC-41); the first calibration scored every pair 100 and was useless. Weather is manual-first, with opt-in local weather that stores nothing (DEC-39).
-
-AI is used narrowly here. The engines rank; the model may phrase today's explanation, but the phrasing is validated (must name the pick, no new numbers, no prices) or a template is used, and the UI says which you're reading.
-
-## Making it free to run
-
-A portfolio demo that costs money per question is a demo that eventually gets switched off. Rather than pick a cheaper Claude model and hope, I made the agent provider-neutral (DEC-46): the loop, the ten tools, the grounding check and the trace don't know which model they're talking to, and Gemini and Claude are thin adapters. Sillage runs on Gemini's free tier and moves to Claude by setting one key.
-
-Two details mattered more than the swap itself. Gemini's tool schemas are narrower than Claude's strict mode, so the adapter rewrites them and restores missing nulls before the *same* Zod validation runs: one source of truth for what a tool accepts (DEC-47). And a free tier has a quota, so a 429 now produces an honest "free quota used up for now" answer from the rule-based engines instead of an error (DEC-48). The trade-off, Google's right to use free-tier requests, is disclosed on the privacy page (DEC-49). The live-agent eval, which until now was a placeholder, runs eight prompts with expectations written before the run against whichever model is configured.
-
-## A redesign, because it looked generated
-
-The owner's feedback on v1 was blunt: it looked AI-generated, and too close to my other project, Touchline. What I'd meant to share was the *pattern* (a no-sign-up demo next to sign-in), not the look. The redesign is editorial: a serif display face, paper and ink with cognac accents, drawn bottles that vary in shape and tint per fragrance, a live catalog search and a shelf of real top-voted bottles on the landing page, and an animated walkthrough of the agent's actual tool calls with real catalog values. The agent's permissions (reads, proposes, never) are on the landing page, the Advisor page and How it works, because "what can the AI do to my data?" is the first question a careful user asks.
-
-## Evals changed the product
-
-I wrote the eval suite before tuning anything, with criteria annotated ahead of the first run: 61 adversarial offer listings, 30 synthetic personas across the three modes, adversarial agent outputs, and catalog coverage. The [public evals page](../evals/REPORT.md) shows every case.
-
-The first run was useful precisely because it failed:
+I wrote the eval suite before tuning anything: 61 adversarial price listings, 30 synthetic personas across the three modes, adversarial model outputs, and catalog coverage, each with pass criteria written first. The first run was useful because it failed:
 
 | Finding | What it meant | Change |
 |---|---|---|
-| "Lattafa Khamrah **Qahwa**" and "1 Million **Lucky**" matched as exact | A blocklist of flanker words can never be complete | Matcher v2 trusts only words it recognises; anything else goes to "Needs verification". Precision 83% → **100%** |
-| A La Vie Est Belle fan got two La Vie Est Belle flankers | "Similar" was recommending the redundant purchase the PRD exists to prevent | Other versions of owned lines are flagged and down-weighted, not hidden (some people do want the EDP) |
-| An all-amber shelf got an amber pick in "Different" | Accord distance alone isn't "different" | Reward a family the user doesn't own; exclude near-copies (≥ 75% overlap) |
-| In "Fill gaps", a close match to existing taste outscored a real gap | The PRD's starting weights (35/25) didn't hold for this mode | Gap mode gets its own weights (25/35). The PRD said to validate weights empirically, and this was that |
+| "Khamrah **Qahwa**" matched as the same bottle as Khamrah | A flanker blocklist can never be complete | Matcher v2: an allowlist of words it understands; anything else needs verification. Precision **83% → 100%** |
+| A La Vie Est Belle fan got two La Vie Est Belle flankers | "Similar" recommended the redundant purchase the product exists to prevent | Other versions of owned lines are flagged and down-weighted |
+| In Fill gaps, a close match outscored a real gap | The PRD's starting weights didn't hold for this mode | Gap mode gets its own weights (25 / 35) |
 
-A unit test caught a related one: the "Fill gaps" bridge term rewarded a 97%-identical scent. And a data query found two well-reviewed fragrances with no note data at all, which a "never oud" preference couldn't be checked against, so they're now excluded whenever a user avoids any note.
+Two personas still failed, and **I left them failing**. For a Tobacco Vanille lover, the engine preferred close alternatives from smaller houses over the famous names I'd annotated. That might be exactly what a value-minded collector wants, or it might cost trust. That's a product decision, not an eval to tune away. So users now choose whether to see **budget alternatives**, always labelled with what they resemble ([DEC-30](../DECISIONS.md)).
 
-Two personas still failed, and I left them failing. For a Tobacco Vanille lover and a La Vie Est Belle lover, the engine preferred close alternatives from smaller houses (Maison Alhambra, La Rive) over the famous names I annotated. That might be exactly what a value-minded enthusiast wants, or it might cost trust. **That's a product decision, not an eval to tune away**, so I took it to the owner, who chose to let users decide. v3 labels "budget alternatives" (a strong community "smells like" link to something in a higher price band; 2,543 fragrances), includes them by default, and adds a switch in Discover, Preferences and the advisor ("no dupes"). Two new eval cases, written before running, cover it; the famous-name annotations still fail honestly, because with alternatives off the engine picks niche originals, not household names.
+### 4. Honesty about weak data is the feature
 
-## Working with an AI engineer
+The second PRD added a Collection Score, a daily pick and a layering lab. The hard part wasn't the maths; it was the data:
 
-I worked as product owner with Claude Code as the engineer, from a seven-document spec pack. I made the calls that were mine (data source, budget constraints, model, deploy setup); it proposed defaults for the rest and logged each one. The useful habit was the same as on Touchline: no claim without evidence. Tests run, numbers measured, bugs written down in the [build log](../evidence/BUILD-LOG.md), including the ones testing caught.
+- The catalog has no occasion data, so occasion fit is *inferred* and labelled that way.
+- A dimension with no data drops out and lowers confidence instead of scoring zero. The first test run caught that it didn't.
+- Layering is a heuristic from an editable accord ruleset. It's called experimental and is never "high confidence"; the first calibration scored every pair 100 and was useless.
+
+### 5. Free to run, without lowering the bar
+
+A demo that costs money per question eventually gets switched off. Instead of picking a cheaper model and hoping, I made the agent provider-neutral: the loop, tools, grounding and trace don't know which model they're talking to. It runs on Gemini's free tier, with Claude one key away. The interesting work was making "free" reliable: Gemini's narrower tool schemas are generated from the Claude ones with the same validation underneath, and a quota error moves the answer to another free model rather than failing.
+
+## What production taught me
+
+Tests passed; production still had lessons. Every one is in the [build log](../evidence/BUILD-LOG.md).
+
+| What happened | Fix |
+|---|---|
+| The default free model hung on every request; the "free" backup was closed to new accounts | A tested fallback chain of four free models, per-call timeouts, a 50 s budget |
+| My first live test question hit the daily quota, because Today's AI sentence shared it | Separate light models for the sentence, its own rate limit; the answer restarts on the next model |
+| "Winter fresh" returned vanilla bombs: a substring match let "fresh spicy" count as fresh | Styles map to whole accords that must lead the fragrance; price-band filter added |
+| The first live price check hid **all 40** listings as unsafe: Google now sends links with raw spaces | URLs normalised before the safety check |
+| The cheapest "exact match" was an eBay listing at ~40% of retail | "Unusually low price" and "Marketplace seller" flags: inform, don't hide |
+| A new "show what was hidden" list revealed every rejection labelled "different fragrance" | The matcher compares the core name, so EDTs are rejected for the real reason |
+
+The last one is my favourite: a transparency feature paid for itself within an hour by exposing my own bug.
+
+## Design: from "looks AI-generated" to a product with a point of view
+
+The first version worked but looked generic. I redesigned it as an editorial product (serif display type, paper and ink, drawn bottles that vary per fragrance) and made the agent's permissions visible on the landing page, the advisor page and How it works, because "what can the AI do to my data?" is the first question a careful user asks. A later [UX audit](../design/UX-AUDIT-2026-10.md) shipped eight fixes, led by answer-first layouts on phones and formatted advisor answers, and caught a demo bug that showed a wrong bottle as an exact price match.
+
+## Results
+
+| | Measured |
+|---|---|
+| Catalog | 38,365 fragrances; 20 / 20 common bottles found by name |
+| Price matching (61 adversarial listings) | Precision **100%**, recall 100% (from 83%) |
+| Recommendations (32 personas, criteria written first) | 29 / 32; exclusions honoured 100% |
+| Fabrications reaching users (adversarial) | **0 / 7** |
+| Collection Intelligence checks | 9 / 9 |
+| Quality | 119 unit tests, 62 database-security assertions, 14 end-to-end tests including a WCAG 2.2 AA scan |
+| Cost to run | $0 (free tiers throughout) |
+
+What isn't measured yet: anything about real users. That's the next step.
+
+## What I learned
+
+- **Put the guarantees in code.** Every important promise (no invented products, no silent writes, honest prices) is enforced outside the model, so changing models didn't change the promises.
+- **An eval that fails is the most useful kind.** The best product decision in the project came from a failure I chose to keep.
+- **Transparency is a debugging tool.** Showing users what the system rejected surfaced a bug faster than any test I'd written.
+- **"Free" is a reliability problem.** The model was easy; quotas, timeouts and closed endpoints were the work.
+
+## What I'd do differently
+
+- Interview five collectors **before** the second PRD. Collection Intelligence is my best guess at the daily-use loop, not a validated one.
+- Instrument retailer clicks and preview → wishlist from day one; they're the clearest value signals.
+- Run against live data (prices, the free model) earlier; four of the six production lessons would have surfaced a day sooner.
 
 ## What's next
 
-1. **Five user interviews** with collectors who own 10+ bottles: does starting from the shelf actually change which suggestions they trust? Do they agree with their Collection Score, and would they open Today in the morning? Show them the clone-vs-famous results.
-2. **Run the live agent eval** (`npm run evals`) now that a free model is configured, and compare Gemini with Claude on the same eight prompts.
-3. **Real offer sample:** label 50 live SerpApi results to measure precision on messy real listings, not just synthetic ones.
-4. Use the `product_events` already logged (score viewed, preview run, daily pick worn, lab saved) to measure whether Today brings people back, and calibrate the score and lab weights against real ratings.
-
-## Status
-
-An MVP portfolio project. Built and tested (111 unit tests, 62 database security assertions, 14 end-to-end tests including an automated WCAG 2.2 AA scan, and the eval suite, v4). Live at [sillage-rosy.vercel.app](https://sillage-rosy.vercel.app) on free tiers; see the README for honest caveats.
+1. **Five interviews** with 10+ bottle collectors: do they agree with their Score, would they open Today tomorrow, do they trust shelf-aware picks more?
+2. **Live agent eval** and **50 labelled live price listings**, published on `/evals`.
+3. Then, if the bet holds: collection import, streaming answers, and a wear calendar. See the [roadmap](ROADMAP.md).

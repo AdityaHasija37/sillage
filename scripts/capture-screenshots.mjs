@@ -38,13 +38,13 @@ await page.goto(`${base}/app/today`);
 await page.getByRole("radio", { name: "Evening & date" }).click();
 await page.getByRole("radio", { name: "Cold" }).click();
 await page.waitForTimeout(1500);
-await page.getByText("Today's pick").waitFor();
+await page.getByText("Today's pick", { exact: true }).waitFor({ timeout: 90000 });
 await shot("today");
 
 await page.goto(`${base}/app/lab`);
 await page.getByLabel("Bottle A").selectOption({ label: "Tom Ford Tobacco Vanille" });
 await page.getByLabel("Bottle B").selectOption({ label: "Maison Martin Margiela Jazz Club" });
-await page.getByText(/^Predicted:/).waitFor();
+await page.getByText(/^Predicted:/).waitFor({ timeout: 60000 });
 await page.waitForTimeout(500);
 await shot("lab");
 
@@ -64,9 +64,12 @@ const first = page.getByRole("listitem").filter({ has: page.getByText("estimated
 await first.getByRole("heading").getByRole("link").click();
 await page.getByRole("heading", { name: "Compare prices" }).waitFor();
 await shot("detail");
-await page.getByLabel("Concentration").selectOption("EDP");
+// Price check on a bottle from the sample shelf (Bleu de Chanel EDP 100 ml), where live results
+// include trust flags and hidden listings.
+await page.goto(`${base}/app`);
+await page.goto(base + (await page.locator('a[href*="/app/fragrance/"]').first().getAttribute("href")));
 await page.getByRole("button", { name: "Compare prices" }).click();
-await page.getByText(/Exact matches/).waitFor();
+await page.getByText(/Exact matches/).waitFor({ timeout: 60000 });
 await scrollTo(page.getByText(/Sample offers, not live prices|Offers found from available sources/), -160);
 await shot("offers");
 
@@ -92,7 +95,7 @@ await p2.waitForURL(/\/app/);
 await p2.waitForLoadState("networkidle");
 await p2.screenshot({ path: out("phone"), type: "jpeg", quality: 82 });
 await p2.goto(`${base}/app/today`);
-await p2.getByText("Today's pick").waitFor();
+await p2.getByText("Today's pick", { exact: true }).waitFor({ timeout: 90000 });
 await p2.screenshot({ path: out("phone-today"), type: "jpeg", quality: 82 });
 
 await browser.close();

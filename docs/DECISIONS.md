@@ -1,6 +1,23 @@
-# Decision Register
+# Decision log
 
-The spec pack says: when instructions conflict or are ambiguous, record the decision here and update the affected documents. Status: **Adopted** (spec default or owner call), **Proposed** (my default, open to change), **Open** (needs an owner answer).
+Every product and engineering call made while building Sillage, with the reason for it. 8 decisions came from the spec pack (D-001 to D-008); 53 were made during the build (DEC-01 to DEC-53). Status: **Adopted** (spec default or owner call), **Proposed** (my default, open to change), **Open** (needs an owner answer).
+
+## The decisions that shaped the product
+
+If you read ten, read these.
+
+| Decision | The call | Why it mattered |
+|---|---|---|
+| [D-008](#from-the-spec-pack-adopted-as-written) | **Code ranks, AI explains.** Deterministic engines score; the model plans and explains | Reproducible, testable, explainable answers instead of a confident chatbot |
+| [D-004](#from-the-spec-pack-adopted-as-written) | **One agent, typed tools**, no multi-agent orchestration | One actor and one context; more agents would add cost and failure modes, not capability |
+| [DEC-02](#owner-decisions-21-oct-2026) / [DEC-03](#owner-decisions-21-oct-2026) | **Free, open data that works**: the Decant dump of Fragrantica's public catalogue (38,365 fragrances) | The only real API had a 20-request free tier; scraping is against Fragrantica's terms |
+| [DEC-17](#engineering-and-product-decisions) | **Offer matcher v2: an allowlist**, not a blocklist, of words allowed beyond the bottle's name | A flanker blocklist can never be complete; precision went from 83% to 100% |
+| [DEC-14](#engineering-and-product-decisions) | **Fill gaps gets its own weights** (25 / 35 instead of 35 / 25) | The PRD said to validate weights empirically; the eval showed close matches outvoting real gaps |
+| [DEC-30](#engineering-and-product-decisions) | **Budget alternatives are the user's choice**, always labelled | Turned an eval disagreement (famous originals vs close alternatives) into a feature instead of tuning it away |
+| [DEC-34](#engineering-and-product-decisions) / [DEC-36](#engineering-and-product-decisions) | **Missing data lowers confidence, never scores zero**; inferred fields say so | Honesty about weak data is what makes the score trustworthy |
+| [DEC-46](#engineering-and-product-decisions) | **Provider-neutral agent on Gemini's free tier**; Claude one key away | A portfolio demo that costs money per question eventually gets switched off |
+| [DEC-52](#engineering-and-product-decisions) | **Flag suspiciously cheap and marketplace offers; inform, don't hide** | The first live check's cheapest "exact match" was ~40% of retail |
+| [DEC-53](#engineering-and-product-decisions) | **Show every hidden listing and why** | Makes the 100%-precision claim checkable; it exposed a matcher bug the day it shipped |
 
 ## From the spec pack (adopted as written)
 
