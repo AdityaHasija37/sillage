@@ -40,7 +40,7 @@ export async function searchOffers(fragrance: Fragrance, input: z.input<typeof O
 
   const fromSample = async (notice: OfferSearchResult["notice"]): Promise<OfferSearchResult> => ({
     target,
-    comparison: compareOffers(target, await sample.searchOffers(target)),
+    comparison: compareOffers(target, await sample.searchOffers(target), { priceBand: fragrance.priceBand }),
     provider: { id: sample.id, label: sample.label, live: false },
     checkedAt: new Date().toISOString(),
     fromCache: false,
@@ -52,7 +52,7 @@ export async function searchOffers(fragrance: Fragrance, input: z.input<typeof O
   const variantId = await ensureVariant({ fragranceId: fragrance.id, concentration, sizeMl });
   if (variantId) {
     const cached = await readCache(variantId, live);
-    if (cached) return { target, comparison: compareOffers(target, cached.listings), provider: { id: live.id, label: live.label, live: true }, checkedAt: cached.checkedAt, fromCache: true, notice: null };
+    if (cached) return { target, comparison: compareOffers(target, cached.listings, { priceBand: fragrance.priceBand }), provider: { id: live.id, label: live.label, live: true }, checkedAt: cached.checkedAt, fromCache: true, notice: null };
   }
 
   if (!(await claimRate("offers", userId))) return fromSample("rate_limited");
@@ -63,7 +63,7 @@ export async function searchOffers(fragrance: Fragrance, input: z.input<typeof O
   } catch (e) {
     return fromSample(e instanceof OfferProviderError && e.kind === "quota" ? "quota" : "provider_error");
   }
-  const comparison = compareOffers(target, listings);
+  const comparison = compareOffers(target, listings, { priceBand: fragrance.priceBand });
   const checkedAt = new Date().toISOString();
   if (variantId) await writeCache(variantId, comparison, checkedAt);
   return { target, comparison, provider: { id: live.id, label: live.label, live: true }, checkedAt, fromCache: false, notice: null };

@@ -2,6 +2,7 @@ import type Anthropic from "@anthropic-ai/sdk";
 import { describe, expect, it, vi } from "vitest";
 import { parseIntent, runAdvisor } from "@/lib/agent/advisor";
 import { groundAnswer } from "@/lib/agent/grounding";
+import { compareOffers } from "@/lib/offers/match";
 import { executeTool, TOOL_DEFINITIONS } from "@/lib/agent/tools";
 import { c, context } from "../fixtures/advisor-context";
 import { frag } from "../fixtures/fragrances";
@@ -65,6 +66,19 @@ describe("tools", () => {
     const out = await executeTool("get_fragrance_details", { fragrance_id: evil.id }, context({ getFragrance: async () => evil }));
     expect(out.content).toHaveProperty("community_themes_untrusted");
     expect(out.pending).toBeUndefined();
+  });
+  it("find_offers passes price warnings and marketplace sellers to the model", async () => {
+    const offers = [["eBay", 40], ["Sephora", 150], ["Macy's", 155], ["Nordstrom", 160]] as const;
+    const ctx = context({
+      findOffers: async (f, concentration, sizeMl) => {
+        const target = { brand: f.brand, name: f.name, concentration, sizeMl };
+        const listings = offers.map(([merchant, listPrice]) => ({ provider: "serpapi_google_shopping" as const, merchant, title: `${f.brand} ${f.name} Eau de Parfum ${sizeMl}ml`, url: "https://shop.example/x", listPrice, shippingPrice: 0, taxPrice: null, availability: null, currency: "USD" }));
+        return { target, comparison: compareOffers(target, listings), provider: { id: "serpapi_google_shopping", label: "Live", live: true }, checkedAt: new Date().toISOString(), fromCache: false, notice: null };
+      },
+    });
+    const out = await executeTool("find_offers", { fragrance_id: c.woodyClean.id, concentration: "EDP", size_ml: 100 }, ctx);
+    const first = (out.content as { exact_matches: Record<string, unknown>[] }).exact_matches[0];
+    expect(first).toMatchObject({ merchant: "eBay", seller: expect.stringMatching(/marketplace/), price_warning: expect.stringMatching(/unusually low/) });
   });
   it("find_offers says when prices are samples", async () => {
     const out = await executeTool("find_offers", { fragrance_id: c.woodyClean.id, concentration: "EDP", size_ml: 100 }, context());

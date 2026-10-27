@@ -20,7 +20,7 @@ One rule from the PRD turned out to matter more than I expected: **ownership isn
 
 ## The decisions I'd talk through in an interview
 
-The [decision register](../DECISIONS.md) has 51 entries, including how each open question was resolved. These are the ones that shaped the product.
+The [decision register](../DECISIONS.md) has 53 entries, including how each open question was resolved. These are the ones that shaped the product.
 
 **1. Deterministic ranking, AI explanation (Decision B).** The obvious build was "LLM, recommend me a fragrance." I didn't do that. A tested engine scores every candidate on five components (taste fit, the mode's goal, budget, season and time of day, performance) and emits reason codes and caveats. The Claude agent's job is to call that engine and explain the result. *Trade-off:* less conversational flexibility, in exchange for answers that are reproducible, testable and explainable ("Why this rank" shows the score breakdown).
 
@@ -88,4 +88,4 @@ I worked as product owner with Claude Code as the engineer, from a seven-documen
 
 ## Status
 
-An MVP portfolio project. Built and tested (104 unit tests, 62 database security assertions, 14 end-to-end tests including an automated WCAG 2.2 AA scan, and the eval suite, v4). Live at [sillage-rosy.vercel.app](https://sillage-rosy.vercel.app) on free tiers; see the README for honest caveats.
+An MVP portfolio project. Built and tested (109 unit tests, 62 database security assertions, 14 end-to-end tests including an automated WCAG 2.2 AA scan, and the eval suite, v4). Live at [sillage-rosy.vercel.app](https://sillage-rosy.vercel.app) on free tiers; see the README for honest caveats.

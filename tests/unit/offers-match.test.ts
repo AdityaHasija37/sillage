@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { compareOffers, matchListing, parseConcentration, parseSizeMl, type OfferTarget, type RawListing } from "@/lib/offers/match";
+import { compareOffers, isMarketplace, lowPriceThreshold, matchListing, parseConcentration, parseSizeMl, type OfferTarget, type RawListing } from "@/lib/offers/match";
 
 const target: OfferTarget = { brand: "Dior", name: "Sauvage", concentration: "EDP", sizeMl: 100 };
 
@@ -113,5 +113,38 @@ describe("compareOffers", () => {
     const res = compareOffers(target, [listing("Dior Sauvage EDT 100ml", { listPrice: 1 })]);
     expect(res.exact).toHaveLength(0);
     expect(res.rejectedSummary.concentration_mismatch).toBe(1);
+  });
+});
+
+describe("price trust signals", () => {
+  it("flags an exact offer far below its peers as unusually low, and only that one", () => {
+    const res = compareOffers(target, [
+      listing("Dior Sauvage EDP 100ml", { merchant: "eBay", listPrice: 58 }),
+      listing("Dior Sauvage EDP 100ml", { merchant: "Macy's", listPrice: 150 }),
+      listing("Dior Sauvage EDP 100ml", { merchant: "Sephora", listPrice: 155 }),
+      listing("Dior Sauvage EDP 100ml", { merchant: "Nordstrom", listPrice: 160 }),
+    ]);
+    const byMerchant = Object.fromEntries(res.exact.map((o) => [o.merchant, o.flags]));
+    expect(byMerchant.eBay).toEqual(["marketplace", "unusually_low"]);
+    expect(byMerchant.Sephora).toEqual([]);
+    // Flags never change which group an offer is in or the price order.
+    expect(res.exact[0].merchant).toBe("eBay");
+  });
+  it("uses the brand band only for a full-size bottle when there are too few offers to compare", () => {
+    expect(lowPriceThreshold([150, 160, 170], "100_200", 100)).toBe(104);
+    expect(lowPriceThreshold([40], "100_200", 100)).toBe(65);
+    expect(lowPriceThreshold([40], "100_200", 30)).toBeNull();
+    expect(lowPriceThreshold([40], null, 100)).toBeNull();
+    expect(lowPriceThreshold([], "under_50", 100)).toBeNull();
+  });
+  it("labels marketplaces, not retailers", () => {
+    expect(isMarketplace("eBay - jovialm87")).toBe(true);
+    expect(isMarketplace("Poshmark")).toBe(true);
+    expect(isMarketplace("Sephora")).toBe(false);
+    expect(isMarketplace("Harrods")).toBe(false);
+  });
+  it("never flags rejected listings", () => {
+    const res = compareOffers(target, [listing("Dior Sauvage EDT 100ml", { merchant: "eBay", listPrice: 1 })]);
+    expect(res.rejected[0].flags).toEqual([]);
   });
 });

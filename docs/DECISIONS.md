@@ -74,6 +74,8 @@ The spec pack says: when instructions conflict or are ambiguous, record the deci
 | DEC-49 | The privacy page names the provider and says Google may use free-tier requests to improve its products | Honest data-use disclosure for the free tier |
 | DEC-50 | Engine `rec-1.3` adds two optional filters: `price_band` (one estimated band; unknown prices left out) and `accord` (a style word mapped to whole catalog accords, which must be one of the fragrance's two leading accords). The agent calls once per band for "one at $50, $100 and $200" and says when a band is empty; "gaps" mode only for "what am I missing" | Owner's live test returned vanilla gourmands for "winter fresh"; a substring match let "fresh spicy" through and "≥ 50 strength" let supporting accords through |
 | DEC-51 | Gemini free-tier resilience: each model has its own free quota, so an answer restarts on the next model on 429/5xx/404/400/timeout (3.6-flash → 3-flash-preview → 3.5-flash-lite → 3.1-flash-lite); Today's sentence uses only the Flash-Lite models, capped at 12/hour per user | Measured on production: 3.8-flash hangs, 2.5-flash is closed to new keys, 3.6-flash's free quota ran out after a few minutes of testing |
+| DEC-52 | **Price trust signals** on offers that are the right bottle: "Unusually low price" when an offer is under 65% of the median of at least three comparable offers (or, with fewer, under 65% of the brand band's floor for a ≥ 75 ml bottle); "Marketplace seller" for eBay, Poshmark, Mercari and similar. Flags never reorder or hide offers; a plain note explains them; the advisor's price tool carries them and must mention them | Live check: the cheapest exact match was an eBay listing at ~40% of typical retail. Fakes, testers and old stock are priced like that. Inform, don't filter: some are real deals |
+| DEC-53 | **"Show what was hidden"**: every rejected listing (title, merchant, price, reason) is listed in a collapsed section, without links | Makes the matcher's 100%-precision claim checkable by any user, and exposes matcher mistakes instead of burying them |
 | DEC-29 | Email confirmation is off locally; when sign-up returns a session the user goes straight to onboarding. Hosted setting: see Q-02 | Keeps E2E deterministic without Mailpit |
 
 ## Open (owner input needed)
@@ -91,6 +93,7 @@ The spec pack says: when instructions conflict or are ambiguous, record the deci
 | Date | Change |
 |---|---|
 | 26 Oct 2026 | Free model option: DEC-46 to DEC-51; Q-03 revised |
+| 27 Oct 2026 | Live prices: DEC-52, DEC-53 |
 | 22 Oct 2026 | Collection Intelligence (PRD 08) and redesign: DEC-34 to DEC-45; PRD 08 §16 resolved |
 | 21 Oct 2026 | Owner answers: Q-01 → DEC-30, Q-04 → DEC-31, Q-02/Q-03 approved. DEC-32 added |
 | 21 Oct 2026 | Register created. DEC-01 to DEC-29; Q-01 to Q-04 |

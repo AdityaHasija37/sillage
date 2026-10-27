@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { AlertTriangle, ExternalLink, Info, Loader2 } from "lucide-react";
+import { AlertTriangle, ExternalLink, Info, Loader2, Store } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { compareOffersAction, type OfferRow, type OffersResponse } from "@/app/(app)/app/actions";
+import { compareOffersAction, type HiddenRow, type OfferRow, type OffersResponse } from "@/app/(app)/app/actions";
 import { CONCENTRATIONS, type Concentration } from "@/lib/domain/fragrance";
 import { cn } from "@/lib/utils";
 
@@ -126,12 +126,57 @@ function Results({ res }: { res: OffersResponse }) {
         </div>
       )}
 
-      {res.rejected.length > 0 && (
-        <p className="text-xs text-muted-foreground">
-          Hidden because they aren&apos;t the same bottle: {res.rejected.map((r) => `${r.count} ${r.reason}`).join(", ")}.
+      <TrustNotes rows={[...res.exact, ...res.needsVerification]} />
+
+      {res.rejected.length > 0 && <HiddenListings summary={res.rejected} rows={res.hidden} />}
+    </div>
+  );
+}
+
+/** Plain-language guidance, shown only when an offer carries a trust flag. */
+function TrustNotes({ rows }: { rows: OfferRow[] }) {
+  const low = rows.some((o) => o.flags.includes("unusually_low"));
+  const market = rows.some((o) => o.flags.includes("marketplace"));
+  if (!low && !market) return null;
+  return (
+    <div className="grid gap-1 rounded-lg border border-warning/40 bg-warning/5 px-3 py-2 text-xs">
+      {low && (
+        <p>
+          <span className="font-medium">Unusually low price</span> means well under what the other offers (or the brand&apos;s usual range) suggest for this bottle. It can be a real deal, but it&apos;s also how fakes, testers and old stock are priced: check the seller&apos;s ratings and the listing photos before buying.
+        </p>
+      )}
+      {market && (
+        <p>
+          <span className="font-medium">Marketplace sellers</span> are individuals, not the brand or an authorised retailer, so authenticity and condition depend on the seller.
         </p>
       )}
     </div>
+  );
+}
+
+/** The matcher's rejections, open for inspection: what was filtered out and why. */
+function HiddenListings({ summary, rows }: { summary: { reason: string; count: number }[]; rows: HiddenRow[] }) {
+  return (
+    <details className="group text-xs text-muted-foreground">
+      <summary className="cursor-pointer select-none hover:text-foreground">
+        Hidden because they aren&apos;t the same bottle: {summary.map((r) => `${r.count} ${r.reason}`).join(", ")}. <span className="underline underline-offset-2">Show them</span>
+      </summary>
+      <ul className="mt-2 grid max-h-72 gap-1 overflow-y-auto rounded-lg border p-2">
+        {rows.map((o, i) => (
+          <li key={i} className="flex items-baseline justify-between gap-3 border-b pb-1 last:border-b-0 last:pb-0">
+            <span className="min-w-0">
+              <span className="block truncate text-foreground" title={o.title}>
+                {o.title}
+              </span>
+              <span>
+                {o.merchant} · {o.reason}
+              </span>
+            </span>
+            <span className="shrink-0 tabular-nums">{usd(o.listPrice)}</span>
+          </li>
+        ))}
+      </ul>
+    </details>
   );
 }
 
@@ -169,6 +214,20 @@ function OfferTable({ rows, basis, live, showReasons = false }: { rows: OfferRow
                   {o.title}
                 </p>
                 {showReasons && o.reasons.length > 0 && <p className="text-xs text-warning">{o.reasons.join(", ")}</p>}
+                {o.flags.length > 0 && (
+                  <p className="mt-1 flex flex-wrap gap-1">
+                    {o.flags.includes("unusually_low") && (
+                      <span className="inline-flex items-center gap-1 rounded-full border border-warning/50 bg-warning/10 px-2 py-0.5 text-[11px] text-foreground">
+                        <AlertTriangle className="size-3 text-warning" aria-hidden="true" /> Unusually low price
+                      </span>
+                    )}
+                    {o.flags.includes("marketplace") && (
+                      <span className="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] text-muted-foreground">
+                        <Store className="size-3" aria-hidden="true" /> Marketplace seller
+                      </span>
+                    )}
+                  </p>
+                )}
               </td>
               <td className="px-3 py-2 text-right tabular-nums">{usd(o.listPrice)}</td>
               <td className="px-3 py-2 text-right text-muted-foreground tabular-nums">{o.shippingPrice == null ? "Not stated" : o.shippingPrice === 0 ? "Free" : usd(o.shippingPrice)}</td>

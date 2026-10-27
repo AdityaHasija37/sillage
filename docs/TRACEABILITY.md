@@ -77,7 +77,7 @@ Every P0/P1 requirement in the [PRD](specs/01_Sillage_PRD.md) and test ID in the
 | Gate | Status |
 |---|---|
 | A: types, build, lint | Pass (`npm run check`) |
-| B: deterministic scoring and variant tests | Pass (104 unit tests) |
+| B: deterministic scoring and variant tests | Pass (109 unit tests) |
 | C: authenticated access and RLS | Pass (62 pgTAP assertions) |
 | D: demo walkthrough public without sign-up | Pass locally and on https://sillage-rosy.vercel.app |
 | E: shipping and size caveats render | Pass (E2E-01, SHOP-05) |

@@ -19,7 +19,7 @@ import {
 import { displayName, type Fragrance } from "@/lib/domain/fragrance";
 import type { Sentiment } from "@/lib/domain/profile";
 import { searchOffers } from "@/lib/offers/service";
-import { REASON_LABEL } from "@/lib/offers/match";
+import { REASON_LABEL, type OfferFlag } from "@/lib/offers/match";
 import { caveatText, reasonText } from "@/lib/recommendation/explain";
 import { runRecommendations, type RecommendationInput } from "@/lib/recommendation/service";
 import { createClient } from "@/lib/supabase/server";
@@ -147,7 +147,8 @@ export async function feedbackAction(runId: string, fragranceId: string, reactio
 
 // ── Offers ──────────────────────────────────────────────────────────────────
 
-export type OfferRow = { merchant: string; title: string; url: string; listPrice: number; shippingPrice: number | null; landed: number | null; reasons: string[] };
+export type OfferRow = { merchant: string; title: string; url: string; listPrice: number; shippingPrice: number | null; landed: number | null; reasons: string[]; flags: OfferFlag[] };
+export type HiddenRow = { merchant: string; title: string; listPrice: number; reason: string };
 export type OffersResponse =
   | {
       ok: true;
@@ -161,6 +162,7 @@ export type OffersResponse =
       exact: OfferRow[];
       needsVerification: OfferRow[];
       rejected: { reason: string; count: number }[];
+      hidden: HiddenRow[];
     }
   | { ok: false; error: string };
 
@@ -185,6 +187,7 @@ export async function compareOffersAction(input: { fragranceId: string; concentr
       shippingPrice: o.shippingPrice,
       landed: o.shippingPrice == null ? null : Math.round((o.listPrice + o.shippingPrice + (o.taxPrice ?? 0)) * 100) / 100,
       reasons: o.reasons.map((x) => REASON_LABEL[x]),
+      flags: o.flags,
     });
     return {
       ok: true,
@@ -198,6 +201,13 @@ export async function compareOffersAction(input: { fragranceId: string; concentr
       exact: r.comparison.exact.map(row),
       needsVerification: r.comparison.needsVerification.map(row),
       rejected: Object.entries(r.comparison.rejectedSummary).map(([reason, count]) => ({ reason: REASON_LABEL[reason as keyof typeof REASON_LABEL], count: count! })),
+      // What was filtered out, so anyone can check the matcher's call (no links: these aren't offers).
+      hidden: r.comparison.rejected.slice(0, 60).map((o) => ({
+        merchant: o.merchant,
+        title: o.title,
+        listPrice: o.listPrice,
+        reason: REASON_LABEL[o.reasons.find((x) => x !== "concentration_unstated" && x !== "size_unstated") ?? o.reasons[0]],
+      })),
     };
   } catch {
     return { ok: false, error: "Price comparison is unavailable right now. No offers were found or shown." };

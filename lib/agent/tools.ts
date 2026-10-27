@@ -301,7 +301,13 @@ export async function executeTool(name: string, rawInput: unknown, ctx: AdvisorC
       if (!f) return { content: { error: "No fragrance with that id" }, fragranceIds: [], prices: [], summary: "Offers: not found" };
       const r = await ctx.findOffers(f, i.concentration, i.size_ml);
       const c = r.comparison;
-      const exact = c.exact.slice(0, 5).map((o) => ({ merchant: o.merchant, listed_price_usd: o.listPrice, shipping_usd: o.shippingPrice ?? "unknown" }));
+      const exact = c.exact.slice(0, 5).map((o) => ({
+        merchant: o.merchant,
+        listed_price_usd: o.listPrice,
+        shipping_usd: o.shippingPrice ?? "unknown",
+        ...(o.flags.includes("marketplace") ? { seller: "marketplace seller (an individual, not a retailer)" } : {}),
+        ...(o.flags.includes("unusually_low") ? { price_warning: "unusually low for this bottle: possible fake, tester or old stock; check the seller" } : {}),
+      }));
       return {
         content: {
           bottle: `${displayName(f)} ${i.concentration} ${i.size_ml} ml`,

@@ -1,4 +1,4 @@
-import type { Concentration } from "@/lib/domain/fragrance";
+import { PRICE_BAND_RANGE, type Concentration, type PriceBand } from "@/lib/domain/fragrance";
 
 /** What the user selected on the detail page: the exact bottle they want priced. */
 export type OfferTarget = { brand: string; name: string; concentration: Concentration; sizeMl: number };
@@ -32,10 +32,14 @@ export type MatchReason =
   | "non_usd"
   | "duplicate";
 
+/** Trust signals on an offer that *is* the right bottle: who sells it, and whether the price is plausible. */
+export type OfferFlag = "marketplace" | "unusually_low";
+
 export type MatchedOffer = RawListing & {
   status: MatchStatus;
   reasons: MatchReason[];
   parsed: { concentration: Concentration | null; sizeMl: number | null; condition: string | null };
+  flags: OfferFlag[];
 };
 
 const norm = (s: string) =>
@@ -165,7 +169,7 @@ export function matchListing(target: OfferTarget, listing: RawListing): MatchedO
 
   const hard: MatchReason[] = ["unsafe_url", "non_usd", "brand_missing", "name_missing", "different_edition", "concentration_mismatch", "size_mismatch", "not_new_full_bottle", "multi_item_set"];
   const status: MatchStatus = reasons.some((r) => hard.includes(r)) ? "rejected" : reasons.length ? "probable" : "exact";
-  return { ...listing, status, reasons, parsed: { concentration, sizeMl, condition } };
+  return { ...listing, status, reasons, parsed: { concentration, sizeMl, condition }, flags: [] };
 }
 
 // "Elixir"/"Extrait" are concentrations as well as edition words; don't double-penalise them.
@@ -210,9 +214,39 @@ export function landedPrice(o: Pick<RawListing, "listPrice" | "shippingPrice" | 
   return round2(o.listPrice + o.shippingPrice + (o.taxPrice ?? 0));
 }
 
+/** Individual sellers rather than retailers: authenticity and condition rest on the seller. */
+const MARKETPLACES = /\b(ebay|poshmark|mercari|depop|etsy|offerup|facebook|vinted|whatnot|grailed)\b/;
+export const isMarketplace = (merchant: string) => MARKETPLACES.test(norm(merchant));
+
+/** Fraction of the typical price below which an offer is called unusually low. */
+export const LOW_PRICE_RATIO = 0.65;
+
+/**
+ * Below this, an offer for the right bottle is "unusually low": at least three comparable offers set
+ * the typical price (their median); with fewer, the brand's estimated band does, but only for a
+ * full-size bottle (≥ 75 ml), since bands describe the usual retail size. Null means "can't tell".
+ */
+export function lowPriceThreshold(prices: number[], priceBand: PriceBand | null | undefined, sizeMl: number): number | null {
+  if (prices.length >= 3) {
+    const s = [...prices].sort((a, b) => a - b);
+    const mid = Math.floor(s.length / 2);
+    const median = s.length % 2 ? s[mid] : (s[mid - 1] + s[mid]) / 2;
+    return round2(median * LOW_PRICE_RATIO);
+  }
+  const low = priceBand ? PRICE_BAND_RANGE[priceBand][0] : 0;
+  return low > 0 && sizeMl >= 75 ? round2(low * LOW_PRICE_RATIO) : null;
+}
+
 /** Groups and ranks matched offers. Never ranks across bases: it's landed for all or listed for all. */
-export function compareOffers(target: OfferTarget, listings: RawListing[]): OfferComparison {
-  const matched = dedupe(listings.map((l) => matchListing(target, l)));
+export function compareOffers(target: OfferTarget, listings: RawListing[], opts: { priceBand?: PriceBand | null } = {}): OfferComparison {
+  const deduped = dedupe(listings.map((l) => matchListing(target, l)));
+  const candidates = deduped.filter((o) => o.status !== "rejected");
+  const threshold = lowPriceThreshold(candidates.map((o) => o.listPrice), opts.priceBand, target.sizeMl);
+  const matched = deduped.map((o): MatchedOffer =>
+    o.status === "rejected"
+      ? o
+      : { ...o, flags: [...(isMarketplace(o.merchant) ? (["marketplace"] as const) : []), ...(threshold != null && o.listPrice < threshold ? (["unusually_low"] as const) : [])] },
+  );
   const exact = matched.filter((o) => o.status === "exact");
   const needsVerification = matched.filter((o) => o.status === "probable");
   const rejected = matched.filter((o) => o.status === "rejected");
@@ -230,6 +264,11 @@ export function compareOffers(target: OfferTarget, listings: RawListing[]): Offe
 }
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
+
+export const FLAG_LABEL: Record<OfferFlag, string> = {
+  marketplace: "Marketplace seller",
+  unusually_low: "Unusually low price",
+};
 
 export const REASON_LABEL: Record<MatchReason, string> = {
   brand_missing: "different brand",
