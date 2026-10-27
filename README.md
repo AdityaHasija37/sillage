@@ -96,7 +96,7 @@ I worked as product owner with an AI coding agent (Claude Code) as the engineer,
 
 **Design:** an editorial look of its own (Instrument Serif, paper and ink, cognac accents, drawn bottles whose shape and tint come from each fragrance's name and accords), deliberately distinct from my other portfolio project. Weather comes from [Open-Meteo](https://open-meteo.com) (free, no key), opt-in, coordinates rounded and never stored.
 
-**Quality at the time of writing:** 101 unit tests, 62 database security assertions (row-level security on every new table), 14 end-to-end tests (desktop + mobile, WCAG 2.2 AA scan on every app screen including Today, Scent Lab, Score and Advisor, keyboard-only flow), production build and a check that no server secret reaches the browser bundle.
+**Quality at the time of writing:** 104 unit tests, 62 database security assertions (row-level security on every new table), 14 end-to-end tests (desktop + mobile, WCAG 2.2 AA scan on every app screen including Today, Scent Lab, Score and Advisor, keyboard-only flow), production build and a check that no server secret reaches the browser bundle.
 
 ## Status and honest caveats
 

@@ -105,6 +105,9 @@ const GENERIC_WORDS = new Set([
   "women", "woman", "womens", "her", "him", "his", "pour", "homme", "femme", "unisex", "fragrance", "perfume", "fl", "oz", "ml", "new", "sealed", "in", "box",
   "boxed", "authentic", "original", "genuine", "the", "and", "by", "a", "s", "with", "x", "christian", "chanel", "ysl", "giorgio", "armani", "paco", "rabanne",
   "lancome", "lancôme", "perfumes", "paris", "london", "new york", "milano", "jpg", "dg", "d", "g", "le", "la", "l",
+  // Seen on live Google Shopping listings: size and category filler, and scent-family descriptors
+  // ("Citrus Woody"). Words that do name flankers (intense, fresh, sport, night…) stay out.
+  "regular", "size", "full", "fragrances", "citrus", "woody", "aromatic", "spicy", "floral", "oriental", "musky",
 ]);
 
 const SET_PATTERN = /\bgift set\b|\bset of\b|\b\d\s*pc\b|\b\d\s*piece\b|\bcoffret\b|\bbundle\b|\bkit\b|\bduo\b|\btrio\b|\b\d\s*x\s*\d/;

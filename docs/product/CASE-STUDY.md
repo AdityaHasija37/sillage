@@ -88,4 +88,4 @@ I worked as product owner with Claude Code as the engineer, from a seven-documen
 
 ## Status
 
-An MVP portfolio project. Built and tested (101 unit tests, 62 database security assertions, 14 end-to-end tests including an automated WCAG 2.2 AA scan, and the eval suite, v4). Live at [sillage-rosy.vercel.app](https://sillage-rosy.vercel.app) on free tiers; see the README for honest caveats.
+An MVP portfolio project. Built and tested (104 unit tests, 62 database security assertions, 14 end-to-end tests including an automated WCAG 2.2 AA scan, and the eval suite, v4). Live at [sillage-rosy.vercel.app](https://sillage-rosy.vercel.app) on free tiers; see the README for honest caveats.

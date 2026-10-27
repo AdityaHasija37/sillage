@@ -33,6 +33,14 @@ describe("normalizeUrl", () => {
     const m = matchListing({ brand: "Chanel", name: "Bleu de Chanel", concentration: "EDP", sizeMl: 50 }, { provider: "serpapi_google_shopping", merchant: "Google", title: "Chanel Bleu de Chanel Eau de Parfum 1.7 oz", url, listPrice: 120, shippingPrice: null, taxPrice: null, availability: null, currency: "USD" });
     expect(m.reasons).not.toContain("unsafe_url");
   });
+  it("treats retail filler seen on live listings as filler, not as a different edition", () => {
+    const target = { brand: "Chanel", name: "Bleu de Chanel", concentration: "EDP" as const, sizeMl: 100 };
+    const listing = (title: string) => ({ provider: "serpapi_google_shopping" as const, merchant: "eBay", title, url: "https://ebay.com/itm/1", listPrice: 100, shippingPrice: 0, taxPrice: null, availability: null, currency: "USD" });
+    for (const title of ["Chanel Bleu De Chanel Eau De Parfum Spray 3.4 Fl Oz Citrus Woody", "Chanel Bleu De Chanel Eau De Parfum Spray 3.4 Fl Oz Regular Size", "Chanel Men's Bleu De Chanel EDP Spray 3.4 oz Fragrances 3145891073607"])
+      expect(matchListing(target, listing(title)).status).toBe("exact");
+    // Flanker words still block an exact match.
+    expect(matchListing(target, listing("Chanel Bleu De Chanel Eau De Parfum Intense 3.4 oz")).status).not.toBe("exact");
+  });
   it("drops non-https and malformed links", () => {
     expect(normalizeUrl("http://shop.example/x")).toBeNull();
     expect(normalizeUrl("javascript:alert(1)")).toBeNull();
