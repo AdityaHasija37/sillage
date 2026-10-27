@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { compareOffers } from "@/lib/offers/match";
-import { parseDelivery, SampleOfferProvider } from "@/lib/offers/providers";
+import { normalizeUrl, parseDelivery, SampleOfferProvider } from "@/lib/offers/providers";
+import { matchListing } from "@/lib/offers/match";
 
 describe("SampleOfferProvider", () => {
   const target = { brand: "Dior", name: "Sauvage", concentration: "EDP" as const, sizeMl: 100 };
@@ -20,6 +21,23 @@ describe("SampleOfferProvider", () => {
     expect(res.exact.length).toBeGreaterThanOrEqual(2);
     expect(res.needsVerification.length).toBe(1);
     expect(Object.keys(res.rejectedSummary).sort()).toEqual(["concentration_mismatch", "different_edition", "not_new_full_bottle", "size_mismatch"]);
+  });
+});
+
+describe("normalizeUrl", () => {
+  it("percent-encodes Google Shopping links that arrive with raw spaces, so they pass the safety check", () => {
+    const raw = "https://www.google.com/search?ibp=oshop&q=Chanel Bleu de Chanel Eau de Parfum 50ml&prds=catalogid:1";
+    const url = normalizeUrl(raw)!;
+    expect(url).not.toMatch(/\s/);
+    expect(url.startsWith("https://www.google.com/search?")).toBe(true);
+    const m = matchListing({ brand: "Chanel", name: "Bleu de Chanel", concentration: "EDP", sizeMl: 50 }, { provider: "serpapi_google_shopping", merchant: "Google", title: "Chanel Bleu de Chanel Eau de Parfum 1.7 oz", url, listPrice: 120, shippingPrice: null, taxPrice: null, availability: null, currency: "USD" });
+    expect(m.reasons).not.toContain("unsafe_url");
+  });
+  it("drops non-https and malformed links", () => {
+    expect(normalizeUrl("http://shop.example/x")).toBeNull();
+    expect(normalizeUrl("javascript:alert(1)")).toBeNull();
+    expect(normalizeUrl("not a url")).toBeNull();
+    expect(normalizeUrl(undefined)).toBeNull();
   });
 });
 

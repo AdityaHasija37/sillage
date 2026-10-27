@@ -100,6 +100,21 @@ const SerpResponse = z.object({
   error: z.string().optional(),
 });
 
+/**
+ * Google Shopping product links arrive with raw spaces in the query ("…&q=Chanel Bleu de…"), which
+ * the matcher's safety check rightly rejects. Parse and re-serialise so they're percent-encoded;
+ * anything that isn't a valid https URL is dropped.
+ */
+export function normalizeUrl(raw: string | undefined): string | null {
+  if (!raw) return null;
+  try {
+    const u = new URL(raw.trim());
+    return u.protocol === "https:" ? u.href : null;
+  } catch {
+    return null;
+  }
+}
+
 /** "Free delivery" → 0, "$5.99 delivery" / "+$5.99 shipping" → 5.99, anything else → unknown. */
 export function parseDelivery(text: string | undefined): number | null {
   if (!text) return null;
@@ -133,7 +148,7 @@ export class SerpApiOfferProvider implements OfferProvider {
     for (const raw of body.data.shopping_results ?? []) {
       const r = SerpShoppingResult.safeParse(raw);
       if (!r.success || r.data.extracted_price == null || r.data.extracted_price <= 0) continue;
-      const url = r.data.link ?? r.data.product_link;
+      const url = normalizeUrl(r.data.link ?? r.data.product_link);
       if (!url) continue;
       out.push({
         provider: "serpapi_google_shopping",
