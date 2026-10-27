@@ -19,7 +19,7 @@ import {
 import { displayName, type Fragrance } from "@/lib/domain/fragrance";
 import type { Sentiment } from "@/lib/domain/profile";
 import { searchOffers } from "@/lib/offers/service";
-import { REASON_LABEL, type OfferFlag } from "@/lib/offers/match";
+import { mainReason, REASON_LABEL, type OfferFlag } from "@/lib/offers/match";
 import { caveatText, reasonText } from "@/lib/recommendation/explain";
 import { runRecommendations, type RecommendationInput } from "@/lib/recommendation/service";
 import { createClient } from "@/lib/supabase/server";
@@ -206,7 +206,7 @@ export async function compareOffersAction(input: { fragranceId: string; concentr
         merchant: o.merchant,
         title: o.title,
         listPrice: o.listPrice,
-        reason: REASON_LABEL[o.reasons.find((x) => x !== "concentration_unstated" && x !== "size_unstated") ?? o.reasons[0]],
+        reason: REASON_LABEL[mainReason(o.reasons)],
       })),
     };
   } catch {

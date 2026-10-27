@@ -148,3 +148,24 @@ describe("price trust signals", () => {
     expect(res.rejected[0].flags).toEqual([]);
   });
 });
+
+describe("rejection reasons on live-style listings", () => {
+  // The catalog name includes the concentration, as many real records do.
+  const bdc: OfferTarget = { brand: "Chanel", name: "Bleu de Chanel Eau de Parfum", concentration: "EDP", sizeMl: 100 };
+  const reasonFor = (title: string) => {
+    const res = compareOffers(bdc, [listing(title, { merchant: "Shop" })]);
+    return Object.keys(res.rejectedSummary)[0];
+  };
+  it("names the real reason instead of 'different fragrance'", () => {
+    expect(reasonFor("Chanel Bleu de Chanel Eau de Toilette Spray")).toBe("concentration_mismatch");
+    expect(reasonFor("Bleu de Chanel Apă de toaletă pentru bărbați - Chanel")).toBe("concentration_mismatch");
+    expect(reasonFor("Bleu deChanel 男士淡香水 - Chanel")).toBe("concentration_mismatch");
+    expect(reasonFor("Chanel Bleu de Chanel After Shave Lotion")).toBe("not_new_full_bottle");
+    expect(reasonFor("Chanel Bleu de Chanel All-Over Spray")).toBe("not_new_full_bottle");
+    expect(reasonFor("CHANEL BLEU DE CHANEL Parfum Twist & Spray - 3 x 0.7 oz/ 20.7 mL")).toBe("multi_item_set");
+    expect(reasonFor("Dior Sauvage Eau de Parfum 100ml")).toBe("brand_missing");
+  });
+  it("still matches the right bottle when the catalog name carries the concentration", () => {
+    expect(matchListing(bdc, listing("Chanel Bleu De Chanel Eau De Parfum Spray 3.4 Fl Oz")).status).toBe("exact");
+  });
+});

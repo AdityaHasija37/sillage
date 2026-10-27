@@ -55,14 +55,18 @@ const norm = (s: string) =>
 const CONCENTRATION_PATTERNS: [RegExp, Concentration][] = [
   [/\bextrait\b/, "Extrait"],
   [/\belixir\b/, "Elixir"],
-  [/\beau de parfum\b|\bedp\b/, "EDP"],
-  [/\beau de toilette\b|\bedt\b/, "EDT"],
+  // Plus the Romanian forms seen on live international listings.
+  [/\beau de parfum\b|\bedp\b|\bapa de parfum\b/, "EDP"],
+  [/\beau de toilette\b|\bedt\b|\bapa de toaleta\b/, "EDT"],
   [/\beau de cologne\b|\bedc\b/, "EDC"],
   [/\bparfum\b/, "Parfum"],
   [/\bcologne\b/, "Cologne"],
 ];
 
 export function parseConcentration(title: string): Concentration | null {
+  // Chinese listings name the concentration in characters that normalisation would strip.
+  if (/淡香精/.test(title)) return "EDP";
+  if (/淡香水/.test(title)) return "EDT";
   const t = norm(title);
   for (const [re, c] of CONCENTRATION_PATTERNS) if (re.test(t)) return c;
   return null;
@@ -101,7 +105,7 @@ const CONDITION_WORDS: [RegExp, string][] = [
   [/\bmini\b|\bminiature\b|\btravel\b|\brollerball\b|\broller\b|\bpurse spray\b/, "travel size"],
   [/\brefill\b/, "refill"],
   [/\bused\b|\bpre owned\b|\bpartial\b|\bopen box\b/, "used"],
-  [/\bbody (lotion|wash|spray|mist)\b|\bdeodorant\b|\bshower gel\b|\bafter ?shave\b|\bhair mist\b/, "different product"],
+  [/\bbody (lotion|wash|spray|mist)\b|\bdeodorant\b|\bshower gel\b|\bafter ?shave\b|\bhair mist\b|\ball over spray\b/, "different product"],
 ];
 // Retail filler that never changes which bottle it is. Brand aliases cover common listing variants.
 const GENERIC_WORDS = new Set([
@@ -135,7 +139,11 @@ export function matchListing(target: OfferTarget, listing: RawListing): MatchedO
   if (!t.includes(brand) && !t.includes(brand.replace(/ /g, ""))) reasons.push("brand_missing");
 
   const name = norm(target.name);
-  const nameTokens = name.split(" ").filter((w) => w.length > 1 || /\d/.test(w));
+  // Catalog names sometimes include the concentration ("Bleu de Chanel Eau de Parfum"). The name
+  // check uses the core name, so an EDT listing is rejected as the wrong concentration (the true
+  // reason) rather than as a different fragrance. The concentration check still applies.
+  const coreName = name.replace(/\b(extrait de parfum|eau de parfum|eau de toilette|eau de cologne|edp|edt|edc|parfum|extrait)\b/g, " ").replace(/\s+/g, " ").trim() || name;
+  const nameTokens = coreName.split(" ").filter((w) => w.length > 1 || /\d/.test(w));
   if (!nameTokens.every((w) => new RegExp(`\\b${escapeRe(w)}\\b`).test(t))) reasons.push("name_missing");
 
   const own = ` ${norm(target.brand)} ${name} `;
@@ -257,13 +265,22 @@ export function compareOffers(target: OfferTarget, listings: RawListing[], opts:
   needsVerification.sort((a, b) => a.listPrice - b.listPrice);
   const rejectedSummary: Partial<Record<MatchReason, number>> = {};
   for (const o of rejected) {
-    const main = o.reasons.find((r) => r !== "concentration_unstated" && r !== "size_unstated") ?? o.reasons[0];
+    const main = mainReason(o.reasons);
     rejectedSummary[main] = (rejectedSummary[main] ?? 0) + 1;
   }
   return { exact, needsVerification, rejected, basis, shippingUnknownCount, rejectedSummary };
 }
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
+
+// Most informative first: "it's an after-shave" or "it's the EDT" says more than "the name differs"
+// (which a typo like "Bleu deChanel" can trigger).
+const REASON_PRIORITY: MatchReason[] = [
+  "unsafe_url", "non_usd", "not_new_full_bottle", "multi_item_set", "concentration_mismatch", "size_mismatch", "different_edition",
+  "duplicate", "brand_missing", "name_missing", "unrecognised_words", "concentration_unstated", "size_unstated",
+];
+/** The one reason to show for a rejected listing. */
+export const mainReason = (reasons: MatchReason[]): MatchReason => REASON_PRIORITY.find((r) => reasons.includes(r)) ?? reasons[0];
 
 export const FLAG_LABEL: Record<OfferFlag, string> = {
   marketplace: "Marketplace seller",
@@ -278,7 +295,7 @@ export const REASON_LABEL: Record<MatchReason, string> = {
   concentration_unstated: "concentration not stated",
   size_mismatch: "different size",
   size_unstated: "size not stated",
-  not_new_full_bottle: "tester, sample, travel size or used",
+  not_new_full_bottle: "not a new full bottle (tester, sample, travel size, used, or another product like an after-shave)",
   multi_item_set: "gift set or bundle",
   unrecognised_words: "extra words that may mean a different edition",
   unsafe_url: "unsafe link",

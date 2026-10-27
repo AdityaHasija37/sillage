@@ -1,12 +1,12 @@
 # Eval report
 
-Generated 2026-10-27T07:36:59.571Z (label: `v6-live-offers`, engine rec-1.3). Produced by `npm run evals`; numbers are measured, not targets.
+Generated 2026-10-27T07:39:38.593Z (label: `v6-live-offers`, engine rec-1.3). Produced by `npm run evals`; numbers are measured, not targets.
 
 | Area | Result |
 |---|---|
 | Catalog size | 38,365 fragrances; 100.0% of 20 common bottles found by name; median search 8 ms (local) |
 | Offer matching (61 adversarial pairs) | precision of "exact" 100.0%, recall 100.0%, three-way agreement 95.1% |
-| Recommendations (32 synthetic personas) | 29/32 pass every criterion; exclusion compliance 100.0%; relevance checks 94.6%; median 12.9 ms over 3,000 candidates |
+| Recommendations (32 synthetic personas) | 29/32 pass every criterion; exclusion compliance 100.0%; relevance checks 94.6%; median 13.4 ms over 3,000 candidates |
 | Grounding | 0 of 7 planted fake ids/prices reached the user |
 | Collection Intelligence (PRD 08 fixtures) | 9/9 checks pass |
 | Live agent | no GEMINI_API_KEY or ANTHROPIC_API_KEY set; live agent eval skipped |
