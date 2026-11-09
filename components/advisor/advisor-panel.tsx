@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Fragment, useEffect, useRef, useState, useTransition } from "react";
-import { Check, ChevronDown, Loader2, Send, ShieldCheck, Wrench } from "lucide-react";
+import { Check, ChevronDown, Loader2, RotateCcw, Send, ShieldCheck, Wrench } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -23,12 +23,41 @@ const SUGGESTIONS = [
 ];
 
 
-export function AdvisorPanel() {
+// The conversation survives moving around the app (and a refresh) in this tab. It's per tab and per account,
+// and closing the tab forgets it here; the server keeps its own copy for the model's context.
+const MAX_STORED_TURNS = 40;
+
+export function AdvisorPanel({ storageKey }: { storageKey: string }) {
   const [turns, setTurns] = useState<Turn[]>([]);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
+  const [restored, setRestored] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(storageKey) ?? "null") as { sessionId?: string | null; turns?: Turn[] } | null;
+      if (saved && Array.isArray(saved.turns)) {
+        setTurns(saved.turns);
+        setSessionId(saved.sessionId ?? null);
+      }
+    } catch {}
+    setRestored(true);
+  }, [storageKey]);
+
+  useEffect(() => {
+    if (!restored) return;
+    try {
+      sessionStorage.setItem(storageKey, JSON.stringify({ sessionId, turns: turns.filter((t) => t.role !== "error").slice(-MAX_STORED_TURNS) }));
+    } catch {}
+  }, [restored, storageKey, sessionId, turns]);
+
+  function newChat() {
+    setTurns([]);
+    setSessionId(null);
+    setInput("");
+  }
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end" });
@@ -55,6 +84,15 @@ export function AdvisorPanel() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
+      {turns.length > 0 && (
+        <div className="flex items-center justify-between gap-3 border-b px-5 py-2">
+          <p className="text-xs text-muted-foreground">Follow-ups build on this conversation.</p>
+          <Button type="button" variant="ghost" size="sm" onClick={newChat} disabled={busy}>
+            <RotateCcw aria-hidden="true" />
+            New chat
+          </Button>
+        </div>
+      )}
       <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4" aria-live="polite">
         {turns.length === 0 && (
           <div className="grid gap-3">

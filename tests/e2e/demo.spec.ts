@@ -49,6 +49,38 @@ test("FR-07: advisor answers from the user's collection, with a trace and ground
   await expect(page.getByText(/Grounding check: \d+ fragrance/)).toBeVisible();
 });
 
+test("FR-07: advisor follow-ups build on the conversation, which survives leaving the page", async ({ page }) => {
+  await startDemo(page);
+  await page.goto("/app/advisor");
+  const input = page.getByLabel("Ask the advisor");
+  await input.fill("something woody under $150");
+  await input.press("Enter");
+  await expect(page.getByRole("button", { name: /How I got this/ })).toHaveCount(1, { timeout: 60_000 });
+  await input.fill("what about for evenings?");
+  await input.press("Enter");
+  await expect(page.getByRole("button", { name: /How I got this/ })).toHaveCount(2, { timeout: 60_000 });
+  if (await page.getByText(/rule-based/).first().isVisible()) await expect(page.getByText(/woody, evening, under \$150/)).toBeVisible();
+
+  await page.goto("/app/wishlist");
+  await page.goto("/app/advisor");
+  await expect(page.getByText("what about for evenings?")).toBeVisible();
+  await page.getByRole("button", { name: "New chat" }).click();
+  await expect(page.getByText("what about for evenings?")).toHaveCount(0);
+});
+
+test("Wishlist: search the catalog and save a known bottle without the advisor", async ({ page }) => {
+  await startDemo(page);
+  await page.goto("/app/wishlist");
+  await page.getByLabel("Search fragrances to save").fill("aventus");
+  const save = page.getByRole("button", { name: /^Save Creed Aventus/ }).first();
+  await expect(save).toBeVisible({ timeout: 15_000 });
+  await save.click();
+  await expect(page.getByText(/Saved .* to your wishlist/)).toBeVisible();
+  // After a reload the search is empty, so Aventus can only be showing in the wishlist itself.
+  await page.reload();
+  await expect(page.getByText(/Aventus/).first()).toBeVisible();
+});
+
 test("SEC-02: two demo visitors get separate sandboxes", async ({ browser }) => {
   const a = await browser.newContext();
   const b = await browser.newContext();

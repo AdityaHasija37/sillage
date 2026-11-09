@@ -98,7 +98,7 @@ The first version worked but looked generic. I redesigned it as an editorial pro
 | Recommendations (32 personas, criteria written first) | 29 / 32; exclusions honoured 100% |
 | Fabrications reaching users (adversarial) | **0 / 7** |
 | Collection Intelligence checks | 9 / 9 |
-| Quality | 119 unit tests, 62 database-security assertions, 14 end-to-end tests including a WCAG 2.2 AA scan |
+| Quality | 125 unit tests, 62 database-security assertions, 16 end-to-end tests including a WCAG 2.2 AA scan |
 | Cost to run | $0 (free tiers throughout) |
 
 What isn't measured yet: anything about real users. That's the next step.

@@ -33,9 +33,22 @@ export async function POST(req: Request) {
   const supabase = await createClient();
   let sessionId = parsed.data.sessionId ?? null;
   let history: HistoryTurn[] = [];
+  // A stale or foreign session id (row-level security hides other users' sessions) starts a new conversation.
   if (sessionId) {
-    const { data } = await supabase.from("chat_messages").select("role, content").eq("session_id", sessionId).order("created_at").limit(20);
-    history = (data ?? []).map((m) => ({ role: m.role as HistoryTurn["role"], content: m.content }));
+    const { data } = await supabase.from("chat_sessions").select("id").eq("id", sessionId).maybeSingle();
+    if (!data) sessionId = null;
+  }
+  if (sessionId) {
+    // The newest 20 messages, newest first, then put back in order. Older rows saved a question and its answer
+    // with the same timestamp, so ties sort the question first ("assistant" < "user" before the reverse).
+    const { data } = await supabase
+      .from("chat_messages")
+      .select("role, content")
+      .eq("session_id", sessionId)
+      .order("created_at", { ascending: false })
+      .order("role", { ascending: true })
+      .limit(20);
+    history = (data ?? []).reverse().map((m) => ({ role: m.role as HistoryTurn["role"], content: m.content }));
   } else {
     const { data } = await supabase.from("chat_sessions").insert({}).select("id").single();
     sessionId = data?.id ?? null;
@@ -45,11 +58,10 @@ export async function POST(req: Request) {
   const reply = await runAdvisor(parsed.data.message, history, ctx);
 
   if (sessionId) {
-    await supabase.from("chat_messages").insert([
-      { session_id: sessionId, role: "user", content: parsed.data.message },
-      // The trace stores tool names, summaries and timings: no secrets and no other users' data.
-      { session_id: sessionId, role: "assistant", content: reply.text.slice(0, 8000), tool_summary_json: JSON.parse(JSON.stringify(reply.trace)) },
-    ]);
+    // Two inserts, so the answer gets a later timestamp than the question and the order survives a reload.
+    await supabase.from("chat_messages").insert({ session_id: sessionId, role: "user", content: parsed.data.message });
+    // The trace stores tool names, summaries and timings: no secrets and no other users' data.
+    await supabase.from("chat_messages").insert({ session_id: sessionId, role: "assistant", content: reply.text.slice(0, 8000), tool_summary_json: JSON.parse(JSON.stringify(reply.trace)) });
   }
 
   // Resolve cited ids to display cards (all came from this user's tool results).

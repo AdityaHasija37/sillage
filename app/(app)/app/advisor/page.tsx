@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { AdvisorPanel } from "@/components/advisor/advisor-panel";
 import { configuredProvider } from "@/lib/agent/advisor";
+import { requireUser } from "@/lib/auth/session";
 import { getPreferences, listCollection } from "@/lib/collection/service";
 import { buildProfile } from "@/lib/domain/profile";
 import { TOOL_DEFINITIONS } from "@/lib/agent/tools";
@@ -22,7 +23,7 @@ const TOOL_COPY: Record<string, string> = {
 };
 
 export default async function AdvisorPage() {
-  const [owned, prefs] = await Promise.all([listCollection(), getPreferences()]);
+  const [user, owned, prefs] = await Promise.all([requireUser(), listCollection(), getPreferences()]);
   const profile = buildProfile(owned);
   const provider = configuredProvider();
   const reads = TOOL_DEFINITIONS.filter((t) => !t.name.startsWith("propose_"));
@@ -40,7 +41,7 @@ export default async function AdvisorPage() {
       </header>
       <div className="grid gap-8 lg:grid-cols-[1fr_20rem]">
         <section aria-label="Conversation" className="flex h-[calc(100dvh-14rem)] min-h-[28rem] flex-col overflow-hidden rounded-md border bg-card lg:h-[min(44rem,calc(100dvh-16rem))] lg:min-h-[30rem]">
-          <AdvisorPanel />
+          <AdvisorPanel storageKey={`sillage:advisor:${user.id}`} />
         </section>
         <aside className="grid content-start gap-6 text-sm">
           <div className="rounded-md border p-5">

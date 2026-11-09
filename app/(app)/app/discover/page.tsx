@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Discover } from "@/components/discover/discover";
 import { getPreferences, listCollection } from "@/lib/collection/service";
 import { MODES, type Mode } from "@/lib/recommendation/engine";
@@ -19,6 +20,12 @@ export default async function DiscoverPage({ searchParams }: PageProps<"/app/dis
           Find your <em className="text-primary">next bottle.</em>
         </h1>
         <p className="mt-3 max-w-2xl text-muted-foreground">Ranked against your {owned.length} bottle{owned.length === 1 ? "" : "s"} and your preferences. Every pick says why, and what&apos;s uncertain.</p>
+        <p className="mt-2 text-sm">
+          Already know the bottle you want?{" "}
+          <Link href="/app/wishlist#search" className="font-medium text-primary hover:underline">
+            Search and save it to your wishlist →
+          </Link>
+        </p>
       </header>
       <Discover defaultBudget={prefs.budgetMax} ownedCount={owned.length} initialMode={mode} defaultIncludeAlternatives={prefs.includeAlternatives} initialSeason={season} initialDaypart={daypart} />
     </div>

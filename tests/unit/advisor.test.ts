@@ -1,6 +1,6 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import { describe, expect, it, vi } from "vitest";
-import { parseIntent, runAdvisor } from "@/lib/agent/advisor";
+import { isFollowUp, parseIntent, resolveOffline, runAdvisor } from "@/lib/agent/advisor";
 import { groundAnswer } from "@/lib/agent/grounding";
 import { compareOffers } from "@/lib/offers/match";
 import { executeTool, TOOL_DEFINITIONS } from "@/lib/agent/tools";
@@ -189,5 +189,36 @@ describe("parseIntent", () => {
   it("reads gap and daypart requests", () => {
     expect(parseIntent("What's missing for date night?")).toMatchObject({ mode: "gaps", daypart: "night" });
     expect(parseIntent("more like my favourites for the office")).toMatchObject({ mode: "similar", daypart: "day" });
+  });
+});
+
+describe("offline follow-ups (conversation memory)", () => {
+  it("recognises short follow-ups and full new requests", () => {
+    expect(isFollowUp("now under $100")).toBe(true);
+    expect(isFollowUp("what about for evenings?")).toBe(true);
+    expect(isFollowUp("cheaper?")).toBe(true);
+    expect(isFollowUp("Suggest a woody winter fragrance under $50 that isn't close to what I own")).toBe(false);
+  });
+  it("a follow-up changes only what it states and keeps the rest", () => {
+    const r = resolveOffline(["Suggest a woody winter fragrance under $50 that isn't close to what I own", "now under $100"]);
+    expect(r).toEqual({ kind: "rec", intent: { mode: "different", season: "winter", daypart: null, budgetMax: 100, accord: "woody" } });
+    const r2 = resolveOffline(["something fresh under $80", "what about for evenings?"]);
+    expect(r2).toMatchObject({ kind: "rec", intent: { accord: "fresh", budgetMax: 80, daypart: "night" } });
+  });
+  it("chains follow-ups, and a full new request starts over", () => {
+    expect(resolveOffline(["something fresh under $80", "for summer", "no dupes"])).toMatchObject({ kind: "rec", intent: { accord: "fresh", budgetMax: 80, season: "summer", includeAlternatives: false } });
+    expect(resolveOffline(["something fresh under $80", "Suggest a woody fragrance for winter evenings"])).toMatchObject({ kind: "rec", intent: { accord: "woody", budgetMax: null } });
+  });
+  it("a new price list replaces a single budget", () => {
+    const r = resolveOffline(["something fresh under $80", "options at $50, $100 and $200"]);
+    expect(r).toMatchObject({ kind: "rec", intent: { accord: "fresh", budgetMax: null, bands: ["under_50", "50_100", "100_200"] } });
+  });
+  it("keeps the context of a what-to-wear question", () => {
+    expect(resolveOffline(["What should I wear to the office tomorrow? It'll be cold.", "what about tonight?"])).toEqual({ kind: "wear", occasion: "evening", temperature: "cold", daypart: "night" });
+  });
+  it("answers an offline follow-up using the earlier request", async () => {
+    const reply = await runAdvisor("what about for evenings?", [{ role: "user", content: "something woody under $150" }, { role: "assistant", content: "…" }], context(), { client: null });
+    expect(reply.trace.steps[0].input).toMatchObject({ accord: "woody", budgetMax: 150, daypart: "night" });
+    expect(reply.text).toMatch(/woody, evening, under \$150/);
   });
 });

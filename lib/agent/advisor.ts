@@ -101,7 +101,7 @@ export async function runAdvisor(message: string, history: HistoryTurn[], ctx: A
   const started = Date.now();
   // Tests inject a client; otherwise the environment decides.
   const provider: AdvisorProvider | null = opts.gemini !== undefined ? (opts.gemini ? "gemini" : null) : opts.client !== undefined ? (opts.client ? "anthropic" : null) : configuredProvider();
-  if (!provider) return runOffline(message, ctx, started, "no_api_key");
+  if (!provider) return runOffline(message, history, ctx, started, "no_api_key");
   const model = opts.model ?? configuredModel(provider);
   if (provider === "gemini") return runGemini(message, history, ctx, opts.gemini ?? new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY }), model, started);
   const client = opts.client ?? new Anthropic();
@@ -124,7 +124,7 @@ export async function runAdvisor(message: string, history: HistoryTurn[], ctx: A
       usage.cacheReadTokens += response.usage.cache_read_input_tokens ?? 0;
       usage.cacheWriteTokens += response.usage.cache_creation_input_tokens ?? 0;
 
-      if (response.stop_reason === "refusal") return runOffline(message, ctx, started, "refusal");
+      if (response.stop_reason === "refusal") return runOffline(message, history, ctx, started, "refusal");
       const toolUses = response.content.filter((b): b is Anthropic.ToolUseBlock => b.type === "tool_use");
       if (response.stop_reason !== "tool_use" || toolUses.length === 0) {
         final = response;
@@ -146,7 +146,7 @@ export async function runAdvisor(message: string, history: HistoryTurn[], ctx: A
   } catch (e) {
     // Log the class and status only: never the request body (it holds the user's chat).
     console.error("advisor: model call failed", e instanceof Anthropic.APIError ? `${e.name} ${e.status}` : (e as Error)?.name);
-    return runOffline(message, ctx, started, "ai_error");
+    return runOffline(message, history, ctx, started, "ai_error");
   }
 
   const raw = final?.content.filter((b): b is Anthropic.TextBlock => b.type === "text").map((b) => b.text).join("\n").trim() ?? "";
@@ -172,13 +172,13 @@ async function runGemini(message: string, history: HistoryTurn[], ctx: AdvisorCo
       if (status === 429) sawQuota = true;
       if (e instanceof BudgetExceeded || !isRetryable(e)) {
         console.error("advisor: gemini call failed", m, status ?? (e as Error)?.name, `${Date.now() - started}ms`);
-        if (e instanceof RefusalSignal) return runOffline(message, ctx, started, "refusal");
-        return runOffline(message, ctx, started, sawQuota ? "quota" : "ai_error");
+        if (e instanceof RefusalSignal) return runOffline(message, history, ctx, started, "refusal");
+        return runOffline(message, history, ctx, started, sawQuota ? "quota" : "ai_error");
       }
       console.warn("advisor: gemini model unavailable, trying the next", m, status ?? (e as Error)?.name);
     }
   }
-  return runOffline(message, ctx, started, sawQuota ? "quota" : "ai_error");
+  return runOffline(message, history, ctx, started, sawQuota ? "quota" : "ai_error");
 }
 
 async function geminiAttempt(message: string, history: HistoryTurn[], ctx: AdvisorContext, client: GoogleGenAI, model: string, started: number, deadline: number): Promise<AdvisorReply> {
@@ -318,15 +318,22 @@ const ACCORD_WORDS = ["fresh", "citrus", "woody", "aquatic", "floral", "amber", 
 /** "$50" → under_50, "$100" → 50_100, "$200" → 100_200, more → 200_plus. */
 export const bandFor = (usd: number): PriceBand => (usd <= 50 ? "under_50" : usd <= 100 ? "50_100" : usd <= 200 ? "100_200" : "200_plus");
 
-export function parseIntent(message: string): { mode: Mode; season: Season | null; daypart: "day" | "night" | null; budgetMax: number | null; includeAlternatives?: boolean; accord?: string; bands?: PriceBand[] } {
-  const m = message.toLowerCase();
-  const mode: Mode = /\b(gap|gaps|missing|fill|round out|lack|don'?t have)\b/.test(m)
+/** The mode a message asks for in so many words, or null (so a follow-up can keep the earlier one). */
+function explicitMode(m: string): Mode | null {
+  return /\b(gap|gaps|missing|fill|round out|lack|don'?t have)\b/.test(m)
     ? "gaps"
     : /\b(different|new direction|unlike|outside|change it up|not close|isn'?t close|nothing like|branch out|something new)\b/.test(m)
       ? "different"
-      : "similar";
+      : /\b(similar|something like|more like|close to)\b/.test(m)
+        ? "similar"
+        : null;
+}
+
+export function parseIntent(message: string): { mode: Mode; season: Season | null; daypart: "day" | "night" | null; budgetMax: number | null; includeAlternatives?: boolean; accord?: string; bands?: PriceBand[] } {
+  const m = message.toLowerCase();
+  const mode: Mode = explicitMode(m) ?? "similar";
   const season = SEASONS.find((s) => new RegExp(`\\b${s}\\b`).test(m)) ?? (/\bautumn\b/.test(m) ? "fall" : null);
-  const daypart = /\b(night|evening|date|club|dinner)\b/.test(m) ? "night" : /\b(office|work|day|daytime|daily)\b/.test(m) ? "day" : null;
+  const daypart = /\b(nights?|evenings?|date|club|dinner)\b/.test(m) ? "night" : /\b(office|work|day|daytime|daily)\b/.test(m) ? "day" : null;
   const budget = /(?:under|below|less than|max|up to|budget of)\s*\$?\s?(\d{2,4})/.exec(m) ?? /\$\s?(\d{2,4})\b/.exec(m);
   const noDupes = /\b(no|not|without|avoid)\b[^.]*\b(dupes?|clones?|alternatives?)\b|\boriginals? only\b/.test(m);
   const accord = ACCORD_WORDS.find((w) => new RegExp(`\\b${w}\\b`).test(m));
@@ -349,12 +356,74 @@ export function parseIntelligenceIntent(message: string): { kind: "score" } | { 
   const m = message.toLowerCase();
   if (/\b(balanced|score|how (good|varied|diverse) is my|what('?s| is) (my collection )?missing|gaps in my)\b/.test(m)) return { kind: "score" };
   if (/\bwhat (should|can) i wear\b|\bwear (today|tonight|tomorrow)\b|\bpick (one|something) (for|from) (today|tonight)\b/.test(m)) {
-    const occasion = /\b(office|work|meeting)\b/.test(m) ? "office" : /\b(date|dinner|evening|tonight|party)\b/.test(m) ? "evening" : /\b(wedding|formal|gala)\b/.test(m) ? "formal" : "casual";
-    const temperature = /\b(cold|freezing|chilly|winter)\b/.test(m) ? "cold" : /\b(hot|warm|summer|humid)\b/.test(m) ? "hot" : /\b(mild|spring)\b/.test(m) ? "mild" : undefined;
-    const daypart = /\b(tonight|evening|night|dinner|date)\b/.test(m) ? "night" : /\b(office|work|today|morning|daytime)\b/.test(m) ? "day" : undefined;
-    return { kind: "wear", occasion, temperature, daypart };
+    const w = wearFields(m);
+    return { kind: "wear", occasion: w.occasion ?? "casual", temperature: w.temperature, daypart: w.daypart };
   }
   return null;
+}
+
+type WearIntent = { kind: "wear"; occasion: "casual" | "office" | "formal" | "evening" | "special"; daypart?: "day" | "night"; temperature?: "cold" | "mild" | "hot" };
+
+/** The wear details a message states; anything it doesn't mention stays undefined. */
+function wearFields(m: string): Partial<Omit<WearIntent, "kind">> {
+  const occasion = /\b(office|work|meeting)\b/.test(m) ? "office" : /\b(date|dinner|evenings?|tonight|party)\b/.test(m) ? "evening" : /\b(wedding|formal|gala)\b/.test(m) ? "formal" : /\b(casual|weekend|errands)\b/.test(m) ? "casual" : undefined;
+  const temperature = /\b(cold|freezing|chilly|winter)\b/.test(m) ? "cold" : /\b(hot|warm|summer|humid)\b/.test(m) ? "hot" : /\b(mild|spring)\b/.test(m) ? "mild" : undefined;
+  const daypart = /\b(tonight|evenings?|nights?|dinner|date)\b/.test(m) ? "night" : /\b(office|work|today|morning|daytime)\b/.test(m) ? "day" : undefined;
+  return { occasion, temperature, daypart };
+}
+
+/** A short message that only adjusts the previous request ("now under $100", "what about for evenings?"). */
+export function isFollowUp(message: string): boolean {
+  const t = message.trim().toLowerCase();
+  if (/^(and|also|but|now|ok(ay)?|what about|how about|same|instead|make it|only|just|cheaper|any|for|in|under|below|without|with|no)\b/.test(t)) return true;
+  const words = t.split(/\s+/).filter(Boolean).length;
+  return words <= 6 && !/\b(suggest|recommend|find|show|looking for|i want|i need|balanced|score)\b/.test(t);
+}
+
+type Intent = ReturnType<typeof parseIntent>;
+export type OfflineRequest = { kind: "score" } | WearIntent | { kind: "rec"; intent: Intent };
+
+/**
+ * What the offline mode should answer, read across the conversation: each follow-up adjusts the request
+ * before it (only the details it states), and a full new request starts over. The AI providers get the
+ * raw history instead.
+ */
+export function resolveOffline(userMessages: string[]): OfflineRequest {
+  let acc: OfflineRequest | null = null;
+  for (const raw of userMessages) {
+    const m = raw.toLowerCase();
+    const special = parseIntelligenceIntent(raw);
+    if (special && !(acc?.kind === "wear" && special.kind === "wear" && isFollowUp(raw))) {
+      acc = special;
+      continue;
+    }
+    if (acc && acc.kind !== "score" && isFollowUp(raw)) {
+      if (acc.kind === "wear") {
+        const w = wearFields(m);
+        acc = { kind: "wear", occasion: w.occasion ?? acc.occasion, temperature: w.temperature ?? acc.temperature, daypart: w.daypart ?? acc.daypart };
+      } else {
+        const prev = acc.intent;
+        const cur = parseIntent(raw);
+        const newBudget = cur.bands || cur.budgetMax !== null;
+        const next: Intent = {
+          mode: explicitMode(m) ?? prev.mode,
+          season: cur.season ?? prev.season,
+          daypart: cur.daypart ?? prev.daypart,
+          budgetMax: newBudget ? cur.budgetMax : prev.budgetMax,
+        };
+        const bands = newBudget ? cur.bands : prev.bands;
+        if (bands) next.bands = bands;
+        const accord = cur.accord ?? prev.accord;
+        if (accord) next.accord = accord;
+        const alts = cur.includeAlternatives ?? prev.includeAlternatives;
+        if (alts !== undefined) next.includeAlternatives = alts;
+        acc = { kind: "rec", intent: next };
+      }
+      continue;
+    }
+    acc = { kind: "rec", intent: parseIntent(raw) };
+  }
+  return acc ?? { kind: "rec", intent: parseIntent("") };
 }
 
 const offlineLead = (reason: OfflineReason) =>
@@ -364,9 +433,10 @@ const offlineLead = (reason: OfflineReason) =>
       ? "The AI model's free quota is used up for now, so this answer comes from Sillage's rule-based engines."
       : "The AI model is unavailable right now, so this answer comes from Sillage's rule-based engines.";
 
-async function runOffline(message: string, ctx: AdvisorContext, started: number, reason: OfflineReason): Promise<AdvisorReply> {
+async function runOffline(message: string, history: HistoryTurn[], ctx: AdvisorContext, started: number, reason: OfflineReason): Promise<AdvisorReply> {
   const lead0 = offlineLead(reason);
-  const special = parseIntelligenceIntent(message);
+  const request = resolveOffline([...history.filter((h) => h.role === "user").slice(-5).map((h) => h.content), message]);
+  const special = request.kind === "rec" ? null : request;
   if (special) {
     const t1 = Date.now();
     let text = "";
@@ -394,7 +464,7 @@ async function runOffline(message: string, ctx: AdvisorContext, started: number,
       trace: { mode: "offline", provider: null, model: null, steps, rounds: 0, latencyMs: Date.now() - started, usage: null, costUsd: 0, grounding: { citedIds: grounded.citedIds, removedIds: grounded.removedIds, removedPrices: grounded.removedPrices }, stopReason: null, offlineReason: reason },
     };
   }
-  const intent = parseIntent(message);
+  const intent = (request as { kind: "rec"; intent: Intent }).intent;
   const steps: TraceStep[] = [];
   const t0 = Date.now();
   if (intent.bands) {

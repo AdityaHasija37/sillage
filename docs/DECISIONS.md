@@ -1,6 +1,6 @@
 # Decision log
 
-Every product and engineering call made while building Sillage, with the reason for it. 8 decisions came from the spec pack (D-001 to D-008); 53 were made during the build (DEC-01 to DEC-53). Status: **Adopted** (spec default or owner call), **Proposed** (my default, open to change), **Open** (needs an owner answer).
+Every product and engineering call made while building Sillage, with the reason for it. 8 decisions came from the spec pack (D-001 to D-008); 55 were made during the build (DEC-01 to DEC-55). Status: **Adopted** (spec default or owner call), **Proposed** (my default, open to change), **Open** (needs an owner answer).
 
 ## The decisions that shaped the product
 
@@ -93,6 +93,8 @@ If you read ten, read these.
 | DEC-51 | Gemini free-tier resilience: each model has its own free quota, so an answer restarts on the next model on 429/5xx/404/400/timeout (3.6-flash → 3-flash-preview → 3.5-flash-lite → 3.1-flash-lite); Today's sentence uses only the Flash-Lite models, capped at 12/hour per user | Measured on production: 3.8-flash hangs, 2.5-flash is closed to new keys, 3.6-flash's free quota ran out after a few minutes of testing |
 | DEC-52 | **Price trust signals** on offers that are the right bottle: "Unusually low price" when an offer is under 65% of the median of at least three comparable offers (or, with fewer, under 65% of the brand band's floor for a ≥ 75 ml bottle); "Marketplace seller" for eBay, Poshmark, Mercari and similar. Flags never reorder or hide offers; a plain note explains them; the advisor's price tool carries them and must mention them | Live check: the cheapest exact match was an eBay listing at ~40% of typical retail. Fakes, testers and old stock are priced like that. Inform, don't filter: some are real deals |
 | DEC-53 | **"Show what was hidden"**: every rejected listing (title, merchant, price, reason) is listed in a collapsed section, without links | Makes the matcher's 100%-precision claim checkable by any user, and exposes matcher mistakes instead of burying them |
+| DEC-54 | **Conversation memory**: the advisor sends the newest 10 messages (it had been loading the oldest 20, so long chats froze); the chat survives moving around the app in the same tab (session storage, per account) with a "New chat" reset; the rule-based fallback reads a short follow-up ("now under $100", "what about for evenings?") as a change to the previous request, keeping everything it doesn't restate | Users had to re-type their whole request: leaving the page wiped the chat, and when Gemini was busy the fallback read each message alone. Session storage, not local storage, so a shared computer forgets the chat when the tab closes |
+| DEC-55 | **Search and save on the Wishlist** (linked from Discover): a catalog search with one-click "Save", marking bottles you own or already saved | Users who already know the bottle they want shouldn't need to ask the advisor or scroll Discover to save it |
 | DEC-29 | Email confirmation is off locally; when sign-up returns a session the user goes straight to onboarding. Hosted setting: see Q-02 | Keeps E2E deterministic without Mailpit |
 
 ## Open (owner input needed)
@@ -111,6 +113,7 @@ If you read ten, read these.
 |---|---|
 | 26 Oct 2026 | Free model option: DEC-46 to DEC-51; Q-03 revised |
 | 27 Oct 2026 | Live prices: DEC-52, DEC-53 |
+| 9 Nov 2026 | Advisor memory and wishlist search: DEC-54, DEC-55 |
 | 22 Oct 2026 | Collection Intelligence (PRD 08) and redesign: DEC-34 to DEC-45; PRD 08 §16 resolved |
 | 21 Oct 2026 | Owner answers: Q-01 → DEC-30, Q-04 → DEC-31, Q-02/Q-03 approved. DEC-32 added |
 | 21 Oct 2026 | Register created. DEC-01 to DEC-29; Q-01 to Q-04 |

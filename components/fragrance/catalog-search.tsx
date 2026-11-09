@@ -15,15 +15,11 @@ import { DataQuality, Rating } from "./bits";
 
 const SENTIMENT_LABEL: Record<Sentiment, string> = { love: "Love it", like: "Like it", neutral: "It's fine", dislike: "Not for me" };
 
-export function CatalogSearch({ ownedIds, initialCount }: { ownedIds: string[]; initialCount: number }) {
-  const [q, setQ] = useState("");
-  const [page, setPage] = useState(0);
+/** Debounced catalog search shared by Add and the wishlist's quick search. Pages append with `page`. */
+export function useCatalogSearch(q: string, page: number) {
   const [result, setResult] = useState<CatalogSearchResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [owned, setOwned] = useState(new Set(ownedIds));
-  const [count, setCount] = useState(initialCount);
-  const [justAdded, setJustAdded] = useState<string | null>(null);
   const reqId = useRef(0);
 
   useEffect(() => {
@@ -50,7 +46,16 @@ export function CatalogSearch({ ownedIds, initialCount }: { ownedIds: string[]; 
 
   // Results for a cleared or too-short query are hidden rather than reset inside the effect.
   const active = q.trim().length >= 2;
-  const shown = active ? result : null;
+  return { active, shown: active ? result : null, loading, error: active ? error : null };
+}
+
+export function CatalogSearch({ ownedIds, initialCount }: { ownedIds: string[]; initialCount: number }) {
+  const [q, setQ] = useState("");
+  const [page, setPage] = useState(0);
+  const { active, shown, loading, error } = useCatalogSearch(q, page);
+  const [owned, setOwned] = useState(new Set(ownedIds));
+  const [count, setCount] = useState(initialCount);
+  const [justAdded, setJustAdded] = useState<string | null>(null);
   const failed = shown?.sources.filter((s) => s.status === "error") ?? [];
   const toFive = Math.max(0, 5 - count);
 

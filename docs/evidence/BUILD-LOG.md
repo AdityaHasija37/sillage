@@ -66,3 +66,11 @@ What was built, in order, and what testing caught along the way. Dates are 21 Oc
 ## 10. UX audit, 27 Oct 2026
 - Full desktop + phone walkthrough; 8 findings, all shipped ([audit](../design/UX-AUDIT-2026-10.md)). Notable: the sample price demo was showing a wrong-concentration listing as "exact" (titles repeated the concentration) and advisor answers printed raw markdown.
 - 119 unit tests (formatter, contradictory titles, sample offers, pair suggestions), 14 E2E incl. the WCAG scan; the Today E2E now opens "More options" like a user would. Evals unchanged.
+
+## 11. Conversation memory and wishlist search (9 Nov 2026)
+
+- **Found by the owner:** follow-ups needed the whole request re-typed. Three causes in the code: the chat lived only in page state (leaving the advisor wiped it); the history query loaded the *oldest* 20 messages, so after ~10 exchanges the model stopped seeing recent ones (and a question and its answer shared a timestamp, so order on reload wasn't guaranteed); and the rule-based fallback read each message alone.
+- **Fixed:** newest-first history with a deterministic tie-break and separate inserts; chat restored from session storage per account with a "New chat" button; offline follow-ups merge into the previous request, changing only what they state (DEC-54).
+- **Added:** search and save on the Wishlist, linked from Discover (DEC-55).
+- 125 unit tests (6 new for follow-ups), 16 E2E (memory across navigation, wishlist search). Evals unchanged.
+
