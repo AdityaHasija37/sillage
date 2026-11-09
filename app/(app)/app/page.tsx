@@ -174,7 +174,7 @@ function EmptyShelf() {
       </div>
       <p className="label">An empty shelf</p>
       <h1 className="mt-3 text-5xl">Start with what you own</h1>
-      <p className="mt-4 text-muted-foreground">Add the bottles on your shelf; five is a good start. Search covers about 38,000 fragrances, typos and all.</p>
+      <p className="mt-4 text-muted-foreground">Add the bottles on your shelf; five is a good start. Search covers about 40,000 fragrances, typos and all.</p>
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <Link href="/app/add" className="inline-flex h-11 items-center gap-1.5 rounded-full bg-ink px-5 text-ink-foreground">
           <Plus className="size-4" aria-hidden="true" /> Add your first bottle

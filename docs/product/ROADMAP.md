@@ -37,4 +37,5 @@ The product is built and live; what it lacks is evidence. So **Now is about lear
 
 - **Interviews say the Score is "interesting but not useful"** → simplify it into the purchase preview and drop it from the Shelf.
 - **People love Today but ignore purchase help** → shift the product toward wearing what you own (wear calendar, rotation) and away from buying.
+- **The dataset stays unpublished for a quarter and requests pile up** → add a second catalog source for new launches (the merge already handles upgrading thin entries).
 - **Live price precision drops below 90%** → pause price features and fix the matcher before anything else; trust is the brand.

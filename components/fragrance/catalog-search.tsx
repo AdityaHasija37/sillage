@@ -11,7 +11,8 @@ import type { CatalogSearchResult, FragranceSummary } from "@/lib/catalog/servic
 import { FAMILY_LABEL } from "@/lib/domain/fragrance";
 import type { Sentiment } from "@/lib/domain/profile";
 import { ScentSwatch } from "./scent-swatch";
-import { DataQuality, Rating } from "./bits";
+import { DataQuality, EarlyData, Rating } from "./bits";
+import { RequestMissing } from "./request-missing";
 
 const SENTIMENT_LABEL: Record<Sentiment, string> = { love: "Love it", like: "Like it", neutral: "It's fine", dislike: "Not for me" };
 
@@ -99,7 +100,7 @@ export function CatalogSearch({ ownedIds, initialCount }: { ownedIds: string[]; 
         {loading && <Loader2 className="absolute top-1/2 right-3 size-4 -translate-y-1/2 animate-spin text-muted-foreground" aria-label="Searching" />}
       </div>
       <p id="catalog-hint" className="-mt-3 text-xs text-muted-foreground">
-        Typos are fine. Searches about 38,000 fragrances, plus Open Beauty Facts when nothing matches.
+        Typos are fine. Searches about 40,000 fragrances, plus Open Beauty Facts when nothing matches.
       </p>
 
       {active && error && (
@@ -114,8 +115,9 @@ export function CatalogSearch({ ownedIds, initialCount }: { ownedIds: string[]; 
       )}
 
       {shown && shown.items.length === 0 && !loading && (
-        <div className="rounded-md border border-dashed p-8 text-center text-sm text-muted-foreground">
-          No matches for “{q.trim()}”. Try the brand name alone, or a shorter spelling.
+        <div className="grid justify-items-center gap-3 rounded-md border border-dashed p-8 text-center text-sm text-muted-foreground">
+          <p>No matches for “{q.trim()}”. Try the brand name alone, or a shorter spelling.</p>
+          <RequestMissing query={q} prominent />
         </div>
       )}
 
@@ -136,6 +138,7 @@ export function CatalogSearch({ ownedIds, initialCount }: { ownedIds: string[]; 
           ))}
         </ul>
       )}
+      {shown && shown.items.length > 0 && !loading && <RequestMissing query={q} />}
       {shown?.hasMore && (
         <Button variant="outline" onClick={() => setPage((p) => p + 1)} disabled={loading} className="justify-self-center">
           Show more results
@@ -164,6 +167,7 @@ function ResultRow({ f, owned, justAdded, onAdded }: { f: FragranceSummary; owne
             {f.accords.length > 0 && <span className="truncate">{f.accords.join(", ")}</span>}
             {f.votes > 0 && <Rating rating={f.rating} votes={f.votes} />}
             {f.dataQuality === "unverified" && <DataQuality quality="unverified" />}
+            <EarlyData year={f.year} votes={f.votes} />
           </div>
         </div>
         {owned ? (

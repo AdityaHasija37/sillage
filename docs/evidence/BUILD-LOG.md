@@ -74,3 +74,12 @@ What was built, in order, and what testing caught along the way. Dates are 21 Oc
 - **Added:** search and save on the Wishlist, linked from Discover (DEC-55).
 - 125 unit tests (6 new for follow-ups), 16 E2E (memory across navigation, wishlist search). Evals unchanged.
 
+## 12. Catalog freshness (9 Nov 2026)
+
+- **Question from the owner:** how do future launches get in? The answer was "only if someone reruns two scripts", and even then the 50-vote minimum kept out most recent launches: 2,245 of the 5,136 fragrances from 2025–2026 in the dataset.
+- **Found while building:** the open dataset has been published once (20 Sep 2026), so a refresh job has to detect "nothing new" rather than reload 40k rows every month. The loader now compares the dataset's ETag with the last logged run.
+- **Built:** monthly GitHub Action with a skip on unchanged data (DEC-56); new releases from 5 votes with a visible label, Discover floor unchanged (DEC-57); private, rate-limited "Tell us it's missing" requests with an owner-only report (DEC-58); merge of unverified Open Beauty Facts entries into full entries, unambiguous matches only (DEC-59).
+- **Caught by testing:** `node:sqlite` needs `--experimental-sqlite` on Node 22.11 (now in the npm script); a pgTAP plan count was off by one.
+- **Verified locally:** a full build and load (40,610 rows), a planted unverified "Bleu de Chanel EDP 100ml" merged into the catalog's EDP, and a second run skipped the unchanged dataset. Evals v8: identical recommendation, offer and grounding results with the larger catalog.
+- 131 unit tests, 81 pgTAP assertions (19 new), 17 E2E.
+

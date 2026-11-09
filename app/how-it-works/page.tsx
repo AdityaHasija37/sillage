@@ -83,7 +83,7 @@ export default function HowItWorks() {
           <Section id="data" n="02" title="Where the data comes from">
             <div className="grid gap-6 text-muted-foreground md:grid-cols-2">
               <p>
-                <span className="text-foreground">About 38,000 fragrances</span> with notes, accords and community votes come from Fragrantica&apos;s public pages via the open{" "}
+                <span className="text-foreground">About 40,000 fragrances</span> with notes, accords and community votes come from Fragrantica&apos;s public pages via the open{" "}
                 <a href="https://codeberg.org/decant/pages" className="underline underline-offset-2">
                   Decant dataset
                 </a>
@@ -91,6 +91,9 @@ export default function HowItWorks() {
               </p>
               <p>
                 <span className="text-foreground">When search finds nothing</span>, Open Beauty Facts is queried live. Those listings have no notes, so they&apos;re marked unverified and can be collected but not recommended.
+              </p>
+              <p>
+                <span className="text-foreground">Keeping up with new launches.</span> A job checks the dataset every month and loads it when a new version is out. This year&apos;s and last year&apos;s releases are included from 5 community votes, labelled &ldquo;New release · few votes yet&rdquo;; Discover recommends them once they reach 50. When the full entry for an unverified listing arrives, bottles saved under the old one move over automatically. If you can&apos;t find a fragrance, &ldquo;Tell us it&apos;s missing&rdquo; under the search results records it for the next refresh.
               </p>
               <p>
                 <span className="text-foreground">Prices aren&apos;t in the data.</span> Budget filtering uses estimated price bands from each brand&apos;s typical pricing (395 brands), always labelled as estimates. Real prices only come from the price check.

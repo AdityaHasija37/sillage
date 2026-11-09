@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/session";
 import { getFragrance } from "@/lib/catalog/service";
+import { requestFragrance } from "@/lib/catalog/requests";
 import {
   addToCollection,
   addToWishlist,
@@ -63,6 +64,11 @@ export async function addWishlistAction(fragranceId: string): Promise<MutationRe
   const r = await addToWishlist(fragranceId);
   if (r.ok) refresh();
   return r;
+}
+
+export async function requestFragranceAction(query: string): Promise<MutationResult> {
+  const user = await requireUser();
+  return requestFragrance(user.id, String(query ?? ""));
 }
 
 export async function removeWishlistAction(id: string): Promise<MutationResult> {

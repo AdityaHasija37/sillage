@@ -81,6 +81,16 @@ test("Wishlist: search the catalog and save a known bottle without the advisor",
   await expect(page.getByText(/Aventus/).first()).toBeVisible();
 });
 
+test("Catalog: a search with no match can be reported as missing (DEC-58)", async ({ page }) => {
+  await startDemo(page);
+  await page.goto("/app/wishlist");
+  await page.getByLabel("Search fragrances to save").fill("Zzqx Imaginary Launch");
+  const tell = page.getByRole("button", { name: /Tell us .* is missing/ });
+  await expect(tell).toBeVisible({ timeout: 15_000 });
+  await tell.click();
+  await expect(page.getByText(/We'll look for .* in the next catalog refresh/)).toBeVisible();
+});
+
 test("SEC-02: two demo visitors get separate sandboxes", async ({ browser }) => {
   const a = await browser.newContext();
   const b = await browser.newContext();

@@ -7,7 +7,8 @@ npm install
 npx supabase start                 # local Postgres/Auth on ports 553xx
 cp .env.example .env.local         # fill from `npx supabase status`
 npm run catalog:build              # downloads the open dataset, writes .data/catalog.jsonl (~2 s)
-npm run catalog:load               # upserts ~38k fragrances (~10 s)
+npm run catalog:load               # upserts ~40k fragrances (~10 s), merges unverified entries; skips an already-loaded dataset (--force to reload)
+npm run catalog:requests           # most-requested missing fragrances (service role; owner only)
 npm run dev -- --port 3100
 ```
 

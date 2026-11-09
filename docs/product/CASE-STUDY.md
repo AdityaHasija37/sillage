@@ -93,12 +93,12 @@ The first version worked but looked generic. I redesigned it as an editorial pro
 
 | | Measured |
 |---|---|
-| Catalog | 38,365 fragrances; 20 / 20 common bottles found by name |
+| Catalog | 40,610 fragrances (2,245 recent launches), refreshed monthly; 20 / 20 common bottles found by name |
 | Price matching (61 adversarial listings) | Precision **100%**, recall 100% (from 83%) |
 | Recommendations (32 personas, criteria written first) | 29 / 32; exclusions honoured 100% |
 | Fabrications reaching users (adversarial) | **0 / 7** |
 | Collection Intelligence checks | 9 / 9 |
-| Quality | 125 unit tests, 62 database-security assertions, 16 end-to-end tests including a WCAG 2.2 AA scan |
+| Quality | 131 unit tests, 81 database-security assertions, 17 end-to-end tests including a WCAG 2.2 AA scan |
 | Cost to run | $0 (free tiers throughout) |
 
 What isn't measured yet: anything about real users. That's the next step.

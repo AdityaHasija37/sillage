@@ -11,7 +11,8 @@ import type { FragranceSummary } from "@/lib/catalog/service";
 import { FAMILY_LABEL } from "@/lib/domain/fragrance";
 import { useCatalogSearch } from "./catalog-search";
 import { ScentSwatch } from "./scent-swatch";
-import { Rating } from "./bits";
+import { EarlyData, Rating } from "./bits";
+import { RequestMissing } from "./request-missing";
 
 const FIRST_RESULTS = 5;
 
@@ -33,7 +34,7 @@ export function WishlistSearch({ ownedIds, savedIds }: { ownedIds: string[]; sav
         <h2 id="wishlist-search-title" className="text-xl">
           Know what you want?
         </h2>
-        <p className="mt-1 text-sm text-muted-foreground">Search about 38,000 fragrances and save one straight to your wishlist. Typos are fine.</p>
+        <p className="mt-1 text-sm text-muted-foreground">Search about 40,000 fragrances and save one straight to your wishlist. Typos are fine.</p>
       </div>
       <div className="relative">
         <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
@@ -61,7 +62,12 @@ export function WishlistSearch({ ownedIds, savedIds }: { ownedIds: string[]; sav
           {error}
         </p>
       )}
-      {shown && items.length === 0 && !loading && <p className="text-sm text-muted-foreground">No matches for “{q.trim()}”. Try the brand name alone.</p>}
+      {shown && items.length === 0 && !loading && (
+        <div className="grid gap-2">
+          <p className="text-sm text-muted-foreground">No matches for “{q.trim()}”. Try the brand name alone.</p>
+          <RequestMissing query={q} prominent />
+        </div>
+      )}
       {visible.length > 0 && (
         <ul className="grid divide-y rounded-md border" aria-label="Search results">
           {visible.map((f) => (
@@ -69,6 +75,7 @@ export function WishlistSearch({ ownedIds, savedIds }: { ownedIds: string[]; sav
           ))}
         </ul>
       )}
+      {visible.length > 0 && !loading && <RequestMissing query={q} />}
       {canShowMore && (
         <Button
           variant="outline"
@@ -105,6 +112,7 @@ function Row({ f, owned, saved }: { f: FragranceSummary; owned: boolean; saved: 
           <span>{f.family ? FAMILY_LABEL[f.family] : "Family unknown"}</span>
           {f.accords.length > 0 && <span className="hidden truncate sm:inline">{f.accords.join(", ")}</span>}
           {f.votes > 0 && <Rating rating={f.rating} votes={f.votes} />}
+          <EarlyData year={f.year} votes={f.votes} />
         </div>
       </div>
       {owned ? (

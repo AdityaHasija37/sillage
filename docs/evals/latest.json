@@ -1,41 +1,41 @@
 {
-  "generatedAt": "2026-10-27T08:07:27.667Z",
-  "label": "v7-ux",
+  "generatedAt": "2026-11-09T21:54:48.837Z",
+  "label": "v8-catalog",
   "engineVersion": "rec-1.3",
-  "durationMs": 5449,
+  "durationMs": 3325,
   "catalog": {
-    "fragrances": 38365,
+    "fragrances": 40610,
     "coverage": 1,
     "coverageRows": [
       {
         "query": "Sauvage",
         "found": true,
         "top": "Dior Sauvage",
-        "ms": 13
+        "ms": 8
       },
       {
         "query": "Bleu de Chanel",
         "found": true,
         "top": "Chanel Bleu de Chanel",
-        "ms": 14
+        "ms": 12
       },
       {
         "query": "Aventus",
         "found": true,
         "top": "Creed Aventus",
-        "ms": 7
+        "ms": 18
       },
       {
         "query": "Acqua di Gio",
         "found": true,
         "top": "Giorgio Armani Acqua di Gio",
-        "ms": 12
+        "ms": 11
       },
       {
         "query": "Light Blue",
         "found": true,
         "top": "Dolce&Gabbana Light Blue",
-        "ms": 8
+        "ms": 9
       },
       {
         "query": "La Vie Est Belle",
@@ -47,88 +47,88 @@
         "query": "Black Opium",
         "found": true,
         "top": "Yves Saint Laurent Black Opium",
-        "ms": 11
+        "ms": 8
       },
       {
         "query": "Baccarat Rouge 540",
         "found": true,
         "top": "Baccarat Rouge 540 Limited Edition",
-        "ms": 6
+        "ms": 5
       },
       {
         "query": "Tobacco Vanille",
         "found": true,
         "top": "Tom Ford Tobacco Vanille",
-        "ms": 18
+        "ms": 9
       },
       {
         "query": "Khamrah",
         "found": true,
         "top": "Lattafa Perfumes Khamrah",
-        "ms": 8
+        "ms": 3
       },
       {
         "query": "Le Male",
         "found": true,
         "top": "Jean Paul Gaultier Le Male",
-        "ms": 29
+        "ms": 17
       },
       {
         "query": "Eros",
         "found": true,
         "top": "Versace Eros",
-        "ms": 11
+        "ms": 6
       },
       {
         "query": "1 Million",
         "found": true,
         "top": "Rabanne 1 Million",
-        "ms": 20
+        "ms": 10
       },
       {
         "query": "Good Girl",
         "found": true,
         "top": "By Kilian Good Girl Gone Bad",
-        "ms": 10
+        "ms": 4
       },
       {
         "query": "Coco Mademoiselle",
         "found": true,
         "top": "Chanel Coco Mademoiselle",
-        "ms": 10
+        "ms": 5
       },
       {
         "query": "Santal 33",
         "found": true,
         "top": "Le Labo Santal 33",
-        "ms": 19
+        "ms": 8
       },
       {
         "query": "Terre d'Hermes",
         "found": true,
         "top": "Hermès Terre d'Hermes Parfum",
-        "ms": 16
+        "ms": 7
       },
       {
         "query": "Cool Water",
         "found": true,
         "top": "Davidoff Cool Water",
-        "ms": 10
+        "ms": 5
       },
       {
         "query": "Libre",
         "found": true,
         "top": "Librery Parfum Sun Ice",
-        "ms": 16
+        "ms": 12
       },
       {
         "query": "Cloud",
         "found": true,
-        "top": "Cloudy Scents [06] été crème",
-        "ms": 13
+        "top": "Cloudy Scents [05] 838",
+        "ms": 10
       }
     ],
-    "medianSearchMs": 12
+    "medianSearchMs": 9
   },
   "offers": {
     "pairs": 61,
@@ -188,7 +188,7 @@
         "passed": 10
       }
     },
-    "medianMs": 16.2,
+    "medianMs": 13.6,
     "poolSize": 3000,
     "cases": [
       {
@@ -278,7 +278,7 @@
             ]
           }
         ],
-        "ms": 33.8
+        "ms": 48.3
       },
       {
         "id": "S02",
@@ -363,7 +363,7 @@
             ]
           }
         ],
-        "ms": 15.7
+        "ms": 16.9
       },
       {
         "id": "S03",
@@ -449,7 +449,7 @@
             ]
           }
         ],
-        "ms": 11.2
+        "ms": 11.5
       },
       {
         "id": "S04",
@@ -534,7 +534,7 @@
             ]
           }
         ],
-        "ms": 15.4
+        "ms": 14.1
       },
       {
         "id": "S05",
@@ -611,7 +611,7 @@
             ]
           }
         ],
-        "ms": 14.7
+        "ms": 15.1
       },
       {
         "id": "S06",
@@ -695,7 +695,7 @@
             ]
           }
         ],
-        "ms": 38.1
+        "ms": 9.7
       },
       {
         "id": "S07",
@@ -782,7 +782,7 @@
             ]
           }
         ],
-        "ms": 9
+        "ms": 6.9
       },
       {
         "id": "S08",
@@ -863,7 +863,7 @@
             ]
           }
         ],
-        "ms": 18.8
+        "ms": 15
       },
       {
         "id": "S09",
@@ -948,7 +948,7 @@
             ]
           }
         ],
-        "ms": 22.5
+        "ms": 18.7
       },
       {
         "id": "S10",
@@ -1039,7 +1039,7 @@
             ]
           }
         ],
-        "ms": 23.4
+        "ms": 4.2
       },
       {
         "id": "S11",
@@ -1128,7 +1128,7 @@
             ]
           }
         ],
-        "ms": 25.2
+        "ms": 11.6
       },
       {
         "id": "S12",
@@ -1214,7 +1214,7 @@
             ]
           }
         ],
-        "ms": 18.5
+        "ms": 6.2
       },
       {
         "id": "D01",
@@ -1294,7 +1294,7 @@
             ]
           }
         ],
-        "ms": 24.6
+        "ms": 14.3
       },
       {
         "id": "D02",
@@ -1374,7 +1374,7 @@
             ]
           }
         ],
-        "ms": 18.2
+        "ms": 10.1
       },
       {
         "id": "D03",
@@ -1477,7 +1477,7 @@
             ]
           }
         ],
-        "ms": 14.5
+        "ms": 8.8
       },
       {
         "id": "D04",
@@ -1560,7 +1560,7 @@
             ]
           }
         ],
-        "ms": 12.1
+        "ms": 8.9
       },
       {
         "id": "D05",
@@ -1638,7 +1638,7 @@
             ]
           }
         ],
-        "ms": 16.5
+        "ms": 14.6
       },
       {
         "id": "D06",
@@ -1714,7 +1714,7 @@
             ]
           }
         ],
-        "ms": 10.1
+        "ms": 8.3
       },
       {
         "id": "D07",
@@ -1791,7 +1791,7 @@
             ]
           }
         ],
-        "ms": 13.1
+        "ms": 12.5
       },
       {
         "id": "D08",
@@ -1968,7 +1968,7 @@
             ]
           }
         ],
-        "ms": 8
+        "ms": 6.8
       },
       {
         "id": "D10",
@@ -2047,7 +2047,7 @@
             ]
           }
         ],
-        "ms": 12.4
+        "ms": 11
       },
       {
         "id": "G01",
@@ -2139,7 +2139,7 @@
             ]
           }
         ],
-        "ms": 16.2
+        "ms": 15.5
       },
       {
         "id": "G02",
@@ -2229,7 +2229,7 @@
             ]
           }
         ],
-        "ms": 15.7
+        "ms": 14.8
       },
       {
         "id": "G03",
@@ -2300,7 +2300,7 @@
             ]
           }
         ],
-        "ms": 23.1
+        "ms": 17.4
       },
       {
         "id": "G04",
@@ -2372,7 +2372,7 @@
             ]
           }
         ],
-        "ms": 7.6
+        "ms": 10.2
       },
       {
         "id": "G05",
@@ -2448,7 +2448,7 @@
             ]
           }
         ],
-        "ms": 15.3
+        "ms": 13.6
       },
       {
         "id": "G06",
@@ -2529,7 +2529,7 @@
             ]
           }
         ],
-        "ms": 2.4
+        "ms": 2.6
       },
       {
         "id": "G07",
@@ -2618,7 +2618,7 @@
             ]
           }
         ],
-        "ms": 16.8
+        "ms": 19.5
       },
       {
         "id": "G08",
@@ -2693,7 +2693,7 @@
             ]
           }
         ],
-        "ms": 20.4
+        "ms": 17.1
       },
       {
         "id": "G09",
@@ -2782,7 +2782,7 @@
             ]
           }
         ],
-        "ms": 19.2
+        "ms": 17.8
       },
       {
         "id": "G10",
@@ -2870,7 +2870,7 @@
             ]
           }
         ],
-        "ms": 26.7
+        "ms": 27.6
       }
     ]
   },

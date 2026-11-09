@@ -3,6 +3,7 @@ import {
   allNotes,
   dayShare,
   displayName,
+  ESTABLISHED_VOTES,
   FAMILIES,
   PRICE_BAND_RANGE,
   seasonShares,
@@ -268,7 +269,8 @@ export function recommendCandidates(
       continue;
     }
     const votes = f.community?.votes ?? 0;
-    if ((f.community?.rating ?? 0) < 3.4 || votes < 50) {
+    // New releases with fewer votes are searchable and work on your shelf, but aren't recommended yet (DEC-57).
+    if ((f.community?.rating ?? 0) < 3.4 || votes < ESTABLISHED_VOTES) {
       excluded.lowQuality++;
       continue;
     }

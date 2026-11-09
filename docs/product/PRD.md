@@ -58,15 +58,15 @@ Full jobs to be done: [one-pager](ONE-PAGER.md#jobs-to-be-done).
 | Area | Capability | Priority | Status | Shipped |
 |---|---|---|---|---|
 | Access | Email auth; private demo sandbox without sign-up (24 h) | P0 | ✅ | v1 |
-| Catalog | 38k-fragrance search with typo tolerance, exact variant selection, live fallback | P0 | ✅ | v1 |
-| Collection | Owned list with rating and sentiment; wishlist; preferences | P0 | ✅ | v1 |
+| Catalog | 40k-fragrance search with typo tolerance, exact variant selection, live fallback; monthly refresh, new releases, missing-fragrance requests | P0 | ✅ | v1 · v2.4 |
+| Collection | Owned list with rating and sentiment; wishlist with search and save; preferences | P0 | ✅ | v1 · v2.3 |
 | Shelf | Family mix, season × time coverage, signature accords | P0 | ✅ | v1 |
 | Discover | Similar / Different / Fill gaps; price-band and style filters | P0 | ✅ | v1 · v2.1 |
 | Collection Score | Five dimensions, strengths, gaps, candidate preview | P0 | ✅ | v2 |
 | Today | Owned-only daily pick with weather, feedback and rotation | P1 | ✅ | v2 |
 | Scent Lab | Pair prediction, notebook, wear log, suggested pairings | P1 | ✅ | v2 · v2.2 |
 | Price check | Exact-variant matching, live offers, trust flags, hidden-listing list | P0 | ✅ | v1 · v2.2 |
-| AI advisor | One agent, ten tools, grounding, model fallback, offline mode | P0 | ✅ | v1 · v2.1 |
+| AI advisor | One agent, ten tools, grounding, model fallback, offline mode, conversation memory | P0 | ✅ | v1 · v2.1 · v2.3 |
 | Evals | Public eval page and versioned history | P0 | ✅ | v1 |
 
 ## 7. Requirements
@@ -85,7 +85,7 @@ Each requirement maps to code and tests in [TRACEABILITY.md](../TRACEABILITY.md)
 | FR-06 | Similar, Different, Fill gaps with ranked suggestions | Owned and near-copies excluded; every pick has reasons and caveats | ✅ |
 | FR-07 | Optional AI chat over the user's own data via safe tools | See 7.4 | ✅ |
 | FR-08 | Detail page with sourced notes, accords and data completeness | Every page links to its source | ✅ |
-| FR-09 | Wishlist add, remove, move to owned | Persisted per user (RLS) | ✅ |
+| FR-09 | Wishlist add, remove, move to owned; search the catalog and save from the Wishlist | Persisted per user (RLS); owned and already-saved bottles marked in search | ✅ v2.3 |
 | FR-10 | On-demand, variant-aware price search with attribution | See 7.3 | ✅ |
 | FR-11 | Relevant / not-relevant feedback | Stored against the recommendation run | ✅ |
 | FR-12 | Partial results and safe error states | Every external dependency has a labelled fallback | ✅ |
@@ -121,6 +121,16 @@ Each requirement maps to code and tests in [TRACEABILITY.md](../TRACEABILITY.md)
 | AI-06 | Provider-neutral (Gemini free tier or Claude); overload, quota or timeout moves to the next free model | ✅ v2.1 |
 | AI-07 | With no model, answers from the same engines in a labelled rule-based mode | ✅ |
 | AI-08 | Every answer shows its tool calls, model, latency, tokens and grounding result | ✅ |
+| AI-09 | Remembers the conversation: the newest 10 messages go to the model; the chat survives moving around the app (same tab) with a "New chat" reset; the rule-based mode reads short follow-ups as changes to the previous request | ✅ v2.3 |
+
+### 7.5 Catalog freshness
+
+| ID | Requirement | Acceptance | Status |
+|---|---|---|---|
+| CF-01 | The catalog refreshes monthly without manual work | Scheduled job; an unchanged dataset is detected and skipped; every run logged; last run in `/api/health` | ✅ v2.4 |
+| CF-02 | This year's and last year's launches are searchable from 5 votes, clearly labelled | "New release · few votes yet" with the vote count; Discover still requires 50 votes | ✅ v2.4 (2,245 added) |
+| CF-03 | A user can report a fragrance search couldn't find | One tap; private to the user; de-duplicated; rate-limited; aggregate service-only | ✅ v2.4 |
+| CF-04 | Unverified live-fallback entries upgrade to the full entry when it arrives | Unambiguous matches only; user rows move, nothing duplicated; tested in pgTAP | ✅ v2.4 |
 
 ## 8. Non-functional requirements
 
@@ -145,6 +155,8 @@ North Star: **weekly active collectors who complete a decision** (log a wear, pr
 | v2 | 22 Oct | Collection Score, Today, Scent Lab (PRD 08); editorial redesign |
 | v2.1 | 26 Oct | Provider-neutral advisor on Gemini's free tier; price-band and style filters |
 | v2.2 | 27 Oct | Live prices, trust flags, hidden-listing list; UX audit (8 fixes) |
+| v2.3 | 9 Nov | Advisor conversation memory; search and save on the Wishlist |
+| v2.4 | 9 Nov | Catalog freshness: monthly refresh, new releases, missing-fragrance requests, unverified-entry merge |
 
 ## 11. Risks and dependencies
 
@@ -155,6 +167,7 @@ North Star: **weekly active collectors who complete a decision** (log a wear, pr
 | Free model latency and quota | High | Medium | Fallback chain, 50 s budget, rule-based mode |
 | Google Shopping format changes | Medium | Medium | URL normalisation, hidden-listing list exposes matcher drift |
 | Dataset licence or availability | Low | High | Facts and aggregates only, source links, nothing committed |
+| The dataset isn't republished (one release so far, 20 Sep 2026) | Medium | Medium | Monthly check; live fallback for very new launches; requests measure the gap; a second source if it stays stale |
 
 ## 12. Open questions
 

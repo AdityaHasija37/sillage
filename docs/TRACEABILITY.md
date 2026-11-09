@@ -7,17 +7,22 @@ Every P0/P1 requirement in the [PRD](specs/01_Sillage_PRD.md) and test ID in the
 | FR | Requirement | Implementation | Evidence |
 |---|---|---|---|
 | FR-01 | Email auth; demo without sign-in | `app/(auth)/*`, `lib/supabase/proxy.ts`, `lib/demo/provision.ts`, `app/demo/actions.ts` | E2E `demo.spec` E2E-01, SEC-02; `journey.spec` sign-up; DB `001_rls` |
-| FR-02 | Search a broad catalog by brand/name; choose exact variant | `scripts/build-catalog.mjs` (38,365 records), `search_fragrances()` (trigram), `lib/catalog/{adapters,service}.ts` (Open Beauty Facts live fallback), `GET /api/catalog/search`, variant selector in `components/offers/offer-panel.tsx`, `ensure_variant()` | E2E `journey.spec` (5 searches); EV catalog coverage 20/20; DB variant tests |
+| FR-02 | Search a broad catalog by brand/name; choose exact variant | `scripts/build-catalog.mjs` (40,610 records, incl. 2,245 new releases), `search_fragrances()` (trigram), `lib/catalog/{adapters,service}.ts` (Open Beauty Facts live fallback), `GET /api/catalog/search`, variant selector in `components/offers/offer-panel.tsx`, `ensure_variant()` | E2E `journey.spec` (5 searches); EV catalog coverage 20/20; DB variant tests |
 | FR-03 | Add/remove owned, rating and liking | `lib/collection/service.ts`, `components/fragrance/{catalog-search,collection-grid}.tsx` | E2E `journey.spec` COL-01; DB duplicate + sentiment constraints |
 | FR-04 | Preferences: notes to seek/avoid, budget, context, performance | `components/preferences/preferences-form.tsx`, `savePreferences()`, engine `contextFit()` | E2E `journey.spec` PRO-01; U "saved preferred seasons" |
 | FR-05 | Dashboard: count, family mix, season/occasion coverage | `app/(app)/app/page.tsx`, `lib/domain/profile.ts` (`buildProfile`, `coverageCells`) | E2E `demo.spec` DASH-01 counts; a11y scan |
 | FR-06 | Similar / Different / Fill gaps with ranked suggestions | `lib/recommendation/engine.ts`, `service.ts`, `components/discover/discover.tsx` | U REC-01..05 (+ variants); EV 30 personas; E2E E2E-01/02 |
 | FR-07 | Optional AI chat using profile and collection via safe tools | `lib/agent/{advisor,gemini,tools,grounding,context}.ts` (Gemini or Claude, DEC-46), `POST /api/chat`, `components/advisor/*` | U AI-01..03, SEC-05, `advisor-gemini.test` (loop, schemas, quota, safety block, round cap); EV grounding; E2E FR-07 |
 | FR-08 | Detail with sourced notes, accords, data completeness | `app/(app)/app/fragrance/[id]/page.tsx`, `GET /api/fragrances/:id` | E2E E2E-01; a11y scan |
-| FR-09 | Wishlist add/remove, move to owned | `lib/collection/service.ts`, `components/fragrance/wishlist-list.tsx` | E2E `journey.spec` WISH-01 |
+| FR-09 | Wishlist add/remove, move to owned; search and save | `lib/collection/service.ts`, `components/fragrance/{wishlist-list,wishlist-search}.tsx`, `useCatalogSearch` | E2E `journey.spec` WISH-01; E2E `demo.spec` wishlist search |
 | FR-10 | On-demand price search, variant-aware, attributed | `lib/offers/{match,providers,service}.ts`, `compareOffersAction` | U SHOP-01..06; EV 61 adversarial pairs; E2E E2E-01 |
 | FR-11 | Relevant / not-relevant feedback (P1) | `recommendation_feedback`, `feedbackAction` | E2E FDBK-01; DB feedback ownership |
 | FR-12 | Partial results and safe error states | Source status in search, sample-offer notices, offline advisor, Discover empty state | E2E `degraded.spec` E2E-03, SEC-04; U ERR-04 (`discover-empty.test`), AI-03 |
+| AI-09 | Conversation memory | `app/api/chat/route.ts` (newest-first history), `components/advisor/advisor-panel.tsx` (session storage, New chat), `resolveOffline()` in `lib/agent/advisor.ts` | U offline follow-ups (6); E2E `demo.spec` memory across navigation |
+| CF-01 | Monthly catalog refresh | `.github/workflows/catalog-refresh.yml`, `scripts/{build,load}-catalog.mjs` (version stamp, skip, log), `catalog_refreshes`, `/api/health` | DB `003_catalog_freshness`; local run: load, then skip on unchanged |
+| CF-02 | New releases from 5 votes, labelled | `build-catalog.mjs` (`--new-min-votes`), `voteMaturity()`, `EarlyData` badge, engine floor `ESTABLISHED_VOTES` | U `catalog-freshness.test`; EV v8 (personas unchanged) |
+| CF-03 | Missing-fragrance requests | `fragrance_requests`, `top_fragrance_requests()`, `lib/catalog/requests.ts`, `components/fragrance/request-missing.tsx`, `scripts/catalog-requests.mjs` | DB `003` (owner-only, dedupe, aggregate service-only); U normalisation; E2E `demo.spec` |
+| CF-04 | Merge unverified entries | `lib/catalog/merge-match.mjs`, `merge_fragrance()` | U matching (unambiguous only); DB `003` (rows move, duplicates dropped, pair re-keyed) |
 | FR-13 | Public demo, links to GitHub and docs | `app/page.tsx`, `/how-it-works`, `/evals`, footer links | E2E DEMO-01 (no login, < 2 min) |
 
 ## QA test IDs
@@ -77,8 +82,8 @@ Every P0/P1 requirement in the [PRD](specs/01_Sillage_PRD.md) and test ID in the
 | Gate | Status |
 |---|---|
 | A: types, build, lint | Pass (`npm run check`) |
-| B: deterministic scoring and variant tests | Pass (125 unit tests) |
-| C: authenticated access and RLS | Pass (62 pgTAP assertions) |
+| B: deterministic scoring and variant tests | Pass (131 unit tests) |
+| C: authenticated access and RLS | Pass (81 pgTAP assertions) |
 | D: demo walkthrough public without sign-up | Pass locally and on https://sillage-rosy.vercel.app |
 | E: shipping and size caveats render | Pass (E2E-01, SHOP-05) |
 | F: docs and limitations match shipping features | This file, README "Status and honest caveats" |

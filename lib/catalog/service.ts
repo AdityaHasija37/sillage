@@ -56,7 +56,7 @@ export function toSummary(f: Fragrance): FragranceSummary {
 const PAGE = 20;
 
 /**
- * Search the stored catalog first (≈38k fragrances), then — only when that comes back thin on the
+ * Search the stored catalog first (≈40k fragrances), then — only when that comes back thin on the
  * first page — a live open provider. Live results are cached into the catalog so they can be
  * collected. A provider failure is reported in `sources`; it never produces made-up items (CAT-02).
  */

@@ -68,7 +68,8 @@ sequenceDiagram
 
 - Tool calls in one round run in parallel; all results return in one message.
 - On the last allowed round the tools stay declared but the model must answer in text.
-- History is replayed as plain text (last 10 turns), so no stale reasoning data is ever re-sent.
+- History is replayed as plain text (the newest 10 messages, in a fixed order), so no stale reasoning data is ever re-sent. The chat itself survives moving around the app in the same tab, with a "New chat" reset (DEC-54).
+- The rule-based mode has memory too: a short follow-up ("now under $100", "what about for evenings?") changes only what it states in the previous request, and the answer says how it read the request.
 
 ## 5. Tools: split by permission
 

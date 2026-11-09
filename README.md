@@ -21,8 +21,8 @@ A fragrance collection manager with a grounded AI agent, built end to end as a p
 | **Problem** | Collectors with a dozen bottles still buy the wrong next one (a fifth fresh blue scent, the EDT when they wanted the EDP, a "deal" that's a tester) and wear the same bottle every day. Fragrantica knows every perfume but not your shelf; chatbots don't know your shelf and will invent a price. |
 | **Product** | Start from what you own. Sillage scores how well your collection covers your life, picks what to wear today, predicts how two bottles might layer, recommends what to buy next with reasons and caveats, and checks prices for the exact bottle. An AI agent ties it together in plain English. |
 | **AI design** | One agent, ten typed tools, deterministic engines underneath. The model plans and explains; tested code ranks, scores and matches. Anything a tool didn't return is removed before you see it. Runs free on Gemini, or on Claude with one key. |
-| **My role** | Product owner, end to end: two spec-first PRDs, 63 logged decisions, eval criteria written before the first run, a UX audit, and launch on production. Built with Claude Code as the engineer. |
-| **Evidence** | 38,365-fragrance open catalog · exact-bottle price matching at **100% precision** on 61 adversarial listings (up from 83%) · **0 of 7** planted fake products or prices reached users · 125 unit, 62 database-security and 16 end-to-end tests including a WCAG 2.2 AA scan. |
+| **My role** | Product owner, end to end: two spec-first PRDs, 67 logged decisions, eval criteria written before the first run, a UX audit, and launch on production. Built with Claude Code as the engineer. |
+| **Evidence** | 40,610-fragrance open catalog, refreshed monthly · exact-bottle price matching at **100% precision** on 61 adversarial listings (up from 83%) · **0 of 7** planted fake products or prices reached users · 131 unit, 81 database-security and 17 end-to-end tests including a WCAG 2.2 AA scan. |
 | **Honest status** | Live MVP on free tiers. Not yet tested with real users; the bet below is a hypothesis, and the [roadmap](docs/product/ROADMAP.md) starts with five interviews. |
 
 > **The bet.** Recommendations get far more relevant when they start from what you own and what you've said you like, and they're only trustworthy when every claim traces back to data.
@@ -40,7 +40,7 @@ A fragrance collection manager with a grounded AI agent, built end to end as a p
 
 | | |
 |---|---|
-| **Your shelf, understood.** Add bottles from 38k fragrances. See your family mix, which seasons and times of day you can cover, and your signature accords, weighted by how much you like each bottle. | **Collection Score.** 0–100 across five explained dimensions, with strengths, gaps and a fix for each gap. Missing data lowers confidence; it's never scored as zero. |
+| **Your shelf, understood.** Add bottles from 40k fragrances, including this year's launches. See your family mix, which seasons and times of day you can cover, and your signature accords, weighted by how much you like each bottle. | **Collection Score.** 0–100 across five explained dimensions, with strengths, gaps and a fix for each gap. Missing data lowers confidence; it's never scored as zero. |
 | ![Shelf](docs/images/shelf.jpg) | ![Collection Score](docs/images/score.jpg) |
 | **"What would it change?"** Preview any bottle against your shelf before buying: Now → With it, and the bottle it overlaps most. | **Today.** Pick the occasion and the weather; it ranks only bottles you own, explains why, and learns from "Wore this". |
 | ![Score simulator](docs/images/simulator.jpg) | ![Today](docs/images/today.jpg) |
@@ -78,6 +78,7 @@ Pass criteria were written **before** each run. Every run is kept in [docs/evals
 | v2 | Flanker detection: an allowlist of words the matcher understands | **100%** | 28 / 30 | 0 / 7 |
 | v3 | Budget alternatives became a user choice, not a tuning exercise | 100% | 29 / 32 | 0 / 7 |
 | v4–v7 | Collection Intelligence (9 / 9 checks), free model, price trust, UX audit | 100% | 29 / 32 | 0 / 7 |
+| v8 | Catalog grows to 40,610 with 2,245 new releases; Discover still waits for 50 votes | 100% | 29 / 32 | 0 / 7 |
 
 The two personas that still fail are a product question, not a bug: for a Tobacco Vanille lover the engine prefers close alternatives from smaller houses over the famous names I annotated. Users now choose whether to see labelled budget alternatives ([DEC-30](docs/DECISIONS.md)).
 
@@ -89,7 +90,7 @@ Production taught as much as the evals: the first live price check hid every lis
 |---|---|
 | **Product** | [One-pager](docs/product/ONE-PAGER.md) · [PRD (living)](docs/product/PRD.md) · [Metrics & instrumentation](docs/product/METRICS.md) · [Roadmap](docs/product/ROADMAP.md) · [Case study](docs/product/CASE-STUDY.md) |
 | **Design** | [Agent design](docs/design/AGENT-DESIGN.md) · [UX audit](docs/design/UX-AUDIT-2026-10.md) |
-| **Governance** | [Decision log (63)](docs/DECISIONS.md) · [Requirements → code → tests](docs/TRACEABILITY.md) · [Eval report](docs/evals/REPORT.md) · [Build log](docs/evidence/BUILD-LOG.md) |
+| **Governance** | [Decision log (67)](docs/DECISIONS.md) · [Requirements → code → tests](docs/TRACEABILITY.md) · [Eval report](docs/evals/REPORT.md) · [Build log](docs/evidence/BUILD-LOG.md) |
 | **Source specs** | [The original spec pack and PRD 08](docs/specs/README.md) the build was checked against |
 | **Engineering** | [Local development](docs/DEVELOPMENT.md) · [Deploy](docs/DEPLOY.md) |
 
@@ -101,13 +102,25 @@ I worked as product owner with an AI coding agent (Claude Code) as the engineer:
 
 **Stack:** Next.js 16 (App Router), TypeScript, Supabase (Postgres, Auth, row-level security), Gemini and Claude APIs (tool use), Zod, Tailwind. Tested with Vitest, pgTAP and Playwright with axe.
 
-**Data:** 38,365 fragrances with notes, accords and community votes from Fragrantica's public catalogue via the open [Decant dataset](https://codeberg.org/decant/pages) (downloaded at build, never committed; facts and aggregates only, every page links to its source). Live fallback to [Open Beauty Facts](https://world.openbeautyfacts.org), weather from [Open-Meteo](https://open-meteo.com), optional live prices from Google Shopping via SerpApi.
+**Data:** 40,610 fragrances with notes, accords and community votes from Fragrantica's public catalogue via the open [Decant dataset](https://codeberg.org/decant/pages) (downloaded at build, never committed; facts and aggregates only, every page links to its source). Live fallback to [Open Beauty Facts](https://world.openbeautyfacts.org), weather from [Open-Meteo](https://open-meteo.com), optional live prices from Google Shopping via SerpApi.
+
+## Keeping the catalog current
+
+New fragrances launch every month, so the catalog can't be a one-off import.
+
+- **Monthly refresh.** A [scheduled GitHub Action](.github/workflows/catalog-refresh.yml) rebuilds the catalog from the open dataset and loads it into production. It records the dataset's version, so an unchanged dataset isn't reloaded, and every run is logged (`/api/health` shows the last one).
+- **New releases sooner.** This year's and last year's launches are included from 5 community votes instead of 50 (2,245 more fragrances today), labelled "New release · few votes yet". You can own, wishlist and price them; Discover recommends them once they reach 50 votes.
+- **"Tell us it's missing."** A search that doesn't find what you meant can be reported in one tap. Requests are private, de-duplicated and rate-limited; `npm run catalog:requests` lists the most-requested ones for the owner.
+- **Unverified entries upgrade themselves.** A bottle added from the live Open Beauty Facts fallback (no notes or votes) is merged into the full entry when a refresh brings it in, carrying over collections, wishlists, wears and pairings. Only unambiguous matches are merged.
+
+The honest limit: the dataset was last published on 20 Sep 2026, so the refresh can only add what the dataset adds. Requests show what's missing in the meantime ([DEC-56–59](docs/DECISIONS.md)).
 
 ## Status and honest caveats
 
 - MVP portfolio project on free tiers. **Not yet tested with real users.**
 - Notes, seasons and longevity are community votes, shown as estimates. Occasion fit is *inferred* and labelled; score weights are a reasoned starting point, not industry-validated.
 - Scent Lab predictions are heuristics from an accord ruleset, labelled experimental.
+- The catalog is only as current as the open dataset (last published 20 Sep 2026); very new launches may only be found through the unverified live fallback.
 - Price bands are brand-level estimates. Live prices cover what Google Shopping returns, not every store. No affiliate links; not affiliated with Fragrantica or any retailer.
 - The advisor runs on Gemini's free tier, so answers take 6–25 seconds and Google may use those requests to improve its products (stated on the privacy page).
 

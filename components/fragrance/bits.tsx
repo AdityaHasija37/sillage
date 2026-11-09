@@ -1,7 +1,7 @@
 import { Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { accordColor } from "@/lib/domain/accord-colors";
-import { FAMILY_LABEL, type Family } from "@/lib/domain/fragrance";
+import { ESTABLISHED_VOTES, FAMILY_LABEL, voteMaturity, type Family } from "@/lib/domain/fragrance";
 import { cn } from "@/lib/utils";
 
 export function AccordChips({ accords, max = 3, className }: { accords: string[]; max?: number; className?: string }) {
@@ -61,6 +61,18 @@ export function DataQuality({ quality }: { quality: "verified" | "partial" | "un
   return (
     <Badge variant="outline" title={hint} className={quality === "unverified" ? "border-warning/50 text-warning" : undefined}>
       {label}
+    </Badge>
+  );
+}
+
+/** Shown for recent launches (and other entries) with under 50 community votes (DEC-57). */
+export function EarlyData({ year, votes }: { year: number | null | undefined; votes: number }) {
+  const m = voteMaturity(year, votes);
+  if (!m) return null;
+  const hint = `Based on ${votes} community vote${votes === 1 ? "" : "s"} so far, so notes, seasons and ratings are early estimates. Discover recommends a fragrance once it has ${ESTABLISHED_VOTES} votes.`;
+  return (
+    <Badge variant="outline" title={hint} className="border-primary/40 text-primary">
+      {m === "new_release" ? "New release · few votes yet" : "Few votes yet"}
     </Badge>
   );
 }

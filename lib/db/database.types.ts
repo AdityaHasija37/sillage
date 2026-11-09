@@ -23,7 +23,21 @@ export type Database = {
           }
         },"public": {
           Tables: {
-            "chat_messages": {
+            "catalog_refreshes": {
+                  Row: {
+                    "created_at": string,"id": string,"loaded": number,"merged": number,"new_releases": number,"skipped_unchanged": boolean,"source": string,"source_published_at": string | null,"source_version": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"id"?: string,"loaded"?: number,"merged"?: number,"new_releases"?: number,"skipped_unchanged"?: boolean,"source": string,"source_published_at"?: string | null,"source_version"?: string | null
+                  }
+                  Update: {
+                    "created_at"?: string,"id"?: string,"loaded"?: number,"merged"?: number,"new_releases"?: number,"skipped_unchanged"?: boolean,"source"?: string,"source_published_at"?: string | null,"source_version"?: string | null
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"chat_messages": {
                   Row: {
                     "content": string,"created_at": string,"id": string,"role": string,"session_id": string,"tool_summary_json": NonNullable<Json>,"user_id": string
                   }
@@ -133,6 +147,20 @@ isOneToOne: false
                   }
                   Update: {
                     "created_at"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"fragrance_requests": {
+                  Row: {
+                    "created_at": string,"id": string,"normalized": string,"query": string,"user_id": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"id"?: string,"normalized": string,"query": string,"user_id"?: string | null
+                  }
+                  Update: {
+                    "created_at"?: string,"id"?: string,"normalized"?: string,"query"?: string,"user_id"?: string | null
                   }
                   Relationships: [
                     
@@ -397,6 +425,9 @@ isOneToOne: false
 "expired_demo_accounts":
 { Args: { "p_limit"?: number }; Returns: string[]
                            },
+"merge_fragrance":
+{ Args: { "p_from": string,"p_to": string }; Returns: undefined
+                           },
 "owns_chat":
 { Args: { "p_session": string }; Returns: boolean
                            },
@@ -451,7 +482,12 @@ isOneToOne: false
         to: "fragrances"
         isOneToOne: false
         isSetofReturn: true
-      } }
+      } },
+"top_fragrance_requests":
+{ Args: { "p_limit"?: number }; Returns: {
+              "example": string,"last_requested": string,"normalized": string,"now_in_catalog": boolean,"requests": number
+            }[]
+                           }
           }
           Enums: {
             [_ in never]: never

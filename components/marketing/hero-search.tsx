@@ -47,7 +47,7 @@ export function HeroSearch() {
           id="hero-q"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Search 38,000 fragrances"
+          placeholder="Search 40,000 fragrances"
           autoComplete="off"
           className="w-full bg-transparent font-heading text-2xl outline-none placeholder:text-muted-foreground/70 sm:text-3xl"
         />

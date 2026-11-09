@@ -208,3 +208,15 @@ export function adjustedRating(f: Pick<Fragrance, "community">, prior = 3.9, wei
 export function displayName(f: Pick<Fragrance, "brand" | "name">): string {
   return `${f.brand} ${f.name}`;
 }
+
+/** Community votes a fragrance needs before Discover recommends it (and before the catalog includes older ones). */
+export const ESTABLISHED_VOTES = 50;
+
+/**
+ * Launches from this year or last enter the catalog with as few as 5 votes (DEC-57), so their notes,
+ * seasons and ratings are early estimates. Null when there are enough votes, or none at all.
+ */
+export function voteMaturity(year: number | null | undefined, votes: number, now: Date = new Date()): "new_release" | "few_votes" | null {
+  if (!votes || votes >= ESTABLISHED_VOTES) return null;
+  return year != null && year >= now.getFullYear() - 1 ? "new_release" : "few_votes";
+}

@@ -6,7 +6,11 @@
 // identity, note pyramid, accord strengths, community vote aggregates and short review-theme
 // labels. Long-form descriptions and Fragrantica's images are deliberately dropped.
 //
-// Usage: node scripts/build-catalog.mjs [--min-votes 50] [--src <dir with perfumes.db + perfumes_cold.db>]
+// Recent launches (this year and last) are kept with as few as --new-min-votes votes, so new releases
+// appear months before they reach 50 (DEC-57). The dataset version (ETag) is written next to the catalog
+// so the loader can skip a dataset it has already loaded.
+//
+// Usage: node scripts/build-catalog.mjs [--min-votes 50] [--new-min-votes 5] [--src <dir with perfumes.db + perfumes_cold.db>]
 
 import { createWriteStream, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { gunzipSync } from "node:zlib";
@@ -23,11 +27,21 @@ const arg = (name, fallback) => {
   return i >= 0 ? args[i + 1] : fallback;
 };
 const MIN_VOTES = Number(arg("min-votes", "50"));
+const NEW_MIN_VOTES = Number(arg("new-min-votes", "5"));
+const RECENT_FROM = new Date().getFullYear() - 1;
 const srcDir = path.resolve(arg("src", path.join(root, ".data", "decant")));
 const SOURCE = "https://codeberg.org/decant/pages/raw/branch/pages";
 
+const versions = {};
 async function ensureSource(file) {
   const target = path.join(srcDir, file);
+  // The dataset's version, even when a local copy is reused (a HEAD request is cheap).
+  try {
+    const head = await fetch(`${SOURCE}/${file}.gz`, { method: "HEAD" });
+    versions[file] = { etag: head.headers.get("etag"), lastModified: head.headers.get("last-modified") };
+  } catch {
+    versions[file] = { etag: null, lastModified: null };
+  }
   if (existsSync(target)) return target;
   mkdirSync(srcDir, { recursive: true });
   console.log(`Downloading ${file}.gz from ${SOURCE} …`);
@@ -110,9 +124,9 @@ const coldStmt = cold.prepare("select doc from perfumes_cold where id = ?");
 const rows = hot
   .prepare(
     `select p.*, b.name as brand from perfumes p join brands b on b.id = p.brand_id
-     where p.vote_count >= ? and p.name is not null order by p.magnitude desc`,
+     where (p.vote_count >= ? or (p.year >= ? and p.vote_count >= ?)) and p.name is not null order by p.magnitude desc`,
   )
-  .all(MIN_VOTES);
+  .all(MIN_VOTES, RECENT_FROM, NEW_MIN_VOTES);
 
 const kept = new Set(rows.map((r) => r.id));
 const BAND_INDEX = { under_50: 0, "50_100": 1, "100_200": 2, "200_plus": 3 };
@@ -120,7 +134,7 @@ const bandOf = new Map(rows.map((r) => [r.id, brandTiers[r.brand]?.band ?? null]
 const nameOf = new Map(rows.map((r) => [r.id, `${r.brand} ${r.name}`]));
 mkdirSync(path.join(root, ".data"), { recursive: true });
 const out = createWriteStream(path.join(root, ".data", "catalog.jsonl"));
-const stats = { total: 0, withFamily: 0, withConcentration: 0, withSizes: 0, withPriceBand: 0, withThemes: 0, alternatives: 0 };
+const stats = { total: 0, newReleases: 0, withFamily: 0, withConcentration: 0, withSizes: 0, withPriceBand: 0, withThemes: 0, alternatives: 0 };
 
 for (const r of rows) {
   const doc = JSON.parse(coldStmt.get(r.id)?.doc ?? "{}");
@@ -199,6 +213,7 @@ for (const r of rows) {
     sourceUrl: `https://www.fragrantica.com/perfume/${r.slug}-${r.id}.html`,
   };
   stats.total++;
+  if (r.vote_count < MIN_VOTES) stats.newReleases++;
   if (record.family) stats.withFamily++;
   if (record.concentration) stats.withConcentration++;
   if (sizes.length) stats.withSizes++;
@@ -211,4 +226,15 @@ await new Promise((resolve) => out.on("finish", resolve));
 // Closing here also keeps both handles reachable: node:sqlite finalizes statements of a GC'd db.
 hot.close();
 cold.close();
-console.log(JSON.stringify({ minVotes: MIN_VOTES, ...stats }, null, 2));
+const sourceVersion = Object.entries(versions)
+  .map(([file, v]) => `${file}@${v.etag ?? "unknown"}`)
+  .sort()
+  .join(" ");
+const published = Object.values(versions)
+  .map((v) => (v.lastModified ? new Date(v.lastModified).getTime() : 0))
+  .reduce((a, b) => Math.max(a, b), 0);
+writeFileSync(
+  path.join(root, ".data", "catalog-meta.json"),
+  JSON.stringify({ source: "fragrantica_decant", sourceVersion, sourcePublishedAt: published ? new Date(published).toISOString() : null, total: stats.total, newReleases: stats.newReleases, builtAt: new Date().toISOString() }, null, 2),
+);
+console.log(JSON.stringify({ minVotes: MIN_VOTES, newMinVotes: NEW_MIN_VOTES, recentFrom: RECENT_FROM, sourceVersion, ...stats }, null, 2));

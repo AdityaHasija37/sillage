@@ -44,6 +44,8 @@ flowchart TD
 | **Price precision** | Exact-match precision on a monthly labelled sample of 50 live listings | ≥ 95% | manual labelling (planned) |
 | **Cost per answer** | Model spend per advisor answer | $0 on the free tier; ≤ $0.02 if moved to a paid model | trace `costUsd`, provider console |
 | **Accessibility** | Serious or critical axe violations on app screens | 0 | CI end-to-end suite |
+| **Catalog misses** | Missing-fragrance requests per 100 weekly active users, and how many of the top 25 a refresh resolved | Investigate a second data source above 5 per 100, or if a refresh resolves none of the top 25 | `fragrance_requests`, `top_fragrance_requests()` |
+| **Catalog freshness** | Days since the last successful refresh; days since the dataset was published | Refresh ≤ 35 days; dataset age reviewed quarterly | `catalog_refreshes`, `/api/health` |
 
 ## What's instrumented today
 
@@ -51,6 +53,7 @@ flowchart TD
 |---|---|
 | Product events: `collection_score_viewed`, `score_preview_completed`, `daily_selector_run`, `daily_pick_feedback_submitted`, `layering_prediction_created`, `layering_experiment_saved`, `layering_feedback_submitted` | ✅ Insert-only `product_events` table with a name and property allowlist (no free text, no location) |
 | Wears, Discover runs and relevance votes, advisor traces, offer snapshots | ✅ In their own tables, row-level secured |
+| Missing-fragrance requests, catalog refresh runs | ✅ `fragrance_requests` (owner-only; aggregate service-only), `catalog_refreshes` (service-only) |
 | Retailer link clicks, wishlist-after-preview attribution, sign-up funnel | ⬜ Not yet (next instrumentation pass) |
 | Dashboards | ⬜ None yet: with no users, the first readout is qualitative |
 

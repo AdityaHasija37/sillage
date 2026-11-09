@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import { headers } from "next/headers";
 import { createServiceClient } from "@/lib/supabase/admin";
 
-export type RateBucket = "chat" | "offers" | "catalog_live" | "demo" | "explain";
+export type RateBucket = "chat" | "offers" | "catalog_live" | "demo" | "explain" | "request";
 
 /** Per-bucket limits. Chosen to keep a public demo's API spend bounded (PRD: cost control). */
 export const RATE_LIMITS: Record<RateBucket, { limit: number; windowSeconds: number }> = {
@@ -12,6 +12,8 @@ export const RATE_LIMITS: Record<RateBucket, { limit: number; windowSeconds: num
   // Today's AI-phrased sentence; past the limit the deterministic template is used.
   explain: { limit: 12, windowSeconds: 3600 },
   catalog_live: { limit: 60, windowSeconds: 3600 },
+  // "Can't find it?" requests for missing fragrances.
+  request: { limit: 10, windowSeconds: 3600 },
   // Overridable for local end-to-end runs, which create many sandboxes from one address.
   demo: { limit: Number(process.env.DEMO_HOURLY_LIMIT) || 5, windowSeconds: 3600 },
 };
@@ -31,6 +33,6 @@ export async function claimRate(bucket: RateBucket, subject: string): Promise<bo
     if (error) throw error;
     return data === true;
   } catch {
-    return bucket === "catalog_live" || bucket === "demo";
+    return bucket === "catalog_live" || bucket === "demo" || bucket === "request";
   }
 }

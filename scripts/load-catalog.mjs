@@ -1,13 +1,16 @@
 #!/usr/bin/env node
-// Upserts .data/catalog.jsonl (from build-catalog.mjs) into the fragrances table.
-// Idempotent: keyed on (provider, external_id). Uses the service role, so run it only from a
-// trusted machine. Usage: node scripts/load-catalog.mjs [--env .env.local] [--limit N]
+// Upserts .data/catalog.jsonl (from build-catalog.mjs) into the fragrances table, then merges
+// unverified Open Beauty Facts entries into full catalog entries (DEC-59) and logs the refresh.
+// Idempotent: keyed on (provider, external_id). A dataset version that is already loaded is skipped
+// unless --force (the merge still runs). Uses the service role, so run it only from a trusted machine
+// or the scheduled refresh job. Usage: node scripts/load-catalog.mjs [--env .env.local] [--limit N] [--force]
 
-import { createReadStream, existsSync } from "node:fs";
+import { createReadStream, existsSync, readFileSync } from "node:fs";
 import { createInterface } from "node:readline";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createClient } from "@supabase/supabase-js";
+import { matchUnverified } from "../lib/catalog/merge-match.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const args = process.argv.slice(2);
@@ -57,6 +60,14 @@ const toRow = (r) => ({
   metadata_quality: "partial",
 });
 
+const force = args.includes("--force");
+const metaFile = path.join(root, ".data", "catalog-meta.json");
+const meta = existsSync(metaFile) ? JSON.parse(readFileSync(metaFile, "utf8")) : { sourceVersion: null, sourcePublishedAt: null, newReleases: 0 };
+
+// 1. Skip a dataset version that is already loaded.
+const { data: last } = await db.from("catalog_refreshes").select("source_version").eq("skipped_unchanged", false).order("created_at", { ascending: false }).limit(1).maybeSingle();
+const unchanged = !force && meta.sourceVersion && !meta.sourceVersion.includes("unknown") && last?.source_version === meta.sourceVersion;
+
 let batch = [];
 let done = 0;
 async function flush() {
@@ -68,12 +79,54 @@ async function flush() {
   if (done % 4000 === 0) console.log(`  ${done} rows`);
 }
 
+// The catalog's names, for matching unverified entries (step 2), read in the same pass.
+const names = [];
 const lines = createInterface({ input: createReadStream(file), crlfDelay: Infinity });
 for await (const line of lines) {
   if (!line.trim()) continue;
-  batch.push(toRow(JSON.parse(line)));
+  const r = JSON.parse(line);
+  names.push({ externalId: r.externalId, brand: r.brand, name: r.name });
+  if (unchanged) continue;
+  batch.push(toRow(r));
   if (batch.length >= BATCH) await flush();
   if (done + batch.length >= limit) break;
 }
 await flush();
-console.log(`Loaded ${done} fragrances into ${new URL(url).host}`);
+console.log(unchanged ? `Dataset ${meta.sourceVersion} is already loaded; skipped the upsert (use --force to reload).` : `Loaded ${done} fragrances into ${new URL(url).host}`);
+
+// 2. Merge unverified entries that the catalog now has in full.
+const unverified = [];
+for (let from = 0; ; from += 1000) {
+  const { data, error } = await db.from("fragrances").select("id, brand, name").eq("provider", "openbeautyfacts").eq("metadata_quality", "unverified").range(from, from + 999);
+  if (error) throw new Error(`Reading unverified entries failed: ${error.message}`);
+  unverified.push(...data);
+  if (data.length < 1000) break;
+}
+const matches = matchUnverified(unverified, names);
+let merged = 0;
+for (let i = 0; i < matches.length; i += 200) {
+  const chunk = matches.slice(i, i + 200);
+  const { data: targets, error } = await db.from("fragrances").select("id, external_id").eq("provider", "fragrantica_decant").in("external_id", chunk.map((m) => m.toExternalId));
+  if (error) throw new Error(`Looking up merge targets failed: ${error.message}`);
+  const idOf = new Map(targets.map((t) => [t.external_id, t.id]));
+  for (const m of chunk) {
+    const to = idOf.get(m.toExternalId);
+    if (!to) continue;
+    const { error: mergeError } = await db.rpc("merge_fragrance", { p_from: m.fromId, p_to: to });
+    if (mergeError) console.warn(`  could not merge ${m.fromId}: ${mergeError.message}`);
+    else merged++;
+  }
+}
+console.log(`Merged ${merged} of ${unverified.length} unverified entries into full catalog entries.`);
+
+// 3. Log the refresh (no user data: counts and the dataset version only).
+const { error: logError } = await db.from("catalog_refreshes").insert({
+  source: "fragrantica_decant",
+  source_version: meta.sourceVersion,
+  source_published_at: meta.sourcePublishedAt,
+  loaded: done,
+  new_releases: unchanged ? 0 : (meta.newReleases ?? 0),
+  merged,
+  skipped_unchanged: Boolean(unchanged),
+});
+if (logError) console.warn(`Could not log the refresh: ${logError.message}`);

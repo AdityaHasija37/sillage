@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ExternalLink, ThumbsDown, ThumbsUp } from "lucide-react";
-import { AccordBars, DataQuality, FamilyBadge, Rating } from "@/components/fragrance/bits";
+import { AccordBars, DataQuality, EarlyData, FamilyBadge, Rating } from "@/components/fragrance/bits";
+import { ESTABLISHED_VOTES, voteMaturity } from "@/lib/domain/fragrance";
 import { FragranceActions } from "@/components/fragrance/fragrance-actions";
 import { ScentSwatch } from "@/components/fragrance/scent-swatch";
 import { OfferPanel } from "@/components/offers/offer-panel";
@@ -62,9 +63,15 @@ export default async function FragrancePage({ params }: PageProps<"/app/fragranc
             {f.year && <span className="text-muted-foreground">· {f.year}</span>}
             <span className="text-muted-foreground">· {f.concentration ? CONC_LABEL[f.concentration] : "Concentration not specified"}</span>
             <DataQuality quality={f.dataQuality} />
+            <EarlyData year={f.year} votes={c?.votes ?? 0} />
           </div>
           {f.perfumers.length > 0 && <p className="mt-2 text-sm text-muted-foreground">Perfumer: {f.perfumers.join(", ")}</p>}
           {c && <Rating rating={c.rating} votes={c.votes} className="mt-3 text-sm" />}
+          {c && voteMaturity(f.year, c.votes) && (
+            <p className="mt-2 max-w-xl text-xs text-muted-foreground">
+              Early estimates from {c.votes} community vote{c.votes === 1 ? "" : "s"}. You can own, wishlist and price it now; Discover starts recommending it once it has {ESTABLISHED_VOTES} votes.
+            </p>
+          )}
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <FragranceActions fragranceId={f.id} owned={isOwned} wishlisted={isWished} />
             {!isOwned && (

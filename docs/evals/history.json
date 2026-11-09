@@ -110,5 +110,19 @@
     "relevance": 0.9464285714285714,
     "fabricated": 0,
     "intelligence": "9/9"
+  },
+  {
+    "file": "2026-11-09-v8-catalog.json",
+    "label": "v8-catalog",
+    "generatedAt": "2026-11-09T21:54:48.837Z",
+    "engineVersion": "rec-1.3",
+    "offerPrecision": 1,
+    "offerRecall": 1,
+    "recPassed": 29,
+    "recTotal": 32,
+    "exclusionCompliance": 1,
+    "relevance": 0.9464285714285714,
+    "fabricated": 0,
+    "intelligence": "9/9"
   }
 ]

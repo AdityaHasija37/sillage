@@ -1,6 +1,6 @@
 # Decision log
 
-Every product and engineering call made while building Sillage, with the reason for it. 8 decisions came from the spec pack (D-001 to D-008); 55 were made during the build (DEC-01 to DEC-55). Status: **Adopted** (spec default or owner call), **Proposed** (my default, open to change), **Open** (needs an owner answer).
+Every product and engineering call made while building Sillage, with the reason for it. 8 decisions came from the spec pack (D-001 to D-008); 59 were made during the build (DEC-01 to DEC-59). Status: **Adopted** (spec default or owner call), **Proposed** (my default, open to change), **Open** (needs an owner answer).
 
 ## The decisions that shaped the product
 
@@ -95,6 +95,10 @@ If you read ten, read these.
 | DEC-53 | **"Show what was hidden"**: every rejected listing (title, merchant, price, reason) is listed in a collapsed section, without links | Makes the matcher's 100%-precision claim checkable by any user, and exposes matcher mistakes instead of burying them |
 | DEC-54 | **Conversation memory**: the advisor sends the newest 10 messages (it had been loading the oldest 20, so long chats froze); the chat survives moving around the app in the same tab (session storage, per account) with a "New chat" reset; the rule-based fallback reads a short follow-up ("now under $100", "what about for evenings?") as a change to the previous request, keeping everything it doesn't restate | Users had to re-type their whole request: leaving the page wiped the chat, and when Gemini was busy the fallback read each message alone. Session storage, not local storage, so a shared computer forgets the chat when the tab closes |
 | DEC-55 | **Search and save on the Wishlist** (linked from Discover): a catalog search with one-click "Save", marking bottles you own or already saved | Users who already know the bottle they want shouldn't need to ask the advisor or scroll Discover to save it |
+| DEC-56 | **Monthly catalog refresh** as a scheduled GitHub Action (3rd of each month, or on demand): rebuild from the Decant dataset, load with the service role, skip the load when the dataset's version (ETag) is unchanged, and log every run in a service-only `catalog_refreshes` table that `/api/health` summarises (dates only) | New launches need a path in without someone remembering to run scripts. The dataset has been published once (20 Sep 2026), so detecting "nothing new" matters as much as loading; logs carry counts, never user data, because Actions logs are public on a public repo |
+| DEC-57 | **New releases from 5 votes**: fragrances from this year and last enter the catalog with ≥ 5 community votes (others still need 50), labelled "New release · few votes yet" with the vote count. Discover's quality floor stays at 50 votes | A launch can take months to reach 50 votes; people want to log and price it now. Keeping the Discover floor means recommendations don't change quality (v8 evals identical to v7) |
+| DEC-58 | **"Tell us it's missing"** under catalog search results: stores what was typed (normalised, one per person, 10 per hour) in an owner-only `fragrance_requests` table; the most-requested list is readable only by the service role (`npm run catalog:requests`), never shown publicly or printed by CI. Demo requests survive the sandbox's deletion as anonymous demand | Turns dead-end searches into a ranked to-do list for the catalog. Typed text is user content, so it stays private |
+| DEC-59 | **Merge unverified entries** into the full entry when a refresh brings it in: matched on brand and name with sizes, sprays and abbreviations normalised, and only when exactly one catalog entry matches; `merge_fragrance()` moves collections, wishlists, wears, feedback and pairings (re-keyed), drops a moved row the user already has, then deletes the unverified entry | A bottle added from the Open Beauty Facts fallback has no notes or votes, so it does nothing for the Score, Today or Discover. Merging upgrades it without the user doing anything; ambiguous matches are left alone rather than guessed |
 | DEC-29 | Email confirmation is off locally; when sign-up returns a session the user goes straight to onboarding. Hosted setting: see Q-02 | Keeps E2E deterministic without Mailpit |
 
 ## Open (owner input needed)
@@ -114,6 +118,7 @@ If you read ten, read these.
 | 26 Oct 2026 | Free model option: DEC-46 to DEC-51; Q-03 revised |
 | 27 Oct 2026 | Live prices: DEC-52, DEC-53 |
 | 9 Nov 2026 | Advisor memory and wishlist search: DEC-54, DEC-55 |
+| 9 Nov 2026 | Catalog freshness: DEC-56 to DEC-59 |
 | 22 Oct 2026 | Collection Intelligence (PRD 08) and redesign: DEC-34 to DEC-45; PRD 08 §16 resolved |
 | 21 Oct 2026 | Owner answers: Q-01 → DEC-30, Q-04 → DEC-31, Q-02/Q-03 approved. DEC-32 added |
 | 21 Oct 2026 | Register created. DEC-01 to DEC-29; Q-01 to Q-04 |
