@@ -9,8 +9,12 @@ const display = Instrument_Serif({ variable: "--font-display", subsets: ["latin"
 const mono = IBM_Plex_Mono({ variable: "--font-plex-mono", subsets: ["latin"], weight: ["400", "500"] });
 
 export const metadata: Metadata = {
-  title: { default: "Sillage: know your shelf, find your next bottle", template: "%s · Sillage" },
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://sillage-rosy.vercel.app"),
+  title: { default: "SillageAI: know your shelf, find your next bottle", template: "%s · SillageAI" },
   description: "Track the fragrances you own, see what your collection says about your taste, and get grounded recommendations and honest price checks for the exact bottle.",
+  applicationName: "SillageAI",
+  openGraph: { type: "website", siteName: "SillageAI", title: "SillageAI: know your shelf, find your next bottle" },
+  twitter: { card: "summary_large_image" },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

@@ -8,5 +8,5 @@ export default defineConfig({
       "server-only": fileURLToPath(new URL("./tests/server-only-stub.ts", import.meta.url)),
     },
   },
-  test: { environment: "node", include: ["tests/evals/**/*.eval.ts"], testTimeout: 120_000 },
+  test: { environment: "node", include: ["tests/evals/**/*.eval.ts"], testTimeout: 600_000 },
 });

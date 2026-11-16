@@ -384,7 +384,7 @@ it("eval suite", async () => {
   console.log(
     `offers precision ${(offers.precision * 100).toFixed(1)}% recall ${(offers.recall * 100).toFixed(1)}% agreement ${(offers.agreement * 100).toFixed(1)}% | recs ${recommendations.passed}/${recommendations.total} (exclusions ${(recommendations.exclusionCompliance * 100).toFixed(1)}%, relevance ${(recommendations.relevance * 100).toFixed(1)}%) | grounding fabricated ${grounding.fabricated}/${grounding.injected} | coverage ${(catalog.coverage * 100).toFixed(0)}%`,
   );
-}, 120_000);
+}, 600_000);
 
 function markdown(r: {
   generatedAt: string;

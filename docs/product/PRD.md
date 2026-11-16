@@ -157,6 +157,7 @@ North Star: **weekly active collectors who complete a decision** (log a wear, pr
 | v2.2 | 27 Oct | Live prices, trust flags, hidden-listing list; UX audit (8 fixes) |
 | v2.3 | 9 Nov | Advisor conversation memory; search and save on the Wishlist |
 | v2.4 | 9 Nov | Catalog freshness: monthly refresh, new releases, missing-fragrance requests, unverified-entry merge |
+| v2.5 | 16 Nov | SillageAI brand and link-preview image; first live agent eval (8 / 8) |
 
 ## 11. Risks and dependencies
 

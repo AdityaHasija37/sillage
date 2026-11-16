@@ -119,5 +119,5 @@ What isn't measured yet: anything about real users. That's the next step.
 ## What's next
 
 1. **Five interviews** with 10+ bottle collectors: do they agree with their Score, would they open Today tomorrow, do they trust shelf-aware picks more?
-2. **Live agent eval** and **50 labelled live price listings**, published on `/evals`.
+2. **50 labelled live price listings**, published on `/evals`. (The live agent eval ran on 16 Nov 2026: 8 / 8 prompts met expectations on Gemini 3.6 Flash.)
 3. Then, if the bet holds: collection import, streaming answers, and a wear calendar. See the [roadmap](ROADMAP.md).

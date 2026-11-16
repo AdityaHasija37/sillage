@@ -9,7 +9,7 @@ The product is built and live; what it lacks is evidence. So **Now is about lear
 | Item | Why | Done when |
 |---|---|---|
 | **Five collector interviews** | The core bet (shelf-aware beats generic) is untested | Notes from five sessions with 10+ bottle owners; a written readout of what to keep, change or cut |
-| **Live agent eval** | The agent passes adversarial tests; real-prompt quality on the free model isn't measured yet | Eight prompts with expectations written first, published on `/evals` |
+| ~~**Live agent eval**~~ ✅ 16 Nov | The agent passes adversarial tests; real-prompt quality on the free model wasn't measured | Done: 8 / 8 prompts met expectations on Gemini 3.6 Flash, median 22 s, published on `/evals` |
 | **Label 50 live price listings** | 100% precision is on synthetic listings; real ones are messier | Precision and recall on live data in the eval report |
 | **Finish instrumentation** | Retailer clicks and preview → wishlist attribution are missing | Events in the allowlist; a first query for each input metric |
 

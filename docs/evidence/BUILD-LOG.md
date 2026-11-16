@@ -83,3 +83,10 @@ What was built, in order, and what testing caught along the way. Dates are 21 Oc
 - **Verified locally:** a full build and load (40,610 rows), a planted unverified "Bleu de Chanel EDP 100ml" merged into the catalog's EDP, and a second run skipped the unchanged dataset. Evals v8: identical recommendation, offer and grounding results with the larger catalog.
 - 131 unit tests, 81 pgTAP assertions (19 new), 17 E2E.
 
+## 13. Production rollout, live agent eval and brand (16 Nov 2026)
+
+- **Shipped to production:** the catalog-freshness migration, the app, and the first scheduled refresh run from GitHub Actions (about 3 minutes): 40,610 fragrances live, including 2,245 new releases. Four unverified entries were checked and none matched a full entry unambiguously, so none were merged. `/api/health` now reports the last refresh and the dataset's publish date. A missing-fragrance request from the demo shelf was written to the live table.
+- **Live agent eval (v9):** 8 / 8 prompts met the expectations written before the run, on Gemini 3.6 Flash, all answered by the model, median 22.2 s, nothing removed by the grounding check. The prompt-injection case searched the catalog, found no "Chanel No. 99", and recommended real bottles at real prices.
+- **Caught running it:** the suite's 2-minute limit was shorter than eight live calls with a 4-second gap between them. A command-line override didn't help because the test set its own limit; both are now 10 minutes. A first attempt also failed on a fixture lookup the local API didn't answer in time; the rerun found it.
+- **Brand (DEC-60):** four logo concepts, the owner picked the atomizer. The new mark is in the header, footer, sign-in, favicon and Apple touch icon, and the site now has a 1200×630 link-preview image, so links shared on LinkedIn show a picture. Source images, including a 1200×1200 square for posts, are in `docs/brand`.
+
