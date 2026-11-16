@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { ArrowRight, Check, Minus, X } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Check, Minus, X } from "lucide-react";
 import { SubmitButton } from "@/components/forms/submit-button";
 import { ScentSwatch } from "@/components/fragrance/scent-swatch";
 import { AgentWalkthrough } from "@/components/marketing/agent-walkthrough";
 import { HeroSearch } from "@/components/marketing/hero-search";
-import { SiteFooter, SiteHeader } from "@/components/marketing/site-header";
+import { GITHUB_URL, SiteFooter, SiteHeader } from "@/components/marketing/site-header";
 import { showcaseShelf } from "@/lib/catalog/showcase";
 import { demoEnabled } from "@/lib/demo/provision";
 import { FAMILY_LABEL, type Fragrance } from "@/lib/domain/fragrance";
@@ -55,6 +55,13 @@ export default async function Home({ searchParams }: PageProps<"/">) {
                 </Link>
               </div>
               <p className="mt-3 text-xs text-muted-foreground">No sign-up for the sample: six bottles, ready in seconds, gone after 24 hours.</p>
+              <p className="mt-8 border-t border-foreground/15 pt-4 text-sm text-muted-foreground">
+                Want to know more about the project?{" "}
+                <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-foreground underline decoration-border underline-offset-4 hover:decoration-primary">
+                  See how it was built on GitHub <ArrowUpRight aria-hidden="true" className="size-3.5" />
+                  <span className="sr-only">(opens in a new tab)</span>
+                </a>
+              </p>
             </div>
             <ShelfScene shelf={shelf} />
           </div>
