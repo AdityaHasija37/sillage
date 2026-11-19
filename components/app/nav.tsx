@@ -2,17 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Compass, FlaskConical, Heart, Library, MessageCircle, Sun } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { NAV } from "./nav-items";
 
-export const NAV = [
-  { href: "/app", label: "Shelf", icon: Library, exact: true },
-  { href: "/app/today", label: "Today", icon: Sun },
-  { href: "/app/discover", label: "Discover", icon: Compass },
-  { href: "/app/lab", label: "Scent Lab", icon: FlaskConical },
-  { href: "/app/advisor", label: "Advisor", icon: MessageCircle },
-  { href: "/app/wishlist", label: "Wishlist", icon: Heart },
-] as const;
+export { NAV };
 
 function isActive(pathname: string, href: string, exact?: boolean) {
   if (href === "/app") return pathname === "/app" || pathname.startsWith("/app/score") || pathname.startsWith("/app/collection") || pathname.startsWith("/app/add");

@@ -28,7 +28,7 @@ test("DS-01..05: Today picks from owned bottles, re-ranks without reload, and lo
   await startDemo(page);
   await page.goto("/app/today");
   const pick = page.getByRole("heading", { level: 2 });
-  await expect(page.getByText("Today's pick")).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByText("Today's pick", { exact: true })).toBeVisible({ timeout: 20_000 });
   const owned = ["Bleu de Chanel Eau de Parfum", "Tobacco Vanille", "Sauvage", "Jazz Club", "Wood Sage & Sea Salt", "Acqua di Gio"];
   expect(owned).toContain((await pick.innerText()).trim());
   await page.getByRole("radio", { name: "Evening & date" }).click();

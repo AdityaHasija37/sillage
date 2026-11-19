@@ -90,3 +90,11 @@ What was built, in order, and what testing caught along the way. Dates are 21 Oc
 - **Caught running it:** the suite's 2-minute limit was shorter than eight live calls with a 4-second gap between them. A command-line override didn't help because the test set its own limit; both are now 10 minutes. A first attempt also failed on a fixture lookup the local API didn't answer in time; the rerun found it.
 - **Brand (DEC-60):** four logo concepts, the owner picked the atomizer. The new mark is in the header, footer, sign-in, favicon and Apple touch icon, and the site now has a 1200×630 link-preview image, so links shared on LinkedIn show a picture. Source images, including a 1200×1200 square for posts, are in `docs/brand`.
 
+## 14. Landing page that explains the product (19 Nov 2026)
+
+- **Feedback:** visitors said the home page didn't explain what Sillage can do.
+- **Diagnosis:** the page was written for reviewers (problem, comparison table, agent design, eval numbers). Its "How it works" covered three ideas, while the app has six tabs; Today, Scent Lab and Wishlist search were never mentioned, and nothing said that adding and rating a few bottles is what makes the rest work.
+- **Built (DEC-61):** a "Six tabs, one shelf" guide straight after the hero, one card per tab with what it's for and when to use it, using the app's own tab names and icons (moved to a shared `nav-items.ts` so both read one list); a three-step getting-started strip with the sample-shelf button; a "Features" header link; the old section renamed "A closer look".
+- **Caught by testing:** two E2E checks looked for the text "Today's pick" loosely and failed when that day's pick explanation contained the same words; they now match the label exactly. The local Playwright browser also needed reinstalling to match the test runner.
+- 131 unit tests, 17 E2E with axe (all passing).
+

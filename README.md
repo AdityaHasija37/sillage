@@ -23,7 +23,7 @@ A fragrance collection manager with a grounded AI agent, built end to end as a p
 | **Problem** | Collectors with a dozen bottles still buy the wrong next one (a fifth fresh blue scent, the EDT when they wanted the EDP, a "deal" that's a tester) and wear the same bottle every day. Fragrantica knows every perfume but not your shelf; chatbots don't know your shelf and will invent a price. |
 | **Product** | Start from what you own. Sillage scores how well your collection covers your life, picks what to wear today, predicts how two bottles might layer, recommends what to buy next with reasons and caveats, and checks prices for the exact bottle. An AI agent ties it together in plain English. |
 | **AI design** | One agent, ten typed tools, deterministic engines underneath. The model plans and explains; tested code ranks, scores and matches. Anything a tool didn't return is removed before you see it. Runs free on Gemini, or on Claude with one key. |
-| **My role** | Product owner, end to end: two spec-first PRDs, 68 logged decisions, eval criteria written before the first run, a UX audit, and launch on production. Built with Claude Code as the engineer. |
+| **My role** | Product owner, end to end: two spec-first PRDs, 69 logged decisions, eval criteria written before the first run, a UX audit, and launch on production. Built with Claude Code as the engineer. |
 | **Evidence** | 40,610-fragrance open catalog, refreshed monthly · exact-bottle price matching at **100% precision** on 61 adversarial listings (up from 83%) · **0 of 7** planted fake products or prices reached users · 131 unit, 81 database-security and 17 end-to-end tests including a WCAG 2.2 AA scan. |
 | **Honest status** | Live MVP on free tiers. Not yet tested with real users; the bet below is a hypothesis, and the [roadmap](docs/product/ROADMAP.md) starts with five interviews. |
 
@@ -96,7 +96,7 @@ Production taught as much as the evals: the first live price check hid every lis
 | **Product** | [One-pager](docs/product/ONE-PAGER.md) · [PRD (living)](docs/product/PRD.md) · [Metrics & instrumentation](docs/product/METRICS.md) · [Roadmap](docs/product/ROADMAP.md) · [Case study](docs/product/CASE-STUDY.md) |
 | **Design** | [Agent design](docs/design/AGENT-DESIGN.md) · [UX audit](docs/design/UX-AUDIT-2026-10.md) |
 | **Brand** | [Logo, icon and share images](docs/brand) (SillageAI) |
-| **Governance** | [Decision log (68)](docs/DECISIONS.md) · [Requirements → code → tests](docs/TRACEABILITY.md) · [Eval report](docs/evals/REPORT.md) · [Build log](docs/evidence/BUILD-LOG.md) |
+| **Governance** | [Decision log (69)](docs/DECISIONS.md) · [Requirements → code → tests](docs/TRACEABILITY.md) · [Eval report](docs/evals/REPORT.md) · [Build log](docs/evidence/BUILD-LOG.md) |
 | **Source specs** | [The original spec pack and PRD 08](docs/specs/README.md) the build was checked against |
 | **Engineering** | [Local development](docs/DEVELOPMENT.md) · [Deploy](docs/DEPLOY.md) |
 

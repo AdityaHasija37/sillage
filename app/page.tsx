@@ -3,6 +3,7 @@ import { ArrowRight, ArrowUpRight, Check, Minus, X } from "lucide-react";
 import { SubmitButton } from "@/components/forms/submit-button";
 import { ScentSwatch } from "@/components/fragrance/scent-swatch";
 import { AgentWalkthrough } from "@/components/marketing/agent-walkthrough";
+import { FeatureGuide, GetStarted } from "@/components/marketing/feature-guide";
 import { HeroSearch } from "@/components/marketing/hero-search";
 import { GITHUB_URL, SiteFooter, SiteHeader } from "@/components/marketing/site-header";
 import { showcaseShelf } from "@/lib/catalog/showcase";
@@ -78,6 +79,21 @@ export default async function Home({ searchParams }: PageProps<"/">) {
           </div>
         </div>
 
+        {/* ── What you can do, and how to start ─────────────────── */}
+        <FeatureGuide />
+        <GetStarted>
+          {showDemo && (
+            <form action={startDemo}>
+              <SubmitButton size="lg" className="h-12 rounded-full bg-ink px-6 text-base text-ink-foreground hover:bg-[color-mix(in_oklch,var(--ink),white_12%)]" pendingLabel="Stocking your sample shelf…">
+                Try it on a sample shelf <ArrowRight aria-hidden="true" />
+              </SubmitButton>
+            </form>
+          )}
+          <Link href="/register" className="text-sm underline decoration-border underline-offset-4 hover:decoration-primary">
+            or start your own, free
+          </Link>
+        </GetStarted>
+
         {/* ── The problem ───────────────────────────────────────── */}
         <section className="mx-auto grid max-w-6xl gap-12 px-4 py-24 sm:px-6 lg:grid-cols-[1fr_1.1fr]">
           <div>
@@ -149,7 +165,7 @@ export default async function Home({ searchParams }: PageProps<"/">) {
 
         {/* ── Three acts ────────────────────────────────────────── */}
         <section className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
-          <p className="label">How it works</p>
+          <p className="label">A closer look</p>
           <div className="mt-10 grid gap-20">
             <Act n="I" title="Your shelf, mapped" body="Add what you own (typos are fine). Rate what you love; ownership alone counts for little. Sillage shows your scent mix, your signature accords and which seasons and times of day you can actually cover.">
               <CoverageSample />

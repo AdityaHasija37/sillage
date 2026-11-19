@@ -1,6 +1,6 @@
 # Decision log
 
-Every product and engineering call made while building Sillage, with the reason for it. 8 decisions came from the spec pack (D-001 to D-008); 60 were made during the build (DEC-01 to DEC-60). Status: **Adopted** (spec default or owner call), **Proposed** (my default, open to change), **Open** (needs an owner answer).
+Every product and engineering call made while building Sillage, with the reason for it. 8 decisions came from the spec pack (D-001 to D-008); 61 were made during the build (DEC-01 to DEC-61). Status: **Adopted** (spec default or owner call), **Proposed** (my default, open to change), **Open** (needs an owner answer).
 
 ## The decisions that shaped the product
 
@@ -100,6 +100,7 @@ If you read ten, read these.
 | DEC-58 | **"Tell us it's missing"** under catalog search results: stores what was typed (normalised, one per person, 10 per hour) in an owner-only `fragrance_requests` table; the most-requested list is readable only by the service role (`npm run catalog:requests`), never shown publicly or printed by CI. Demo requests survive the sandbox's deletion as anonymous demand | Turns dead-end searches into a ranked to-do list for the catalog. Typed text is user content, so it stays private |
 | DEC-59 | **Merge unverified entries** into the full entry when a refresh brings it in: matched on brand and name with sizes, sprays and abbreviations normalised, and only when exactly one catalog entry matches; `merge_fragrance()` moves collections, wishlists, wears, feedback and pairings (re-keyed), drops a moved row the user already has, then deletes the unverified entry | A bottle added from the Open Beauty Facts fallback has no notes or votes, so it does nothing for the Score, Today or Discover. Merging upgrades it without the user doing anything; ambiguous matches are left alone rather than guessed |
 | DEC-60 | **SillageAI brand**: an atomizer on an ink tile whose spray trail ends in a small spark, with the serif wordmark "Sillage" and an italic "AI" in the brand terracotta. Used in the header, footer, sign-in, favicon, Apple touch icon and a 1200×630 link-preview image; source images in `docs/brand` | Chosen by the owner from four concepts ahead of a LinkedIn launch. The most literal option reads instantly at small sizes; the trail keeps the meaning of the name (sillage is the trail a scent leaves) and the spark says AI without a robot. The site had no link-preview image, so shared links showed no picture |
+| DEC-61 | **Landing-page feature guide**: right after the hero, one card per app tab (Shelf, Today, Discover, Scent Lab, Advisor, Wishlist) with what it's for and "use it when…", then three getting-started steps with the sample-shelf button; a "Features" link in the header. Card names and icons come from the app's own navigation list, so the page can't drift from the product | Visitors said the landing page didn't explain what the app does. It was written for reviewers (problem, comparison, agent design, evals) and never mentioned Today, Scent Lab or Wishlist search, so people met unfamiliar tabs after signing in, with no hint that rating a few bottles is what makes everything work |
 | DEC-29 | Email confirmation is off locally; when sign-up returns a session the user goes straight to onboarding. Hosted setting: see Q-02 | Keeps E2E deterministic without Mailpit |
 
 ## Open (owner input needed)
@@ -121,6 +122,7 @@ If you read ten, read these.
 | 9 Nov 2026 | Advisor memory and wishlist search: DEC-54, DEC-55 |
 | 9 Nov 2026 | Catalog freshness: DEC-56 to DEC-59 |
 | 16 Nov 2026 | SillageAI brand: DEC-60 |
+| 19 Nov 2026 | Landing-page feature guide: DEC-61 |
 | 22 Oct 2026 | Collection Intelligence (PRD 08) and redesign: DEC-34 to DEC-45; PRD 08 §16 resolved |
 | 21 Oct 2026 | Owner answers: Q-01 → DEC-30, Q-04 → DEC-31, Q-02/Q-03 approved. DEC-32 added |
 | 21 Oct 2026 | Register created. DEC-01 to DEC-29; Q-01 to Q-04 |

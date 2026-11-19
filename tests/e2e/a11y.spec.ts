@@ -36,7 +36,7 @@ test("No serious or critical WCAG 2.2 AA violations on key screens", async ({ pa
   await page.getByText(/Sample offers, not live prices/).waitFor();
   await audit(page, "fragrance detail with offers");
   await page.goto("/app/today");
-  await page.getByText("Today's pick").waitFor({ timeout: 20_000 });
+  await page.getByText("Today's pick", { exact: true }).waitFor({ timeout: 20_000 });
   await audit(page, "today");
   await page.goto("/app/lab");
   await page.getByLabel("Bottle A").selectOption({ index: 1 });
